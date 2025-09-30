@@ -148,11 +148,22 @@ class EdgeTTSProvider(TTSProvider):
                     provider=self.provider_id
                 )
             
-            # Prepare text with SSML if needed
-            ssml_text = self._prepare_text(request, voice_info)
+            # Prepare text (plain text, not SSML since edge-tts handles prosody natively)
+            text = request.text.strip()
             
-            # Create TTS communication
-            communicate = edge_tts.Communicate(ssml_text, voice_info["Name"])
+            # Convert our speed/pitch/volume to edge-tts format
+            rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
+            volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
+            pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
+            
+            # Create TTS communication with native edge-tts parameters
+            communicate = edge_tts.Communicate(
+                text, 
+                voice_info["Name"],
+                rate=rate_param,
+                volume=volume_param,
+                pitch=pitch_param
+            )
             
             # Generate audio
             audio_data = b""
@@ -231,8 +242,22 @@ class EdgeTTSProvider(TTSProvider):
                     provider=self.provider_id
                 )
             
-            ssml_text = self._prepare_text(request, voice_info)
-            communicate = edge_tts.Communicate(ssml_text, voice_info["Name"])
+            # Prepare text (plain text, not SSML since edge-tts handles prosody natively)
+            text = request.text.strip()
+            
+            # Convert our speed/pitch/volume to edge-tts format
+            rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
+            volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
+            pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
+            
+            # Create TTS communication with native edge-tts parameters
+            communicate = edge_tts.Communicate(
+                text, 
+                voice_info["Name"],
+                rate=rate_param,
+                volume=volume_param,
+                pitch=pitch_param
+            )
             
             async for chunk in communicate.stream():
                 if chunk["type"] == "audio":
@@ -338,65 +363,6 @@ class EdgeTTSProvider(TTSProvider):
             logger.error(f"Failed to get voice info for {voice_id}: {e}")
             return None
     
-    def _prepare_text(self, request: TTSRequest, voice_info: Dict) -> str:
-        """Prepare text with SSML markup."""
-        text = request.text.strip()
-        
-        # If already SSML, return as-is
-        if text.startswith("<speak>") and text.endswith("</speak>"):
-            return text
-        
-        # Build SSML
-        ssml_parts = ['<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="{}">'.format(
-            voice_info.get("Locale", "en-US")
-        )]
-        
-        # Add voice element with prosody controls
-        prosody_attrs = []
-        if request.speed != 1.0:
-            speed_percent = int((request.speed - 1.0) * 100)
-            prosody_attrs.append(f'rate="{speed_percent:+d}%"')
-        
-        if request.pitch != 1.0:
-            pitch_percent = int((request.pitch - 1.0) * 100)
-            prosody_attrs.append(f'pitch="{pitch_percent:+d}%"')
-        
-        if request.volume != 1.0:
-            volume_level = "loud" if request.volume > 1.0 else "soft"
-            prosody_attrs.append(f'volume="{volume_level}"')
-        
-        if prosody_attrs:
-            ssml_parts.append(f'<prosody {" ".join(prosody_attrs)}>')
-        
-        # Add emotion/style if supported and specified
-        if request.emotion or request.style:
-            style = request.emotion or request.style
-            ssml_parts.append(f'<mstts:express-as style="{style}">')
-        
-        # Add the actual text
-        ssml_parts.append(self._escape_ssml(text))
-        
-        # Close tags
-        if request.emotion or request.style:
-            ssml_parts.append('</mstts:express-as>')
-        
-        if prosody_attrs:
-            ssml_parts.append('</prosody>')
-        
-        ssml_parts.append('</speak>')
-        
-        return "".join(ssml_parts)
-    
-    def _escape_ssml(self, text: str) -> str:
-        """Escape special characters for SSML."""
-        # Basic XML escaping
-        text = text.replace("&", "&amp;")
-        text = text.replace("<", "&lt;")
-        text = text.replace(">", "&gt;")
-        text = text.replace('"', "&quot;")
-        text = text.replace("'", "&apos;")
-        return text
-    
     async def _convert_audio_format(
         self, 
         audio_data: bytes, 
@@ -410,19 +376,49 @@ class EdgeTTSProvider(TTSProvider):
         try:
             from pydub import AudioSegment
             
-            # Load audio data
-            with tempfile.NamedTemporaryFile(suffix=f".{from_format.value}") as temp_in:
-                temp_in.write(audio_data)
-                temp_in.flush()
+            # Ensure formats are strings
+            from_fmt = from_format.value if hasattr(from_format, 'value') else str(from_format)
+            to_fmt = to_format.value if hasattr(to_format, 'value') else str(to_format)
+            
+            # Create temporary files with proper cleanup
+            temp_in_path = None
+            temp_out_path = None
+            
+            try:
+                # Create input temp file
+                with tempfile.NamedTemporaryFile(suffix=f".{from_fmt}", delete=False) as temp_in:
+                    temp_in_path = temp_in.name
+                    temp_in.write(audio_data)
                 
                 # Load with pydub
-                audio = AudioSegment.from_file(temp_in.name, format=from_format.value)
+                audio = AudioSegment.from_file(temp_in_path, format=from_fmt)
+                
+                # Create output temp file
+                with tempfile.NamedTemporaryFile(suffix=f".{to_fmt}", delete=False) as temp_out:
+                    temp_out_path = temp_out.name
                 
                 # Export to target format
-                with tempfile.NamedTemporaryFile(suffix=f".{to_format.value}") as temp_out:
-                    audio.export(temp_out.name, format=to_format.value)
-                    temp_out.seek(0)
-                    return temp_out.read()
+                audio.export(temp_out_path, format=to_fmt)
+                
+                # Read the converted audio
+                with open(temp_out_path, 'rb') as f:
+                    converted_data = f.read()
+                
+                return converted_data
+                
+            finally:
+                # Clean up temp files
+                if temp_in_path and os.path.exists(temp_in_path):
+                    try:
+                        os.unlink(temp_in_path)
+                    except OSError:
+                        logger.warning(f"Could not delete temp file: {temp_in_path}")
+                
+                if temp_out_path and os.path.exists(temp_out_path):
+                    try:
+                        os.unlink(temp_out_path)
+                    except OSError:
+                        logger.warning(f"Could not delete temp file: {temp_out_path}")
         
         except ImportError:
             logger.warning("pydub not available, cannot convert audio format")
