@@ -4,6 +4,8 @@ Simple Command Line Interface for VoiceGenHub.
 
 import asyncio
 import click
+import json
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -19,14 +21,20 @@ def cli():
 
 @cli.command()
 @click.argument("text")
-@click.option("--voice", "-v", help="Voice ID")
+@click.option("--voice", "-v", help="Voice ID (e.g., 'en-US-AriaNeural')")
 @click.option("--language", "-l", help="Language code (e.g., 'en')")
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
 @click.option("--format", "-f", type=click.Choice(["mp3", "wav"]), default="mp3", help="Audio format")
-def synthesize(text: str, voice: Optional[str], language: Optional[str], output: Optional[str], format: str):
+@click.option("--rate", "-r", type=float, default=1.0, help="Speech rate (0.5-2.0, default 1.0)")
+def synthesize(text: str, voice: Optional[str], language: Optional[str], output: Optional[str], format: str, rate: float):
     """Generate speech from text."""
     async def _synthesize():
         try:
+            # Validate rate parameter
+            if rate < 0.5 or rate > 2.0:
+                print("Error: Rate must be between 0.5 and 2.0", file=sys.stderr)
+                sys.exit(1)
+            
             tts = VoiceGenHub()
             await tts.initialize()
             
@@ -36,7 +44,8 @@ def synthesize(text: str, voice: Optional[str], language: Optional[str], output:
                 text=text,
                 voice=voice,
                 language=language,
-                audio_format=AudioFormat(format)
+                audio_format=AudioFormat(format),
+                speed=rate
             )
             
             output_path = Path(output) if output else Path(f"speech.{format}")
@@ -47,15 +56,16 @@ def synthesize(text: str, voice: Optional[str], language: Optional[str], output:
             print(f"Audio saved to: {output_path}")
             
         except Exception as e:
-            print(f"Error: {e}")
-            raise click.Abort()
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     
     asyncio.run(_synthesize())
 
 
 @cli.command()
 @click.option("--language", "-l", help="Filter by language")
-def voices(language: Optional[str]):
+@click.option("--format", "-f", type=click.Choice(["table", "json"]), default="table", help="Output format")
+def voices(language: Optional[str], format: str):
     """List available voices."""
     async def _list_voices():
         try:
@@ -64,20 +74,38 @@ def voices(language: Optional[str]):
             
             voices_data = await tts.get_voices(language=language)
             
-            print("Available Voices:")
-            print("-" * 50)
-            for voice in voices_data[:10]:  # Show first 10
-                print(f"{voice['id']} - {voice['name']} ({voice['language']})")
-            
-            if len(voices_data) > 10:
-                print(f"... and {len(voices_data) - 10} more voices")
+            if format == "json":
+                output = {
+                    "voices": [
+                        {
+                            "id": voice["id"],
+                            "language": voice["locale"],
+                            "gender": voice["gender"]
+                        }
+                        for voice in voices_data
+                    ]
+                }
+                print(json.dumps(output, indent=2))
+            else:
+                print("Available Voices:")
+                print("-" * 50)
+                for voice in voices_data[:10]:  # Show first 10
+                    print(f"{voice['id']} - {voice['name']} ({voice['language']})")
+                
+                if len(voices_data) > 10:
+                    print(f"... and {len(voices_data) - 10} more voices")
         
         except Exception as e:
-            print(f"Error: {e}")
-            raise click.Abort()
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     
     asyncio.run(_list_voices())
 
 
 if __name__ == "__main__":
+    cli()
+
+
+def main():
+    """Entry point for console script."""
     cli()
