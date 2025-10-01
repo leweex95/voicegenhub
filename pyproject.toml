@@ -1,6 +1,6 @@
 [project]
 name = "voicegenhub"
-version = "0.3.1"
+version = "0.3.2"
 description = "Simple Text-to-Speech library using Edge TTS"
 authors = [
     {name = "leweex95",email = "csibi.levente14@gmail.com"}

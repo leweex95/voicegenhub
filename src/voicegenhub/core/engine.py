@@ -71,6 +71,9 @@ class VoiceGenHub:
         """
         await self.initialize()
         
+        # Auto-detect SSML content
+        is_ssml = text.strip().startswith('<') and ('</speak>' in text or '<speak' in text or '<prosody' in text or '<voice' in text)
+        
         # Prepare request
         request = TTSRequest(
             text=text,
@@ -79,6 +82,7 @@ class VoiceGenHub:
             audio_format=audio_format or AudioFormat.MP3,
             sample_rate=sample_rate or 22050,
             speed=speed,
+            ssml=is_ssml,
         )
         
         # Generate audio

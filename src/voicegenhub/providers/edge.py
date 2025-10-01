@@ -11,6 +11,7 @@ from typing import List, Dict, Optional, Any, AsyncGenerator
 from io import BytesIO
 import tempfile
 import os
+from xml.etree import ElementTree as ET
 
 import edge_tts
 
@@ -58,6 +59,60 @@ class EdgeTTSProvider(TTSProvider):
                 error_code="PROVIDER_INIT_FAILED",
                 provider=self.provider_id
             )
+    
+    def _parse_ssml_content(self, ssml_text: str) -> tuple[str, dict]:
+        """
+        Parse SSML content and extract clean text with prosody settings.
+        
+        Args:
+            ssml_text: SSML markup text
+            
+        Returns:
+            Tuple of (clean_text, prosody_settings)
+        """
+        try:
+            # Simple approach: extract text content and basic prosody
+            text = ssml_text
+            prosody_settings = {}
+            
+            logger.info(f"SSML parsing input: {text}")
+            
+            # Extract rate from prosody tags (handle both quoted and unquoted)
+            rate_match = re.search(r'<prosody[^>]*rate=(?:"([^"]*)"|(\w+))[^>]*>', text)
+            if rate_match:
+                rate_val = rate_match.group(1) or rate_match.group(2)
+                logger.info(f"Found rate value: {rate_val}")
+                if rate_val == 'slow':
+                    prosody_settings['rate'] = '-30%'
+                elif rate_val == 'fast':
+                    prosody_settings['rate'] = '+30%'
+                else:
+                    prosody_settings['rate'] = rate_val
+            
+            # Extract pitch from prosody tags  
+            pitch_match = re.search(r'<prosody[^>]*pitch=(?:"([^"]*)"|(\w+))[^>]*>', text)
+            if pitch_match:
+                prosody_settings['pitch'] = pitch_match.group(1) or pitch_match.group(2)
+            
+            # Extract volume from prosody tags
+            volume_match = re.search(r'<prosody[^>]*volume=(?:"([^"]*)"|(\w+))[^>]*>', text)
+            if volume_match:
+                prosody_settings['volume'] = volume_match.group(1) or volume_match.group(2)
+            
+            # Remove all XML/SSML tags to get clean text
+            clean_text = re.sub(r'<[^>]+>', '', text)
+            clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+            
+            logger.info(f"SSML parsing output: text='{clean_text}', prosody={prosody_settings}")
+            
+            return clean_text, prosody_settings
+            
+        except Exception as e:
+            logger.warning(f"SSML parsing failed: {e}, using regex fallback")
+            # Remove XML tags as fallback
+            clean_text = re.sub(r'<[^>]+>', '', ssml_text)
+            clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+            return clean_text, {}
             raise TTSError(
                 f"Edge TTS initialization failed: {str(e)}",
                 error_code="PROVIDER_INIT_FAILED",
@@ -148,13 +203,24 @@ class EdgeTTSProvider(TTSProvider):
                     provider=self.provider_id
                 )
             
-            # Prepare text (plain text, not SSML since edge-tts handles prosody natively)
-            text = request.text.strip()
-            
-            # Convert our speed/pitch/volume to edge-tts format
-            rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
-            volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
-            pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
+            # Prepare text - handle SSML if present
+            if request.ssml:
+                # Parse SSML and extract clean text + prosody
+                text, ssml_prosody = self._parse_ssml_content(request.text)
+                logger.info(f"Parsed SSML: text='{text}', prosody={ssml_prosody}")
+                
+                # Use SSML prosody settings, but allow request parameters to override
+                rate_param = ssml_prosody.get('rate', f"{int((request.speed - 1.0) * 100):+d}%")
+                volume_param = ssml_prosody.get('volume', f"{int((request.volume - 1.0) * 100):+d}%")
+                pitch_param = ssml_prosody.get('pitch', f"{int((request.pitch - 1.0) * 100):+d}Hz")
+            else:
+                # Plain text
+                text = request.text.strip()
+                
+                # Convert our speed/pitch/volume to edge-tts format
+                rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
+                volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
+                pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
             
             # Create TTS communication with native edge-tts parameters
             communicate = edge_tts.Communicate(
@@ -242,13 +308,24 @@ class EdgeTTSProvider(TTSProvider):
                     provider=self.provider_id
                 )
             
-            # Prepare text (plain text, not SSML since edge-tts handles prosody natively)
-            text = request.text.strip()
-            
-            # Convert our speed/pitch/volume to edge-tts format
-            rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
-            volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
-            pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
+            # Prepare text - handle SSML if present
+            if request.ssml:
+                # Parse SSML and extract clean text + prosody
+                text, ssml_prosody = self._parse_ssml_content(request.text)
+                logger.info(f"Parsed SSML: text='{text}', prosody={ssml_prosody}")
+                
+                # Use SSML prosody settings, but allow request parameters to override
+                rate_param = ssml_prosody.get('rate', f"{int((request.speed - 1.0) * 100):+d}%")
+                volume_param = ssml_prosody.get('volume', f"{int((request.volume - 1.0) * 100):+d}%")
+                pitch_param = ssml_prosody.get('pitch', f"{int((request.pitch - 1.0) * 100):+d}Hz")
+            else:
+                # Plain text
+                text = request.text.strip()
+                
+                # Convert our speed/pitch/volume to edge-tts format
+                rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
+                volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
+                pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
             
             # Create TTS communication with native edge-tts parameters
             communicate = edge_tts.Communicate(
