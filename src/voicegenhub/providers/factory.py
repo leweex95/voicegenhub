@@ -1,4 +1,4 @@
-"""Simple provider factory for Edge TTS."""
+"""Provider factory for TTS providers."""
 
 from typing import Optional, Dict, Any
 
@@ -9,19 +9,29 @@ logger = get_logger(__name__)
 
 
 class ProviderFactory:
-    """Simple factory for creating Edge TTS provider."""
+    """Factory for creating TTS providers."""
     
     def __init__(self):
         self._edge_provider_class = None
+        self._google_provider_class = None
     
     async def discover_and_register_providers(self) -> None:
-        """Discover and register Edge TTS provider."""
+        """Discover and register available TTS providers."""
+        # Discover Edge TTS provider
         try:
             from .edge import EdgeTTSProvider
             self._edge_provider_class = EdgeTTSProvider
             logger.info("Discovered Edge TTS provider")
         except ImportError as e:
             logger.error(f"Could not import Edge TTS provider: {e}")
+        
+        # Discover Google TTS provider
+        try:
+            from .google import GoogleTTSProvider
+            self._google_provider_class = GoogleTTSProvider
+            logger.info("Discovered Google TTS provider")
+        except ImportError as e:
+            logger.warning(f"Google TTS provider not available: {e}")
     
     async def create_provider(
         self, 
@@ -29,27 +39,33 @@ class ProviderFactory:
         config: Optional[Dict[str, Any]] = None
     ) -> TTSProvider:
         """
-        Create Edge TTS provider instance.
+        Create TTS provider instance.
         
         Args:
-            provider_id: Must be "edge"
-            config: Optional configuration (unused)
+            provider_id: Provider ID ("edge" or "google")
+            config: Optional configuration
         
         Returns:
-            Initialized Edge TTS provider instance
+            Initialized TTS provider instance
         """
-        if provider_id != "edge":
-            raise TTSError(f"Only 'edge' provider is supported, got '{provider_id}'")
-        
-        if self._edge_provider_class is None:
-            raise TTSError("Edge TTS provider not available")
-        
-        try:
-            provider = self._edge_provider_class(provider_id)
+        if provider_id == "edge":
+            if self._edge_provider_class is None:
+                raise TTSError("Edge TTS provider not available")
+            
+            provider = self._edge_provider_class(provider_id, config)
             await provider.initialize()
             return provider
-        except Exception as e:
-            raise TTSError(f"Failed to create Edge TTS provider: {str(e)}")
+            
+        elif provider_id == "google":
+            if self._google_provider_class is None:
+                raise TTSError("Google TTS provider not available. Install with: pip install google-cloud-texttospeech")
+            
+            provider = self._google_provider_class(provider_id, config)
+            await provider.initialize()
+            return provider
+        
+        else:
+            raise TTSError(f"Unsupported provider: '{provider_id}'. Available: edge, google")
 
 
 # Global provider factory instance

@@ -26,7 +26,8 @@ def cli():
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
 @click.option("--format", "-f", type=click.Choice(["mp3", "wav"]), default="mp3", help="Audio format")
 @click.option("--rate", "-r", type=float, default=1.0, help="Speech rate (0.5-2.0, default 1.0)")
-def synthesize(text: str, voice: Optional[str], language: Optional[str], output: Optional[str], format: str, rate: float):
+@click.option("--provider", "-p", type=click.Choice(["edge", "google"]), default="edge", help="TTS provider (edge or google)")
+def synthesize(text: str, voice: Optional[str], language: Optional[str], output: Optional[str], format: str, rate: float, provider: str):
     """Generate speech from text."""
     async def _synthesize():
         try:
@@ -35,7 +36,7 @@ def synthesize(text: str, voice: Optional[str], language: Optional[str], output:
                 print("Error: Rate must be between 0.5 and 2.0", file=sys.stderr)
                 sys.exit(1)
             
-            tts = VoiceGenHub()
+            tts = VoiceGenHub(provider=provider)
             await tts.initialize()
             
             print("Generating speech...")
@@ -65,11 +66,12 @@ def synthesize(text: str, voice: Optional[str], language: Optional[str], output:
 @cli.command()
 @click.option("--language", "-l", help="Filter by language")
 @click.option("--format", "-f", type=click.Choice(["table", "json"]), default="table", help="Output format")
-def voices(language: Optional[str], format: str):
+@click.option("--provider", "-p", type=click.Choice(["edge", "google"]), default="edge", help="TTS provider (edge or google)")
+def voices(language: Optional[str], format: str, provider: str):
     """List available voices."""
     async def _list_voices():
         try:
-            tts = VoiceGenHub()
+            tts = VoiceGenHub(provider=provider)
             await tts.initialize()
             
             voices_data = await tts.get_voices(language=language)

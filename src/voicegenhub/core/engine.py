@@ -12,16 +12,17 @@ logger = get_logger(__name__)
 
 
 class VoiceGenHub:
-    """Simple TTS engine using Edge TTS provider."""
+    """TTS engine supporting multiple providers."""
     
-    def __init__(self):
+    def __init__(self, provider: str = "edge"):
         """Initialize VoiceGenHub engine."""
         self._provider: Optional[TTSProvider] = None
         self._voice_selector: Optional[VoiceSelector] = None
         self._initialized = False
+        self._provider_id = provider
     
     async def initialize(self) -> None:
-        """Initialize the engine and load Edge TTS provider."""
+        """Initialize the engine and load the specified provider."""
         if self._initialized:
             return
         
@@ -30,18 +31,18 @@ class VoiceGenHub:
         # Discover and register providers
         await provider_factory.discover_and_register_providers()
         
-        # Create Edge TTS provider instance
+        # Create provider instance
         try:
-            self._provider = await provider_factory.create_provider("edge")
+            self._provider = await provider_factory.create_provider(self._provider_id)
             logger.info(f"Loaded provider: {self._provider.display_name}")
         except Exception as e:
-            raise TTSError(f"Failed to load Edge TTS provider: {e}")
+            raise TTSError(f"Failed to load {self._provider_id} provider: {e}")
         
         # Initialize voice selector
         self._voice_selector = VoiceSelector([self._provider])
         
         self._initialized = True
-        logger.info("VoiceGenHub initialized with Edge TTS")
+        logger.info(f"VoiceGenHub initialized with {self._provider_id} provider")
     
     async def generate(
         self,

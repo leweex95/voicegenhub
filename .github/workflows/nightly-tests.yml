@@ -26,7 +26,7 @@ jobs:
         run: |
           python -c "
           import asyncio
-          from src.voicegenhub import VoiceGenHub
+          from voicegenhub import VoiceGenHub
           
           async def test():
               tts = VoiceGenHub()
@@ -44,6 +44,27 @@ jobs:
           
           asyncio.run(test())
           "
+          
+      - name: send edge tts failure notification
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "voicegenhub edge tts nightly test failed"
+          body: |
+            the edge tts nightly test failed in voicegenhub repository.
+            
+            workflow: ${{ github.workflow }}
+            run: ${{ github.run_number }}
+            commit: ${{ github.sha }}
+            
+            please check the workflow logs at:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.SMTP_USERNAME }}
+          from: voicegenhub nightly tests <${{ secrets.SMTP_USERNAME }}>
           
       - name: upload failure logs
         if: failure()
@@ -85,29 +106,29 @@ jobs:
           
           python -c "
           import asyncio
-          from google.cloud import texttospeech
+          from voicegenhub import VoiceGenHub
           
           async def test():
               try:
-                  client = texttospeech.TextToSpeechClient()
+                  tts = VoiceGenHub()
+                  await tts.initialize()
                   
-                  synthesis_input = texttospeech.SynthesisInput(text='nightly test of google tts')
-                  voice = texttospeech.VoiceSelectionParams(
-                      language_code='en-US',
-                      ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
-                  )
-                  audio_config = texttospeech.AudioConfig(
-                      audio_encoding=texttospeech.AudioEncoding.MP3
-                  )
+                  # Try to create google provider
+                  from voicegenhub.providers.factory import provider_factory
+                  await provider_factory.discover_and_register_providers()
+                  google_provider = await provider_factory.create_provider('google')
                   
-                  response = client.synthesize_speech(
-                      input=synthesis_input,
-                      voice=voice,
-                      audio_config=audio_config
-                  )
+                  # Test with google provider
+                  response = await google_provider.synthesize({
+                      'text': 'nightly test of google tts provider',
+                      'voice_id': 'en-US-Standard-A',
+                      'language': 'en-US'
+                  })
                   
-                  assert len(response.audio_content) > 0, 'no audio data generated'
-                  print(f'success: generated {len(response.audio_content)} bytes')
+                  assert len(response.audio_data) > 0, 'no audio data generated'
+                  assert response.duration > 0, 'invalid audio duration'
+                  
+                  print(f'success: generated {len(response.audio_data)} bytes, {response.duration:.2f}s duration')
                   
               except Exception as e:
                   print(f'google tts test failed: {e}')
@@ -115,6 +136,27 @@ jobs:
           
           asyncio.run(test())
           "
+          
+      - name: send google tts failure notification
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "voicegenhub google tts nightly test failed"
+          body: |
+            the google tts nightly test failed in voicegenhub repository.
+            
+            workflow: ${{ github.workflow }}
+            run: ${{ github.run_number }}
+            commit: ${{ github.sha }}
+            
+            please check the workflow logs at:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.SMTP_USERNAME }}
+          from: voicegenhub nightly tests <${{ secrets.SMTP_USERNAME }}>
           
       - name: upload failure logs
         if: failure()
