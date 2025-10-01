@@ -1,4 +1,4 @@
-name: nightly tts tests
+name: Daily regression test
 
 on:
   schedule:
