@@ -34,6 +34,6 @@ try:
         "TTSProvider",
         "Settings",
     ]
-except ImportError:
-    # Handle case where dependencies aren't installed yet
+except ImportError as e:
+    print("VoiceGenHub import error:", e)
     __all__ = []
