@@ -1,6 +1,6 @@
 [project]
 name = "voicegenhub"
-version = "0.3.2"
+version = "0.3.3"
 description = "Simple Text-to-Speech library using Edge TTS"
 authors = [
     {name = "leweex95",email = "csibi.levente14@gmail.com"}
@@ -34,3 +34,10 @@ voicegenhub = "voicegenhub.cli:main"
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
