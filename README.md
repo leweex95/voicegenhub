@@ -91,6 +91,7 @@ VoiceGenHub is designed to handle transient service issues gracefully:
 - **Automatic Retries**: Failed API calls are automatically retried with exponential backoff
 - **Lazy Initialization**: Provider initialization doesn't fail your application if the service is temporarily unavailable
 - **Graceful Degradation**: Transient errors (like Microsoft API 401/403) are handled to prevent downstream project outages
+- **Clock Skew Correction**: Automatically adjusts for time differences between client and server to resolve 401 Unauthorized errors (see [edge-tts#416](https://github.com/rany2/edge-tts/issues/416))
 
 Configuration options (in provider config):
 - `max_retries`: Number of retry attempts (default: 3)

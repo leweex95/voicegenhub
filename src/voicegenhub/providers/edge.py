@@ -14,6 +14,7 @@ import os
 from xml.etree import ElementTree as ET
 
 import edge_tts
+import aiohttp
 
 from .base import (
     TTSProvider, Voice, VoiceGender, VoiceType, AudioFormat,
@@ -123,7 +124,11 @@ class EdgeTTSProvider(TTSProvider):
             )
     
     async def _fetch_voices_with_retry(self) -> List[Dict]:
-        """Fetch voices from Edge TTS API with retry logic."""
+        """Fetch voices from Edge TTS API with retry logic and 401 error handling.
+        
+        This method implements clock skew correction for 401 errors, similar to
+        how edge-tts handles 403 errors. See: https://github.com/rany2/edge-tts/issues/416
+        """
         last_error = None
         for attempt in range(self._max_retries):
             try:
@@ -131,6 +136,28 @@ class EdgeTTSProvider(TTSProvider):
                 voices = await edge_tts.list_voices()
                 logger.info(f"Successfully fetched {len(voices)} voices from Edge TTS")
                 return voices
+            except aiohttp.ClientResponseError as e:
+                last_error = e
+                
+                # Handle 401 Unauthorized errors with clock skew correction
+                # Similar to how edge-tts handles 403 errors
+                if e.status == 401 and attempt < self._max_retries - 1:
+                    logger.warning(f"Got 401 Unauthorized (attempt {attempt + 1}/{self._max_retries}), attempting clock skew correction")
+                    try:
+                        from edge_tts.drm import DRM
+                        DRM.handle_client_response_error(e)
+                        logger.info(f"Applied clock skew correction: {DRM.clock_skew_seconds:.2f}s")
+                        # Retry immediately after clock skew adjustment
+                        continue
+                    except Exception as skew_error:
+                        logger.warning(f"Clock skew correction failed: {skew_error}")
+                
+                logger.warning(f"Failed to fetch voices (attempt {attempt + 1}/{self._max_retries}): {e}")
+                if attempt < self._max_retries - 1:
+                    # Exponential backoff
+                    delay = self._retry_delay * (2 ** attempt)
+                    logger.info(f"Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
             except Exception as e:
                 last_error = e
                 logger.warning(f"Failed to fetch voices (attempt {attempt + 1}/{self._max_retries}): {e}")
@@ -148,7 +175,11 @@ class EdgeTTSProvider(TTSProvider):
         )
     
     async def _synthesize_with_retry(self, text: str, voice_name: str, rate_param: str, volume_param: str, pitch_param: str) -> bytes:
-        """Synthesize audio with retry logic."""
+        """Synthesize audio with retry logic and 401 error handling.
+        
+        This method implements clock skew correction for 401 errors, similar to
+        how edge-tts handles 403 errors. See: https://github.com/rany2/edge-tts/issues/416
+        """
         last_error = None
         for attempt in range(self._max_retries):
             try:
@@ -179,8 +210,35 @@ class EdgeTTSProvider(TTSProvider):
                 logger.info(f"Successfully synthesized {len(audio_data)} bytes of audio")
                 return audio_data
                 
+            except aiohttp.ClientResponseError as e:
+                last_error = e
+                
+                # Handle 401 Unauthorized errors with clock skew correction
+                if e.status == 401 and attempt < self._max_retries - 1:
+                    logger.warning(f"Got 401 Unauthorized during synthesis (attempt {attempt + 1}/{self._max_retries}), attempting clock skew correction")
+                    try:
+                        from edge_tts.drm import DRM
+                        DRM.handle_client_response_error(e)
+                        logger.info(f"Applied clock skew correction: {DRM.clock_skew_seconds:.2f}s")
+                        # Retry immediately after clock skew adjustment
+                        continue
+                    except Exception as skew_error:
+                        logger.warning(f"Clock skew correction failed: {skew_error}")
+                
+                logger.warning(f"Synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}")
+                if attempt < self._max_retries - 1:
+                    # Exponential backoff
+                    delay = self._retry_delay * (2 ** attempt)
+                    logger.info(f"Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
             except Exception as e:
                 last_error = e
+                logger.warning(f"Synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}")
+                if attempt < self._max_retries - 1:
+                    # Exponential backoff
+                    delay = self._retry_delay * (2 ** attempt)
+                    logger.info(f"Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
                 logger.warning(f"Synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}")
                 if attempt < self._max_retries - 1:
                     # Exponential backoff
