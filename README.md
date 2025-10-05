@@ -3,6 +3,13 @@
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API.
 Supports Microsoft Edge and Google Cloud voices.
 
+## Features
+
+- **Multiple Providers**: Microsoft Edge TTS (free) and Google Cloud TTS
+- **Resilient**: Built-in retry logic and graceful degradation for transient service issues
+- **Easy to Use**: Simple CLI and Python API
+- **Rich Voice Selection**: Access to hundreds of voices in multiple languages
+
 ## Usage
 
 ### CLI
@@ -76,3 +83,22 @@ Options for synthesize:
 `-f`, `--format [mp3|wav]` – Audio format
 `-r`, `--rate FLOAT` – Speech rate (0.5-2.0, default 1.0)
 `-p`, `--provider [edge|google]` – Choose TTS provider
+
+## Reliability
+
+VoiceGenHub is designed to handle transient service issues gracefully:
+
+- **Automatic Retries**: Failed API calls are automatically retried with exponential backoff
+- **Lazy Initialization**: Provider initialization doesn't fail your application if the service is temporarily unavailable
+- **Graceful Degradation**: Transient errors (like Microsoft API 401/403) are handled to prevent downstream project outages
+- **Clock Skew Correction**: Automatically adjusts for time differences between client and server to resolve 401 Unauthorized errors (see [edge-tts#416](https://github.com/rany2/edge-tts/issues/416))
+
+Configuration options (in provider config):
+- `max_retries`: Number of retry attempts (default: 3)
+- `retry_delay`: Initial delay between retries in seconds (default: 1.0)
+- `rate_limit_delay`: Delay after successful requests (default: 0.1)
+
+## Requirements
+
+- Python 3.11+
+- For Google TTS: Google Cloud credentials (set via `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_APPLICATION_CREDENTIALS_JSON`)
