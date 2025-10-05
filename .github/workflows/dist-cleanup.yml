@@ -1,6 +1,9 @@
 name: Distribution cleanup
 
 on:
+  push:
+    tags:
+      - '*'
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
@@ -18,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.11'
 
       - name: Cleanup old dist files
         run: |
@@ -30,21 +33,19 @@ jobs:
           
           cd dist
           if [ "$(ls -A)" ]; then
-            for tag in $(git tag --sort=-creatordate); do
-                shopt -s nullglob
-                files=( *${tag}* )
-                shopt -u nullglob
-                
-                if [ ${#files[@]} -gt 1 ]; then
-                    newest="${files[-1]}"
-                    echo "Keeping ${newest} for tag ${tag}"
-                    for f in "${files[@]}"; do
-                        if [ "$f" != "$newest" ]; then
-                            echo "Removing ${f}"
-                            rm "$f"
-                        fi
-                    done
-                fi
+            # Get the latest tag
+            latest_tag=$(git tag --sort=-creatordate | head -1)
+            clean_latest_tag="${latest_tag#v}"
+            echo "Keeping files for latest tag: ${latest_tag}"
+            
+            # Remove all files not matching the latest tag
+            for file in *; do
+              if [[ "$file" != *${clean_latest_tag}* ]]; then
+                echo "Removing old file: ${file}"
+                rm "$file"
+              else
+                echo "Keeping: ${file}"
+              fi
             done
           else
             echo "No files in dist directory to clean up"
