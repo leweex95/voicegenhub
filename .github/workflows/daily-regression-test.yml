@@ -45,6 +45,7 @@ jobs:
           asyncio.run(test())
           "
           
+          
       - name: send edge tts failure notification
         if: failure()
         uses: dawidd6/action-send-mail@v3
@@ -56,6 +57,10 @@ jobs:
           subject: "voicegenhub edge tts nightly test failed"
           body: |
             the edge tts nightly test failed in voicegenhub repository.
+            
+            note: if this is due to microsoft api 401/403 errors, the provider has been
+            updated with retry logic and graceful degradation to prevent downstream
+            project outages. the test failure is informational.
             
             workflow: ${{ github.workflow }}
             run: ${{ github.run_number }}
