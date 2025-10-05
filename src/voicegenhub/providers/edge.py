@@ -37,6 +37,9 @@ class EdgeTTSProvider(TTSProvider):
         super().__init__(name, config)
         self._voices_cache: Optional[List[Voice]] = None
         self._rate_limit_delay = config.get("rate_limit_delay", 0.1) if config else 0.1
+        self._initialization_failed = False
+        self._max_retries = config.get("max_retries", 3) if config else 3
+        self._retry_delay = config.get("retry_delay", 1.0) if config else 1.0
     
     @property
     def provider_id(self) -> str:
@@ -47,18 +50,18 @@ class EdgeTTSProvider(TTSProvider):
         return "Microsoft Edge TTS"
     
     async def initialize(self) -> None:
-        """Initialize the Edge TTS provider."""
+        """Initialize the Edge TTS provider with lazy loading."""
+        # Don't fail initialization if the service is temporarily unavailable
+        # Instead, mark it and try again during actual synthesis
         try:
-            # Test that we can access the edge-tts API
-            await edge_tts.list_voices()
+            # Try to pre-fetch voices with retry logic
+            await self._fetch_voices_with_retry()
             logger.info("Edge TTS provider initialized successfully")
+            self._initialization_failed = False
         except Exception as e:
-            logger.error(f"Failed to initialize Edge TTS provider: {e}")
-            raise TTSError(
-                f"Edge TTS initialization failed: {str(e)}",
-                error_code="PROVIDER_INIT_FAILED",
-                provider=self.provider_id
-            )
+            logger.warning(f"Edge TTS initialization failed, will retry on first use: {e}")
+            # Don't raise error - allow lazy initialization
+            self._initialization_failed = True
     
     def _parse_ssml_content(self, ssml_text: str) -> tuple[str, dict]:
         """
@@ -119,6 +122,79 @@ class EdgeTTSProvider(TTSProvider):
                 provider=self.provider_id
             )
     
+    async def _fetch_voices_with_retry(self) -> List[Dict]:
+        """Fetch voices from Edge TTS API with retry logic."""
+        last_error = None
+        for attempt in range(self._max_retries):
+            try:
+                logger.info(f"Fetching voices from Edge TTS API (attempt {attempt + 1}/{self._max_retries})")
+                voices = await edge_tts.list_voices()
+                logger.info(f"Successfully fetched {len(voices)} voices from Edge TTS")
+                return voices
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Failed to fetch voices (attempt {attempt + 1}/{self._max_retries}): {e}")
+                if attempt < self._max_retries - 1:
+                    # Exponential backoff
+                    delay = self._retry_delay * (2 ** attempt)
+                    logger.info(f"Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
+        
+        # All retries failed
+        raise TTSError(
+            f"Failed to fetch voices after {self._max_retries} attempts: {last_error}",
+            error_code="VOICE_FETCH_FAILED",
+            provider=self.provider_id
+        )
+    
+    async def _synthesize_with_retry(self, text: str, voice_name: str, rate_param: str, volume_param: str, pitch_param: str) -> bytes:
+        """Synthesize audio with retry logic."""
+        last_error = None
+        for attempt in range(self._max_retries):
+            try:
+                logger.info(f"Synthesizing audio (attempt {attempt + 1}/{self._max_retries})")
+                
+                # Create TTS communication with native edge-tts parameters
+                communicate = edge_tts.Communicate(
+                    text, 
+                    voice_name,
+                    rate=rate_param,
+                    volume=volume_param,
+                    pitch=pitch_param
+                )
+                
+                # Generate audio
+                audio_data = b""
+                async for chunk in communicate.stream():
+                    if chunk["type"] == "audio":
+                        audio_data += chunk["data"]
+                
+                if not audio_data:
+                    raise TTSError(
+                        "No audio data generated",
+                        error_code="NO_AUDIO_GENERATED",
+                        provider=self.provider_id
+                    )
+                
+                logger.info(f"Successfully synthesized {len(audio_data)} bytes of audio")
+                return audio_data
+                
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}")
+                if attempt < self._max_retries - 1:
+                    # Exponential backoff
+                    delay = self._retry_delay * (2 ** attempt)
+                    logger.info(f"Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
+        
+        # All retries failed
+        raise TTSError(
+            f"Synthesis failed after {self._max_retries} attempts: {last_error}",
+            error_code="SYNTHESIS_FAILED",
+            provider=self.provider_id
+        )
+    
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
         """
         Get available voices from Edge TTS.
@@ -134,8 +210,8 @@ class EdgeTTSProvider(TTSProvider):
             if self._voices_cache:
                 voices = self._voices_cache
             else:
-                # Get raw voices from Edge TTS using new API
-                raw_voices = await edge_tts.list_voices()
+                # Get raw voices from Edge TTS using retry logic
+                raw_voices = await self._fetch_voices_with_retry()
                 
                 voices = []
                 for raw_voice in raw_voices:
@@ -222,27 +298,14 @@ class EdgeTTSProvider(TTSProvider):
                 volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
                 pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
             
-            # Create TTS communication with native edge-tts parameters
-            communicate = edge_tts.Communicate(
+            # Synthesize with retry logic
+            audio_data = await self._synthesize_with_retry(
                 text, 
                 voice_info["Name"],
-                rate=rate_param,
-                volume=volume_param,
-                pitch=pitch_param
+                rate_param,
+                volume_param,
+                pitch_param
             )
-            
-            # Generate audio
-            audio_data = b""
-            async for chunk in communicate.stream():
-                if chunk["type"] == "audio":
-                    audio_data += chunk["data"]
-            
-            if not audio_data:
-                raise TTSError(
-                    "No audio data generated",
-                    error_code="NO_AUDIO_GENERATED",
-                    provider=self.provider_id
-                )
             
             # Convert format if needed
             if request.audio_format != AudioFormat.MP3:
@@ -327,22 +390,45 @@ class EdgeTTSProvider(TTSProvider):
                 volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
                 pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
             
-            # Create TTS communication with native edge-tts parameters
-            communicate = edge_tts.Communicate(
-                text, 
-                voice_info["Name"],
-                rate=rate_param,
-                volume=volume_param,
-                pitch=pitch_param
+            # For streaming, we use a simpler approach with retry on failure
+            last_error = None
+            for attempt in range(self._max_retries):
+                try:
+                    # Create TTS communication with native edge-tts parameters
+                    communicate = edge_tts.Communicate(
+                        text, 
+                        voice_info["Name"],
+                        rate=rate_param,
+                        volume=volume_param,
+                        pitch=pitch_param
+                    )
+                    
+                    async for chunk in communicate.stream():
+                        if chunk["type"] == "audio":
+                            yield chunk["data"]
+                    
+                    # Rate limiting
+                    if self._rate_limit_delay > 0:
+                        await asyncio.sleep(self._rate_limit_delay)
+                    
+                    # If we got here, streaming succeeded
+                    return
+                    
+                except Exception as e:
+                    last_error = e
+                    logger.warning(f"Streaming synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}")
+                    if attempt < self._max_retries - 1:
+                        # Exponential backoff
+                        delay = self._retry_delay * (2 ** attempt)
+                        logger.info(f"Retrying in {delay} seconds...")
+                        await asyncio.sleep(delay)
+            
+            # All retries failed
+            raise TTSError(
+                f"Streaming synthesis failed after {self._max_retries} attempts: {last_error}",
+                error_code="STREAMING_FAILED",
+                provider=self.provider_id
             )
-            
-            async for chunk in communicate.stream():
-                if chunk["type"] == "audio":
-                    yield chunk["data"]
-            
-            # Rate limiting
-            if self._rate_limit_delay > 0:
-                await asyncio.sleep(self._rate_limit_delay)
                 
         except Exception as e:
             if isinstance(e, TTSError):
@@ -358,8 +444,8 @@ class EdgeTTSProvider(TTSProvider):
     async def health_check(self) -> bool:
         """Check if Edge TTS service is available."""
         try:
-            # Try to get voices as health check
-            voices = await edge_tts.list_voices()
+            # Try to get voices as health check with retry
+            voices = await self._fetch_voices_with_retry()
             return len(voices) > 0
             
         except Exception as e:
@@ -429,9 +515,9 @@ class EdgeTTSProvider(TTSProvider):
         return "adult"  # Default
     
     async def _get_voice_info(self, voice_id: str) -> Optional[Dict]:
-        """Get detailed voice information by ID."""
+        """Get detailed voice information by ID with retry logic."""
         try:
-            voices = await edge_tts.list_voices()
+            voices = await self._fetch_voices_with_retry()
             for voice in voices:
                 if voice.get("ShortName") == voice_id or voice.get("Name") == voice_id:
                     return voice
