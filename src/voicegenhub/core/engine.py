@@ -3,7 +3,7 @@
 from typing import List, Dict, Optional, Any
 import asyncio
 
-from ..providers.base import TTSProvider, TTSRequest, TTSResponse, AudioFormat, TTSError
+from ..providers.base import TTSProvider, TTSRequest, TTSResponse, AudioFormat, TTSError, VoiceNotFoundError
 from ..providers.factory import provider_factory
 from .voice import VoiceSelector
 from ..utils.logger import get_logger
@@ -85,8 +85,18 @@ class VoiceGenHub:
             ssml=is_ssml,
         )
         
+        # Verify voice is available
+        available_voices = await self._voice_selector.get_all_voices()
+        voice_ids = [v.id for v in available_voices]
+        if request.voice_id not in voice_ids:
+            raise VoiceNotFoundError(
+                f"Voice {request.voice_id} not found",
+                error_code="VOICE_NOT_FOUND",
+                provider=self._provider_id
+            )
+        
         # Generate audio
-        logger.info(f"Generating audio with Edge TTS")
+        logger.info(f"Generating audio with {self._provider.display_name}")
         response = await self._provider.synthesize(request)
         
         logger.info(f"Successfully generated {response.duration:.2f}s of audio")
