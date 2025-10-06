@@ -1,3 +1,5 @@
+[![Daily regression test](https://github.com/leweex95/voicegenhub/actions/workflows/daily-regression-test.yml/badge.svg)](https://github.com/leweex95/voicegenhub/actions/workflows/daily-regression-test.yml)
+
 # VoiceGenHub
 
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API.
@@ -102,3 +104,4 @@ Configuration options (in provider config):
 
 - Python 3.11+
 - For Google TTS: Google Cloud credentials (set via `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_APPLICATION_CREDENTIALS_JSON`)
+
