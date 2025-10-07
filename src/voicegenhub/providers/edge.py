@@ -26,6 +26,75 @@ from ..utils.logger import get_logger
 logger = get_logger(__name__)
 
 
+def _patch_edge_tts_for_401_errors():
+    """
+    Monkey-patch edge-tts to handle 401 errors in addition to 403 errors.
+    
+    Microsoft's API now returns 401 Unauthorized instead of 403 Forbidden,
+    but edge-tts only handles 403. This patch adds 401 handling to both
+    list_voices() and Communicate.stream().
+    """
+    import ssl
+    import certifi
+    import edge_tts.voices
+    import edge_tts.communicate
+    from edge_tts.drm import DRM
+    
+    # Store reference to the private __list_voices function
+    __list_voices = edge_tts.voices.__list_voices
+    
+    # Patch list_voices to handle 401 errors
+    async def patched_list_voices(*, connector=None, proxy=None):
+        """
+        Patched version of list_voices that handles both 401 and 403 errors.
+        """
+        ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+        async with aiohttp.ClientSession(connector=connector, trust_env=True) as session:
+            try:
+                data = await __list_voices(session, ssl_ctx, proxy)
+            except aiohttp.ClientResponseError as e:
+                # Handle both 401 and 403 errors with clock skew correction
+                if e.status not in (401, 403):
+                    raise
+                
+                DRM.handle_client_response_error(e)
+                data = await __list_voices(session, ssl_ctx, proxy)
+        return data
+    
+    edge_tts.list_voices = patched_list_voices
+    
+    # Patch Communicate.stream to handle 401 errors
+    async def patched_stream(self):
+        """
+        Patched version of Communicate.stream that handles both 401 and 403 errors.
+        """
+        if self.state.get("stream_was_called", False):
+            raise RuntimeError("stream can only be called once.")
+        self.state["stream_was_called"] = True
+
+        # Stream the audio and metadata from the service.
+        for self.state["partial_text"] in self.texts:
+            try:
+                async for message in self._Communicate__stream():
+                    yield message
+            except aiohttp.ClientResponseError as e:
+                # Handle both 401 and 403 errors with clock skew correction
+                if e.status not in (401, 403):
+                    raise
+
+                DRM.handle_client_response_error(e)
+                async for message in self._Communicate__stream():
+                    yield message
+    
+    edge_tts.communicate.Communicate.stream = patched_stream
+    
+    logger.info("Applied edge-tts 401 error handling patch")
+
+
+# Apply the patch when the module is loaded
+_patch_edge_tts_for_401_errors()
+
+
 class EdgeTTSProvider(TTSProvider):
     """
     Microsoft Edge TTS provider implementation.
