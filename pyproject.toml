@@ -1,6 +1,6 @@
 [project]
 name = "voicegenhub"
-version = "0.3.7"
+version = "0.3.8"
 description = "Simple Text-to-Speech library using Edge TTS"
 authors = [
     {name = "leweex95",email = "csibi.levente14@gmail.com"}
@@ -8,16 +8,16 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    # Core TTS provider
     "edge-tts>=6.1.0",
-    
+    "google-cloud-texttospeech",
+
     # CLI interface
     "click>=8.1.0",
     
     # Logging
     "structlog>=23.2.0",
     "rich>=13.7.0",
-    "pydantic (>=2.11.9,<3.0.0)",
+    "pydantic (>=2.11.9,<3.0.0)"
 ]
 
 [project.scripts]

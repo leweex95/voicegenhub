@@ -102,8 +102,9 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
         run: |
           if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-            echo "skipping google tts test - no credentials configured"
-            exit 0
+            echo "ERROR: GOOGLE_APPLICATION_CREDENTIALS_JSON secret not configured"
+            echo "Google TTS test requires Google Cloud credentials to be set up"
+            exit 1
           fi
           
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/google-credentials.json
