@@ -20,30 +20,17 @@ jobs:
           
       - name: install dependencies
         run: |
-          pip install -e .
+          poetry install
           
       - name: test edge tts audio generation
         run: |
-          python -c "
-          import asyncio
-          from voicegenhub import VoiceGenHub
+          python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_edge_tts_generation -v --cov=src/voicegenhub --cov-report=xml
           
-          async def test():
-              tts = VoiceGenHub(provider='edge')
-              await tts.initialize()
-              
-              response = await tts.generate(
-                  text='nightly test of edge tts provider',
-                  voice='en-US-AriaNeural'
-              )
-              
-              assert len(response.audio_data) > 0, 'no audio data generated'
-              assert response.duration > 0, 'invalid audio duration'
-              
-              print(f'success: generated {len(response.audio_data)} bytes, {response.duration:.2f}s duration')
-          
-          asyncio.run(test())
-          "
+      - name: Upload coverage to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage.xml
           
           
       - name: send edge tts failure notification
@@ -94,7 +81,7 @@ jobs:
           
       - name: install dependencies
         run: |
-          pip install -e .
+          poetry install
           pip install google-cloud-texttospeech
           
       - name: test google tts audio generation
@@ -110,33 +97,14 @@ jobs:
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/google-credentials.json
           export GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-credentials.json"
           
-          python -c "
-          import asyncio
-          from voicegenhub import VoiceGenHub
+          python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_google_tts_generation -v --cov=src/voicegenhub --cov-report=xml --cov-append
           
-          async def test():
-              try:
-                  tts = VoiceGenHub(provider='google')
-                  await tts.initialize()
-                  
-                  # Test with google provider via VoiceGenHub
-                  response = await tts.generate(
-                      text='nightly test of google tts provider',
-                      voice='en-US-Standard-A',
-                      language='en-US'
-                  )
-                  
-                  assert len(response.audio_data) > 0, 'no audio data generated'
-                  assert response.duration > 0, 'invalid audio duration'
-                  
-                  print(f'success: generated {len(response.audio_data)} bytes, {response.duration:.2f}s duration')
-                  
-              except Exception as e:
-                  print(f'google tts test failed: {e}')
-                  raise
-          
-          asyncio.run(test())
-          "
+      - name: Upload Google TTS coverage to artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage.xml
           
       - name: send google tts failure notification
         if: failure()
@@ -167,3 +135,22 @@ jobs:
           path: |
             *.log
             /tmp/*.log
+
+  upload-coverage:
+    runs-on: ubuntu-latest
+    needs: [test-edge-tts, test-google-tts]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download coverage reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
