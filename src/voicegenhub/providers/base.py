@@ -248,10 +248,12 @@ class TTSProvider(ABC):
             )
         
         # Check format support
-        supported_format_values = [fmt.value for fmt in capabilities.supported_formats]
-        if request.audio_format not in supported_format_values:
+        # Note: audio_format may be a string value due to Pydantic use_enum_values=True
+        supported_formats = [fmt if isinstance(fmt, str) else fmt.value for fmt in capabilities.supported_formats]
+        request_format = request.audio_format if isinstance(request.audio_format, str) else request.audio_format.value
+        if request_format not in supported_formats:
             raise TTSError(
-                f"Audio format {request.audio_format} not supported",
+                f"Audio format {request_format} not supported",
                 error_code="UNSUPPORTED_FORMAT",
                 provider=self.provider_id
             )

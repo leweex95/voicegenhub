@@ -242,7 +242,7 @@ class GoogleTTSProvider(TTSProvider):
                 voice_used=request.voice_id,
                 metadata={
                     "provider": self.provider_id,
-                    "original_format": request.audio_format.value
+                    "original_format": request.audio_format
                 }
             )
             

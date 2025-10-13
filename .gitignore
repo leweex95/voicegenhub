@@ -81,8 +81,10 @@ Thumbs.db
 *.flac
 *.aac
 
-# Temporary files
-*.tmp
-*.temp
-temp/
-tmp/
+# Credentials and secrets
+config/google-credentials.json
+google-credentials.json
+*.credentials.json
+secrets/
+.env.local
+.env.*.local
