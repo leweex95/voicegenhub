@@ -29,7 +29,7 @@ jobs:
           from voicegenhub import VoiceGenHub
           
           async def test():
-              tts = VoiceGenHub()
+              tts = VoiceGenHub(provider='edge')
               await tts.initialize()
               
               response = await tts.generate(
@@ -116,20 +116,15 @@ jobs:
           
           async def test():
               try:
-                  tts = VoiceGenHub()
+                  tts = VoiceGenHub(provider='google')
                   await tts.initialize()
                   
-                  # Try to create google provider
-                  from voicegenhub.providers.factory import provider_factory
-                  await provider_factory.discover_and_register_providers()
-                  google_provider = await provider_factory.create_provider('google')
-                  
-                  # Test with google provider
-                  response = await google_provider.synthesize({
-                      'text': 'nightly test of google tts provider',
-                      'voice_id': 'en-US-Standard-A',
-                      'language': 'en-US'
-                  })
+                  # Test with google provider via VoiceGenHub
+                  response = await tts.generate(
+                      text='nightly test of google tts provider',
+                      voice='en-US-Standard-A',
+                      language='en-US'
+                  )
                   
                   assert len(response.audio_data) > 0, 'no audio data generated'
                   assert response.duration > 0, 'invalid audio duration'
