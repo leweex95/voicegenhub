@@ -2,8 +2,8 @@ name: Daily regression test
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Run at 2 AM UTC daily
-  workflow_dispatch:  # Allow manual trigger
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 jobs:
   test-edge-tts:
@@ -20,7 +20,7 @@ jobs:
           
       - name: install dependencies
         run: |
-          poetry install
+          pip install .[test]
           
       - name: test edge tts audio generation
         run: |
@@ -81,7 +81,7 @@ jobs:
           
       - name: install dependencies
         run: |
-          poetry install
+          pip install .[test]
           pip install google-cloud-texttospeech
           
       - name: test google tts audio generation
@@ -91,12 +91,15 @@ jobs:
           if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
             echo "ERROR: GOOGLE_APPLICATION_CREDENTIALS_JSON secret not configured"
             echo "Google TTS test requires Google Cloud credentials to be set up"
+            echo "Please add the GOOGLE_APPLICATION_CREDENTIALS_JSON secret in repository settings"
             exit 1
           fi
-          
+
+          echo "Setting up Google Cloud credentials..."
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/google-credentials.json
           export GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-credentials.json"
-          
+
+          echo "Running Google TTS test..."
           python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_google_tts_generation -v --cov=src/voicegenhub --cov-report=xml --cov-append
           
       - name: Upload Google TTS coverage to artifacts
@@ -150,6 +153,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
           flags: unittests
           name: codecov-umbrella

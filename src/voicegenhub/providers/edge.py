@@ -7,6 +7,7 @@ Supports multiple voices, languages, and SSML markup.
 
 import asyncio
 import re
+import sys
 from typing import List, Dict, Optional, Any, AsyncGenerator
 from io import BytesIO
 import tempfile
@@ -24,6 +25,19 @@ from .base import (
 from ..utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def _ensure_windows_event_loop():
+    """
+    Ensure Windows uses SelectorEventLoop to fix aiodns compatibility issues.
+    
+    On Windows, the default ProactorEventLoop doesn't work well with aiodns,
+    which is used by edge-tts. This function switches to SelectorEventLoop.
+    """
+    if sys.platform == "win32":
+        # Force SelectorEventLoop on Windows for aiodns compatibility
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        logger.debug("Set Windows SelectorEventLoop policy for aiodns compatibility")
 
 
 def _patch_edge_tts_for_401_errors():
@@ -121,6 +135,9 @@ class EdgeTTSProvider(TTSProvider):
     
     async def initialize(self) -> None:
         """Initialize the Edge TTS provider with lazy loading."""
+        # Ensure correct event loop on Windows for aiodns compatibility
+        _ensure_windows_event_loop()
+        
         # Don't fail initialization if the service is temporarily unavailable
         # Instead, mark it and try again during actual synthesis
         try:
@@ -199,6 +216,9 @@ class EdgeTTSProvider(TTSProvider):
         applied to edge_tts.list_voices(). This method provides a retry loop with
         exponential backoff for any failures.
         """
+        # Ensure correct event loop on Windows
+        _ensure_windows_event_loop()
+        
         last_error = None
         for attempt in range(self._max_retries):
             try:
@@ -347,6 +367,9 @@ class EdgeTTSProvider(TTSProvider):
         Returns:
             TTS response with audio data
         """
+        # Ensure correct event loop on Windows
+        _ensure_windows_event_loop()
+        
         await self.validate_request(request)
         
         try:
