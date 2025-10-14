@@ -106,7 +106,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
+          name: coverage-reports-google
           path: coverage.xml
           
       - name: send google tts failure notification
@@ -148,7 +148,8 @@ jobs:
       - name: Download coverage reports
         uses: actions/download-artifact@v4
         with:
-          name: coverage-reports
+          pattern: coverage-reports*
+          merge-multiple: true
           
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
