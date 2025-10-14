@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import asyncio
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class AudioFormat(Enum):
@@ -67,12 +67,9 @@ class TTSRequest(BaseModel):
     speed: float = 1.0
     pitch: float = 1.0
     volume: float = 1.0
-    emotion: Optional[str] = None
-    style: Optional[str] = None
     ssml: bool = False
     
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class TTSResponse(BaseModel):
