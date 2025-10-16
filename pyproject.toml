@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "0.3.10"
+version = "0.4.0"
 description = "Simple Text-to-Speech library using Edge TTS"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
