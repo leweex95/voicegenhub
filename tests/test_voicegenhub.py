@@ -36,6 +36,28 @@ class TestVoiceGenHub:
                 raise
 
     @pytest.mark.asyncio
+    async def test_piper_tts_generation(self):
+        """Test Piper TTS generation through VoiceGenHub."""
+        tts = VoiceGenHub(provider='piper')
+        
+        try:
+            await tts.initialize()
+            response = await tts.generate(
+                text='test of piper tts provider',
+                voice='en_US-lessac-medium'
+            )
+
+            assert len(response.audio_data) > 0, 'no audio data generated'
+            assert response.duration > 0, 'invalid audio duration'
+            assert response.metadata is not None
+        except Exception as e:
+            # Skip test if Piper dependencies are not available (Windows compatibility issues)
+            if "not initialized" in str(e) or "dependencies" in str(e).lower() or "not available" in str(e).lower():
+                pytest.skip(f"Piper TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
     async def test_google_tts_generation(self):
         """Test Google TTS generation through VoiceGenHub."""
         # Check for Google credentials in order of preference:
@@ -103,6 +125,28 @@ class TestVoiceGenHub:
         assert len(response.audio_data) > 0, 'no audio data generated'
         assert response.duration > 0, 'invalid audio duration'
         assert response.metadata is not None
+
+    @pytest.mark.asyncio
+    async def test_coqui_tts_generation(self):
+        """Test Coqui TTS generation through VoiceGenHub."""
+        tts = VoiceGenHub(provider='coqui')
+        
+        try:
+            await tts.initialize()
+            response = await tts.generate(
+                text='test of coqui tts provider',
+                voice='tacotron2-en'
+            )
+
+            assert len(response.audio_data) > 0, 'no audio data generated'
+            assert response.duration > 0, 'invalid audio duration'
+            assert response.metadata is not None
+        except Exception as e:
+            # Skip test if Coqui dependencies are not available
+            if "not initialized" in str(e) or "dependencies" in str(e).lower() or "not available" in str(e).lower():
+                pytest.skip(f"Coqui TTS dependencies not available: {e}")
+            else:
+                raise
 
     @pytest.mark.asyncio
     async def test_invalid_provider(self):
