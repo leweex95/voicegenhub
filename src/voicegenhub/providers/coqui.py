@@ -8,6 +8,7 @@ Supports multiple languages with state-of-the-art deep learning models.
 import asyncio
 import os
 import sys
+import json
 from typing import List, Dict, Optional, Any
 from io import BytesIO
 import tempfile
@@ -85,60 +86,101 @@ class CoquiTTSProvider(TTSProvider):
             self._initialization_failed = True
     
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
-        """Get available Coqui voices."""
+        """Get available Coqui voices by fetching from available models."""
         # Return cached voices if available
         if self._voices_cache:
             voices = self._voices_cache
         else:
-            # Return a curated list of commonly available Coqui voices
-            voices = [
-                Voice(
-                    id="tacotron2-en",
-                    name="Tacotron2 (English)",
-                    language="en",
-                    locale="en-US",
-                    gender=VoiceGender.FEMALE,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="High-quality English voice using Tacotron2"
-                ),
-                Voice(
-                    id="glow-tts-en",
-                    name="Glow-TTS (English)",
-                    language="en",
-                    locale="en-US",
-                    gender=VoiceGender.NEUTRAL,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="Fast and expressive English voice using Glow-TTS"
-                ),
-                Voice(
-                    id="speedy-speech-en",
-                    name="Speedy Speech (English)",
-                    language="en",
-                    locale="en-US",
-                    gender=VoiceGender.NEUTRAL,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="Fast and lightweight English voice"
-                ),
-                Voice(
-                    id="glow-tts-ru",
-                    name="Glow-TTS (Russian)",
-                    language="ru",
-                    locale="ru-RU",
-                    gender=VoiceGender.FEMALE,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="High-quality Russian voice using Glow-TTS"
-                ),
-            ]
-            # Cache for future calls
-            self._voices_cache = voices
+            try:
+                from TTS.utils.manage import ModelManager
+                
+                # Get available TTS models
+                manager = ModelManager(progress_bar=False, verbose=False)
+                models_list = manager.list_tts_models()
+                
+                voices = []
+                for model_name in models_list:
+                    try:
+                        # Parse model name format: language/dataset/model
+                        parts = model_name.split("/")
+                        if len(parts) < 3:
+                            continue
+                        
+                        language_code = parts[0]
+                        dataset = parts[1]
+                        model = parts[2]
+                        
+                        # Create voice entry from model
+                        parsed_voice = Voice(
+                            id=f"{language_code}-{model}",
+                            name=f"{model.title()} ({language_code.upper()})",
+                            language=language_code.split("_")[0] if "_" in language_code else language_code,
+                            locale=language_code if "_" not in language_code else f"{language_code.split('_')[0]}-{language_code.split('_')[1].upper()}",
+                            gender=VoiceGender.NEUTRAL,
+                            voice_type=VoiceType.NEURAL,
+                            provider=self.provider_id,
+                            sample_rate=22050,
+                            description=f"Coqui {model} model from {dataset} dataset"
+                        )
+                        voices.append(parsed_voice)
+                    except Exception as e:
+                        logger.warning(f"Could not parse model {model_name}: {e}")
+                        continue
+                
+                # Cache for future calls
+                self._voices_cache = voices
+                logger.info(f"Loaded {len(voices)} Coqui TTS models")
+                
+            except Exception as e:
+                logger.warning(f"Could not fetch dynamic Coqui models: {e}. Using fallback hardcoded voices.")
+                # Fallback to hardcoded voices
+                voices = [
+                    Voice(
+                        id="tacotron2-en",
+                        name="Tacotron2 (English)",
+                        language="en",
+                        locale="en-US",
+                        gender=VoiceGender.FEMALE,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="High-quality English voice using Tacotron2"
+                    ),
+                    Voice(
+                        id="glow-tts-en",
+                        name="Glow-TTS (English)",
+                        language="en",
+                        locale="en-US",
+                        gender=VoiceGender.NEUTRAL,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="Fast and expressive English voice using Glow-TTS"
+                    ),
+                    Voice(
+                        id="speedy-speech-en",
+                        name="Speedy Speech (English)",
+                        language="en",
+                        locale="en-US",
+                        gender=VoiceGender.NEUTRAL,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="Fast and lightweight English voice"
+                    ),
+                    Voice(
+                        id="glow-tts-ru",
+                        name="Glow-TTS (Russian)",
+                        language="ru",
+                        locale="ru-RU",
+                        gender=VoiceGender.FEMALE,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="High-quality Russian voice using Glow-TTS"
+                    ),
+                ]
+                self._voices_cache = voices
         
         # Filter by language if provided
         if language:

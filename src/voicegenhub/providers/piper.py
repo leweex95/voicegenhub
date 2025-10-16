@@ -8,9 +8,11 @@ Supports multiple languages and voices with excellent quality.
 import asyncio
 import os
 import sys
+import json
 from typing import List, Dict, Optional, Any
 from io import BytesIO
 import tempfile
+from pathlib import Path
 
 from .base import (
     TTSProvider, Voice, VoiceGender, VoiceType, AudioFormat,
@@ -90,61 +92,106 @@ class PiperTTSProvider(TTSProvider):
             self._initialization_failed = True
     
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
-        """Get available Piper voices."""
+        """Get available Piper voices by fetching from voices.json."""
         # Return cached voices if available
         if self._voices_cache:
             voices = self._voices_cache
         else:
-            # Return a curated list of commonly available Piper voices
-            # These are the default voices that ship with Piper
-            voices = [
-                Voice(
-                    id="en_US-lessac-medium",
-                    name="Lessac (US English)",
-                    language="en",
-                    locale="en-US",
-                    gender=VoiceGender.NEUTRAL,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="High-quality US English voice"
-                ),
-                Voice(
-                    id="en_US-libritts-high",
-                    name="LibriTTS (US English)",
-                    language="en",
-                    locale="en-US",
-                    gender=VoiceGender.NEUTRAL,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="LibriTTS-based US English voice"
-                ),
-                Voice(
-                    id="en_GB-alan-medium",
-                    name="Alan (UK English)",
-                    language="en",
-                    locale="en-GB",
-                    gender=VoiceGender.MALE,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="Male UK English voice"
-                ),
-                Voice(
-                    id="ru_RU-irene-medium",
-                    name="Irene (Russian)",
-                    language="ru",
-                    locale="ru-RU",
-                    gender=VoiceGender.FEMALE,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=22050,
-                    description="Female Russian voice"
-                ),
-            ]
-            # Cache for future calls
-            self._voices_cache = voices
+            try:
+                from piper.download import get_voices as fetch_piper_voices
+                
+                # Get or create download directory
+                download_dir = self.config.get("download_dir") or os.path.expanduser("~/.local/share/piper")
+                os.makedirs(download_dir, exist_ok=True)
+                
+                # Fetch voices from voices.json (embedded or downloaded)
+                voices_data = fetch_piper_voices(download_dir, update_voices=False)
+                
+                voices = []
+                for voice_id, voice_info in voices_data.items():
+                    # Parse voice information from Piper's voice.json format
+                    try:
+                        language_code = voice_info.get("language", {}).get("code", "en")
+                        language_name = voice_info.get("language", {}).get("name_english", "English")
+                        
+                        # Determine gender from speaker name or default
+                        speaker_name = voice_info.get("name", voice_id)
+                        gender = VoiceGender.FEMALE if any(x in speaker_name.lower() for x in ["she", "female", "woman"]) else VoiceGender.MALE
+                        
+                        # Parse locale from language code
+                        locale_parts = language_code.split("_")
+                        locale = f"{locale_parts[0]}-{locale_parts[1].upper()}" if len(locale_parts) > 1 else language_code
+                        
+                        parsed_voice = Voice(
+                            id=voice_id,
+                            name=speaker_name,
+                            language=locale_parts[0],
+                            locale=locale,
+                            gender=gender,
+                            voice_type=VoiceType.NEURAL,
+                            provider=self.provider_id,
+                            sample_rate=voice_info.get("sample_rate", 22050),
+                            description=voice_info.get("description", "Piper neural voice")
+                        )
+                        voices.append(parsed_voice)
+                    except Exception as e:
+                        logger.warning(f"Could not parse voice {voice_id}: {e}")
+                        continue
+                
+                # Cache for future calls
+                self._voices_cache = voices
+                logger.info(f"Loaded {len(voices)} Piper voices")
+                
+            except Exception as e:
+                logger.warning(f"Could not fetch dynamic Piper voices: {e}. Using fallback hardcoded voices.")
+                # Fallback to hardcoded voices
+                voices = [
+                    Voice(
+                        id="en_US-lessac-medium",
+                        name="Lessac (US English)",
+                        language="en",
+                        locale="en-US",
+                        gender=VoiceGender.NEUTRAL,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="High-quality US English voice"
+                    ),
+                    Voice(
+                        id="en_US-libritts-high",
+                        name="LibriTTS (US English)",
+                        language="en",
+                        locale="en-US",
+                        gender=VoiceGender.NEUTRAL,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="LibriTTS-based US English voice"
+                    ),
+                    Voice(
+                        id="en_GB-alan-medium",
+                        name="Alan (UK English)",
+                        language="en",
+                        locale="en-GB",
+                        gender=VoiceGender.MALE,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="Male UK English voice"
+                    ),
+                    Voice(
+                        id="ru_RU-irene-medium",
+                        name="Irene (Russian)",
+                        language="ru",
+                        locale="ru-RU",
+                        gender=VoiceGender.FEMALE,
+                        voice_type=VoiceType.NEURAL,
+                        provider=self.provider_id,
+                        sample_rate=22050,
+                        description="Female Russian voice"
+                    ),
+                ]
+                self._voices_cache = voices
         
         # Filter by language if provided
         if language:
