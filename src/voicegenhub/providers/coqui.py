@@ -101,14 +101,15 @@ class CoquiTTSProvider(TTSProvider):
                 voices = []
                 for model_name in models_list:
                     try:
-                        # Parse model name format: language/dataset/model
+                        # Parse model name format: tts_models/language/dataset/model
                         parts = model_name.split("/")
-                        if len(parts) < 3:
+                        if len(parts) < 4:
                             continue
                         
-                        language_code = parts[0]
-                        dataset = parts[1]
-                        model = parts[2]
+                        # parts[0] = "tts_models", parts[1] = language, parts[2] = dataset, parts[3] = model
+                        language_code = parts[1]
+                        dataset = parts[2]
+                        model = parts[3]
                         
                         # Create voice entry from model
                         parsed_voice = Voice(
