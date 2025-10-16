@@ -30,12 +30,12 @@ class CoquiTTSProvider(TTSProvider):
     high-quality, natural-sounding speech synthesis.
     """
     
-    def __init__(self, provider_id: str = "coqui", config: Dict[str, Any] = None):
-        super().__init__(provider_id, config)
+    def __init__(self, name: str = "coqui", config: Dict[str, Any] = None):
+        super().__init__(name, config)
         self.tts = None
         self.model_name = None
-        self._default_voices = {}
-        self._initialized = False
+        self._voices_cache: Optional[List[Voice]] = None
+        self._initialization_failed = False
     
     @property
     def provider_id(self) -> str:
@@ -67,7 +67,7 @@ class CoquiTTSProvider(TTSProvider):
                 self.tts = TTS(model_name=self.model_name, gpu=False)
                 logger.info("Coqui TTS initialized with CPU")
             
-            self._initialized = True
+            self._initialization_failed = False
             logger.info("Coqui TTS provider initialized successfully")
             
         except ImportError as e:
@@ -78,61 +78,67 @@ class CoquiTTSProvider(TTSProvider):
                 logger.warning("  2. Then run: pip install TTS")
             else:
                 logger.warning("Coqui TTS provider will be disabled. Install with: pip install TTS")
-            self._initialized = False
+            self._initialization_failed = True
         except Exception as e:
             logger.warning(f"Failed to initialize Coqui TTS: {str(e)}")
             logger.warning("Coqui TTS provider will be disabled")
-            self._initialized = False
+            self._initialization_failed = True
     
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
         """Get available Coqui voices."""
-        # Return a curated list of commonly available Coqui voices
-        voices = [
-            Voice(
-                id="tacotron2-en",
-                name="Tacotron2 (English)",
-                language="en",
-                locale="en-US",
-                gender=VoiceGender.FEMALE,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="High-quality English voice using Tacotron2"
-            ),
-            Voice(
-                id="glow-tts-en",
-                name="Glow-TTS (English)",
-                language="en",
-                locale="en-US",
-                gender=VoiceGender.NEUTRAL,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="Fast and expressive English voice using Glow-TTS"
-            ),
-            Voice(
-                id="speedy-speech-en",
-                name="Speedy Speech (English)",
-                language="en",
-                locale="en-US",
-                gender=VoiceGender.NEUTRAL,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="Fast and lightweight English voice"
-            ),
-            Voice(
-                id="glow-tts-ru",
-                name="Glow-TTS (Russian)",
-                language="ru",
-                locale="ru-RU",
-                gender=VoiceGender.FEMALE,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="High-quality Russian voice using Glow-TTS"
-            ),
-        ]
+        # Return cached voices if available
+        if self._voices_cache:
+            voices = self._voices_cache
+        else:
+            # Return a curated list of commonly available Coqui voices
+            voices = [
+                Voice(
+                    id="tacotron2-en",
+                    name="Tacotron2 (English)",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.FEMALE,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="High-quality English voice using Tacotron2"
+                ),
+                Voice(
+                    id="glow-tts-en",
+                    name="Glow-TTS (English)",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.NEUTRAL,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="Fast and expressive English voice using Glow-TTS"
+                ),
+                Voice(
+                    id="speedy-speech-en",
+                    name="Speedy Speech (English)",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.NEUTRAL,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="Fast and lightweight English voice"
+                ),
+                Voice(
+                    id="glow-tts-ru",
+                    name="Glow-TTS (Russian)",
+                    language="ru",
+                    locale="ru-RU",
+                    gender=VoiceGender.FEMALE,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="High-quality Russian voice using Glow-TTS"
+                ),
+            ]
+            # Cache for future calls
+            self._voices_cache = voices
         
         # Filter by language if provided
         if language:
@@ -158,7 +164,7 @@ class CoquiTTSProvider(TTSProvider):
     
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Coqui TTS."""
-        if not self._initialized:
+        if self._initialization_failed:
             raise TTSError(
                 "Coqui TTS provider not initialized. Dependencies may not be available on this platform.",
                 error_code="NOT_INITIALIZED",

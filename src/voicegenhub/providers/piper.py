@@ -30,12 +30,12 @@ class PiperTTSProvider(TTSProvider):
     completely offline after downloading voice models.
     """
     
-    def __init__(self, provider_id: str = "piper", config: Dict[str, Any] = None):
-        super().__init__(provider_id, config)
+    def __init__(self, name: str = "piper", config: Dict[str, Any] = None):
+        super().__init__(name, config)
         self.piper_voice = None
         self.model_path = None
-        self._default_voices = {}
-        self._initialized = False
+        self._voices_cache: Optional[List[Voice]] = None
+        self._initialization_failed = False
     
     @property
     def provider_id(self) -> str:
@@ -77,68 +77,74 @@ class PiperTTSProvider(TTSProvider):
             else:
                 logger.info(f"Using Piper model: {self.model_path}")
             
-            self._initialized = True
+            self._initialization_failed = False
             logger.info("Piper TTS provider initialized successfully")
             
         except ImportError as e:
             logger.warning(f"Piper TTS dependencies not available: {e}")
             logger.warning("Piper TTS provider will be disabled. Install with: pip install piper-tts")
-            self._initialized = False
+            self._initialization_failed = True
         except Exception as e:
             logger.warning(f"Failed to initialize Piper TTS: {str(e)}")
             logger.warning("Piper TTS provider will be disabled")
-            self._initialized = False
+            self._initialization_failed = True
     
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
         """Get available Piper voices."""
-        # Return a curated list of commonly available Piper voices
-        # These are the default voices that ship with Piper
-        voices = [
-            Voice(
-                id="en_US-lessac-medium",
-                name="Lessac (US English)",
-                language="en",
-                locale="en-US",
-                gender=VoiceGender.NEUTRAL,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="High-quality US English voice"
-            ),
-            Voice(
-                id="en_US-libritts-high",
-                name="LibriTTS (US English)",
-                language="en",
-                locale="en-US",
-                gender=VoiceGender.NEUTRAL,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="LibriTTS-based US English voice"
-            ),
-            Voice(
-                id="en_GB-alan-medium",
-                name="Alan (UK English)",
-                language="en",
-                locale="en-GB",
-                gender=VoiceGender.MALE,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="Male UK English voice"
-            ),
-            Voice(
-                id="ru_RU-irene-medium",
-                name="Irene (Russian)",
-                language="ru",
-                locale="ru-RU",
-                gender=VoiceGender.FEMALE,
-                voice_type=VoiceType.NEURAL,
-                provider=self.provider_id,
-                sample_rate=22050,
-                description="Female Russian voice"
-            ),
-        ]
+        # Return cached voices if available
+        if self._voices_cache:
+            voices = self._voices_cache
+        else:
+            # Return a curated list of commonly available Piper voices
+            # These are the default voices that ship with Piper
+            voices = [
+                Voice(
+                    id="en_US-lessac-medium",
+                    name="Lessac (US English)",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.NEUTRAL,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="High-quality US English voice"
+                ),
+                Voice(
+                    id="en_US-libritts-high",
+                    name="LibriTTS (US English)",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.NEUTRAL,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="LibriTTS-based US English voice"
+                ),
+                Voice(
+                    id="en_GB-alan-medium",
+                    name="Alan (UK English)",
+                    language="en",
+                    locale="en-GB",
+                    gender=VoiceGender.MALE,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="Male UK English voice"
+                ),
+                Voice(
+                    id="ru_RU-irene-medium",
+                    name="Irene (Russian)",
+                    language="ru",
+                    locale="ru-RU",
+                    gender=VoiceGender.FEMALE,
+                    voice_type=VoiceType.NEURAL,
+                    provider=self.provider_id,
+                    sample_rate=22050,
+                    description="Female Russian voice"
+                ),
+            ]
+            # Cache for future calls
+            self._voices_cache = voices
         
         # Filter by language if provided
         if language:
@@ -164,7 +170,7 @@ class PiperTTSProvider(TTSProvider):
     
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Piper TTS."""
-        if not self._initialized:
+        if self._initialization_failed:
             raise TTSError(
                 "Piper TTS provider not initialized. Dependencies may not be available on this platform.",
                 error_code="NOT_INITIALIZED",

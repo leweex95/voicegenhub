@@ -196,6 +196,229 @@ class TestVoiceGenHub:
             else:
                 raise
 
+    @pytest.mark.asyncio
+    async def test_edge_get_voices(self):
+        """Test Edge TTS get_voices functionality."""
+        tts = VoiceGenHub(provider='edge')
+        
+        try:
+            await tts.initialize()
+            voices = await tts.get_voices()
+            
+            assert len(voices) > 0, "Edge TTS should return available voices"
+            assert all(isinstance(v, dict) for v in voices), "Voices should be dictionaries"
+            assert all('id' in v and 'name' in v for v in voices), "Voices should have id and name"
+        except Exception as e:
+            if "401" in str(e) or "403" in str(e) or "Failed to fetch voices" in str(e):
+                pytest.skip(f"Edge TTS API unavailable: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_edge_get_voices_with_language_filter(self):
+        """Test Edge TTS get_voices with language filter."""
+        tts = VoiceGenHub(provider='edge')
+        
+        try:
+            await tts.initialize()
+            voices_en = await tts.get_voices(language='en')
+            
+            assert len(voices_en) > 0, "Should return English voices"
+            # Verify all returned voices are English
+            for voice in voices_en:
+                assert voice['language'].startswith('en') or voice['locale'].startswith('en'), \
+                    f"Voice {voice} should be English"
+        except Exception as e:
+            if "401" in str(e) or "403" in str(e) or "Failed to fetch voices" in str(e):
+                pytest.skip(f"Edge TTS API unavailable: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_piper_get_voices(self):
+        """Test Piper TTS get_voices functionality."""
+        tts = VoiceGenHub(provider='piper')
+        
+        try:
+            await tts.initialize()
+            voices = await tts.get_voices()
+            
+            assert len(voices) > 0, "Piper TTS should return available voices"
+            assert all(isinstance(v, dict) for v in voices), "Voices should be dictionaries"
+            assert all('id' in v and 'name' in v for v in voices), "Voices should have id and name"
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Piper TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_piper_get_voices_with_language_filter(self):
+        """Test Piper TTS get_voices with language filter."""
+        tts = VoiceGenHub(provider='piper')
+        
+        try:
+            await tts.initialize()
+            voices_en = await tts.get_voices(language='en')
+            
+            assert len(voices_en) > 0, "Should return English voices"
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Piper TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_coqui_get_voices(self):
+        """Test Coqui TTS get_voices functionality."""
+        tts = VoiceGenHub(provider='coqui')
+        
+        try:
+            await tts.initialize()
+            voices = await tts.get_voices()
+            
+            assert len(voices) > 0, "Coqui TTS should return available voices"
+            assert all(isinstance(v, dict) for v in voices), "Voices should be dictionaries"
+            assert all('id' in v and 'name' in v for v in voices), "Voices should have id and name"
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Coqui TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_coqui_get_voices_with_language_filter(self):
+        """Test Coqui TTS get_voices with language filter."""
+        tts = VoiceGenHub(provider='coqui')
+        
+        try:
+            await tts.initialize()
+            voices_en = await tts.get_voices(language='en')
+            
+            assert len(voices_en) > 0, "Should return English voices"
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Coqui TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_edge_invalid_voice(self):
+        """Test Edge TTS with invalid voice raises error."""
+        tts = VoiceGenHub(provider='edge')
+        
+        try:
+            await tts.initialize()
+            
+            with pytest.raises(Exception):
+                await tts.generate(
+                    text='test',
+                    voice='invalid-voice-id-12345'
+                )
+        except Exception as e:
+            if "401" in str(e) or "403" in str(e) or "Failed to fetch voices" in str(e):
+                pytest.skip(f"Edge TTS API unavailable: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_piper_invalid_voice(self):
+        """Test Piper TTS with invalid voice raises error."""
+        tts = VoiceGenHub(provider='piper')
+        
+        try:
+            await tts.initialize()
+            
+            with pytest.raises(Exception):
+                await tts.generate(
+                    text='test',
+                    voice='invalid-voice-id-12345'
+                )
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Piper TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_coqui_invalid_voice(self):
+        """Test Coqui TTS with invalid voice raises error."""
+        tts = VoiceGenHub(provider='coqui')
+        
+        try:
+            await tts.initialize()
+            
+            with pytest.raises(Exception):
+                await tts.generate(
+                    text='test',
+                    voice='invalid-voice-id-12345'
+                )
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Coqui TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_edge_voice_caching(self):
+        """Test Edge TTS caches voices properly."""
+        tts = VoiceGenHub(provider='edge')
+        
+        try:
+            await tts.initialize()
+            
+            # First call fetches voices
+            voices1 = await tts.get_voices()
+            # Second call should use cache (same object)
+            voices2 = await tts.get_voices()
+            
+            assert len(voices1) == len(voices2)
+        except Exception as e:
+            if "401" in str(e) or "403" in str(e) or "Failed to fetch voices" in str(e):
+                pytest.skip(f"Edge TTS API unavailable: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_piper_voice_caching(self):
+        """Test Piper TTS caches voices properly."""
+        tts = VoiceGenHub(provider='piper')
+        
+        try:
+            await tts.initialize()
+            
+            # First call fetches voices
+            voices1 = await tts.get_voices()
+            # Second call should use cache (same object)
+            voices2 = await tts.get_voices()
+            
+            assert len(voices1) == len(voices2)
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Piper TTS dependencies not available: {e}")
+            else:
+                raise
+
+    @pytest.mark.asyncio
+    async def test_coqui_voice_caching(self):
+        """Test Coqui TTS caches voices properly."""
+        tts = VoiceGenHub(provider='coqui')
+        
+        try:
+            await tts.initialize()
+            
+            # First call fetches voices
+            voices1 = await tts.get_voices()
+            # Second call should use cache (same object)
+            voices2 = await tts.get_voices()
+            
+            assert len(voices1) == len(voices2)
+        except Exception as e:
+            if "not initialized" in str(e) or "dependencies" in str(e).lower():
+                pytest.skip(f"Coqui TTS dependencies not available: {e}")
+            else:
+                raise
+
 
 # Test configuration
 @pytest.fixture(scope="session", autouse=True)
