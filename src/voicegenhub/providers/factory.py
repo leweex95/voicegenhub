@@ -70,7 +70,7 @@ class ProviderFactory:
             if self._edge_provider_class is None:
                 raise TTSError("Edge TTS provider not available")
             
-            provider = self._edge_provider_class(provider_id, config)
+            provider = self._edge_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
             
@@ -78,7 +78,7 @@ class ProviderFactory:
             if self._google_provider_class is None:
                 raise TTSError("Google TTS provider not available. Install with: pip install google-cloud-texttospeech")
             
-            provider = self._google_provider_class(provider_id, config)
+            provider = self._google_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
         
@@ -86,7 +86,7 @@ class ProviderFactory:
             if self._piper_provider_class is None:
                 raise TTSError("Piper TTS provider not available. Install with: pip install voicegenhub[piper]")
             
-            provider = self._piper_provider_class(provider_id, config)
+            provider = self._piper_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
         
@@ -94,7 +94,7 @@ class ProviderFactory:
             if self._coqui_provider_class is None:
                 raise TTSError("Coqui TTS provider not available. Install with: pip install voicegenhub[coqui]")
             
-            provider = self._coqui_provider_class(provider_id, config)
+            provider = self._coqui_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
         
