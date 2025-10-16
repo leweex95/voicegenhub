@@ -5,14 +5,19 @@
 # VoiceGenHub
 
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API.
-Supports Microsoft Edge and Google Cloud voices.
+Supports multiple free and commercial TTS providers.
 
 ## Features
 
-- **Multiple Providers**: Microsoft Edge TTS (free) and Google Cloud TTS
+- **Multiple Providers**: 
+  - Microsoft Edge TTS (free, cloud-based)
+  - Google Cloud TTS (commercial, requires credentials)
+  - Piper TTS (free, offline neural TTS - Linux/macOS)
+  - Coqui TTS (free, offline neural TTS - Linux/macOS)
 - **Resilient**: Built-in retry logic and graceful degradation for transient service issues
 - **Easy to Use**: Simple CLI and Python API
 - **Rich Voice Selection**: Access to hundreds of voices in multiple languages
+- **Platform Support**: Works on Windows, macOS, and Linux (with provider-specific limitations)
 
 ## Usage
 
@@ -36,6 +41,24 @@ voicegenhub synthesize "Hello, world!" \
   --voice en-US-Wavenet-D \
   --provider google \
   --output hello_google.mp3
+```
+
+or for Piper TTS (offline, Linux/macOS):
+
+```bash
+voicegenhub synthesize "Hello, world!" \
+  --voice en_US-lessac-medium \
+  --provider piper \
+  --output hello_piper.wav
+```
+
+or for Coqui TTS (offline, Linux/macOS):
+
+```bash
+voicegenhub synthesize "Hello, world!" \
+  --voice tacotron2-en \
+  --provider coqui \
+  --output hello_coqui.wav
 ```
 
 # List available voices
@@ -81,12 +104,12 @@ voicegenhub --help
 `voices` – List available voices
 
 Options for synthesize:
-`-v`, `--voice TEXT` – Voice ID (e.g., en-US-AriaNeural, en-US-Wavenet-D)
+`-v`, `--voice TEXT` – Voice ID (e.g., en-US-AriaNeural, en-US-Wavenet-D, en_US-lessac-medium, tacotron2-en)
 `-l`, `--language TEXT` – Language code (e.g., en)
 `-o`, `--output PATH` – Output file path
 `-f`, `--format [mp3|wav]` – Audio format
 `-r`, `--rate FLOAT` – Speech rate (0.5-2.0, default 1.0)
-`-p`, `--provider [edge|google]` – Choose TTS provider
+`-p`, `--provider [edge|google|piper|coqui]` – Choose TTS provider
 
 ## Reliability
 
@@ -106,4 +129,32 @@ Configuration options (in provider config):
 
 - Python 3.11+
 - For Google TTS: Google Cloud credentials (set via `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_APPLICATION_CREDENTIALS_JSON`)
+
+## Optional Dependencies
+
+Install optional TTS providers:
+
+```bash
+# Install Piper TTS (offline neural TTS, Linux/macOS only)
+pip install voicegenhub[piper]
+
+# Install Coqui TTS (offline neural TTS, Linux/macOS only)
+pip install voicegenhub[coqui]
+
+# Install both
+pip install voicegenhub[piper,coqui]
+```
+
+### Platform Support
+
+| Provider | Windows | macOS | Linux | Notes |
+|----------|---------|-------|-------|-------|
+| Edge TTS | ✅ | ✅ | ✅ | Cloud-based, requires internet |
+| Google TTS | ✅ | ✅ | ✅ | Requires Google Cloud credentials |
+| Piper TTS | ⚠️ | ✅ | ✅ | Offline neural TTS; gracefully disables on Windows |
+| Coqui TTS | ⚠️ | ✅ | ✅ | Offline neural TTS; requires Visual C++ Build Tools on Windows |
+
+**Legend:**
+- ✅ Full support
+- ⚠️ Graceful degradation (logs warning, provider disables automatically)
 

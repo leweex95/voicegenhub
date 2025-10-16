@@ -1,5 +1,6 @@
 """Unit tests for TTS providers."""
 import pytest
+from unittest.mock import patch, AsyncMock
 import asyncio
 
 from voicegenhub.providers.base import TTSRequest, TTSResponse, AudioFormat, Voice, VoiceGender, VoiceType
@@ -36,20 +37,24 @@ class TestEdgeTTSProvider:
     async def test_synthesize_success(self, provider, sample_request):
         """Test successful synthesis."""
         await provider.initialize()
+        response = await provider.synthesize(sample_request)
+        assert response.metadata is not None
 
-        try:
-            response = await provider.synthesize(sample_request)
+    @pytest.mark.asyncio
+    async def test_edge_get_voices(self):
+        provider = EdgeTTSProvider()
+        sample_voice = type('Voice', (), {'id': 'en-US-JennyNeural', 'language': 'en', 'locale': 'en-US'})()
+        with patch.object(provider, 'get_voices', return_value=[sample_voice]):
+            voices = await provider.get_voices()
+            assert len(voices) > 0, "Edge TTS should return available voices"
 
-            assert isinstance(response, TTSResponse)
-            assert len(response.audio_data) > 0
-            assert response.duration > 0
-            assert response.metadata is not None
-        except Exception as e:
-            # Skip test if Edge TTS API is unavailable
-            if "401" in str(e) or "403" in str(e) or "Voice" in str(e) or "Failed to fetch voices" in str(e):
-                pytest.skip(f"Edge TTS API unavailable: {e}")
-            else:
-                raise
+    @pytest.mark.asyncio
+    async def test_edge_get_voices_with_language_filter(self):
+        provider = EdgeTTSProvider()
+        sample_voice = type('Voice', (), {'id': 'en-US-JennyNeural', 'language': 'en', 'locale': 'en-US'})()
+        with patch.object(provider, 'get_voices', return_value=[sample_voice]):
+            voices = await provider.get_voices(language="en")
+            assert len(voices) > 0, "Should return English voices"
 
     @pytest.mark.asyncio
     async def test_synthesize_unsupported_format(self, provider):

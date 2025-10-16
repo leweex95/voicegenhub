@@ -14,6 +14,8 @@ class ProviderFactory:
     def __init__(self):
         self._edge_provider_class = None
         self._google_provider_class = None
+        self._piper_provider_class = None
+        self._coqui_provider_class = None
     
     async def discover_and_register_providers(self) -> None:
         """Discover and register available TTS providers."""
@@ -32,6 +34,22 @@ class ProviderFactory:
             logger.info("Discovered Google TTS provider")
         except ImportError as e:
             logger.warning(f"Google TTS provider not available: {e}")
+        
+        # Discover Piper TTS provider
+        try:
+            from .piper import PiperTTSProvider
+            self._piper_provider_class = PiperTTSProvider
+            logger.info("Discovered Piper TTS provider")
+        except ImportError as e:
+            logger.warning(f"Piper TTS provider not available: {e}")
+        
+        # Discover Coqui TTS provider
+        try:
+            from .coqui import CoquiTTSProvider
+            self._coqui_provider_class = CoquiTTSProvider
+            logger.info("Discovered Coqui TTS provider")
+        except ImportError as e:
+            logger.warning(f"Coqui TTS provider not available: {e}")
     
     async def create_provider(
         self, 
@@ -42,7 +60,7 @@ class ProviderFactory:
         Create TTS provider instance.
         
         Args:
-            provider_id: Provider ID ("edge" or "google")
+            provider_id: Provider ID ("edge", "google", or "piper")
             config: Optional configuration
         
         Returns:
@@ -52,7 +70,7 @@ class ProviderFactory:
             if self._edge_provider_class is None:
                 raise TTSError("Edge TTS provider not available")
             
-            provider = self._edge_provider_class(provider_id, config)
+            provider = self._edge_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
             
@@ -60,12 +78,28 @@ class ProviderFactory:
             if self._google_provider_class is None:
                 raise TTSError("Google TTS provider not available. Install with: pip install google-cloud-texttospeech")
             
-            provider = self._google_provider_class(provider_id, config)
+            provider = self._google_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+        
+        elif provider_id == "piper":
+            if self._piper_provider_class is None:
+                raise TTSError("Piper TTS provider not available. Install with: pip install voicegenhub[piper]")
+            
+            provider = self._piper_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+        
+        elif provider_id == "coqui":
+            if self._coqui_provider_class is None:
+                raise TTSError("Coqui TTS provider not available. Install with: pip install voicegenhub[coqui]")
+            
+            provider = self._coqui_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
         
         else:
-            raise TTSError(f"Unsupported provider: '{provider_id}'. Available: edge, google")
+            raise TTSError(f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, coqui")
 
 
 # Global provider factory instance
