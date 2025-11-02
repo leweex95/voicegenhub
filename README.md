@@ -14,6 +14,8 @@ Supports multiple free and commercial TTS providers.
   - Google Cloud TTS (commercial, requires credentials)
   - Piper TTS (free, offline neural TTS - Linux/macOS)
   - Coqui TTS (free, offline neural TTS - Linux/macOS)
+  - MeloTTS (free, self-hosted neural TTS)
+  - Kokoro TTS (free, self-hosted lightweight TTS)
 - **Resilient**: Built-in retry logic and graceful degradation for transient service issues
 - **Easy to Use**: Simple CLI and Python API
 - **Rich Voice Selection**: Access to hundreds of voices in multiple languages
@@ -21,51 +23,31 @@ Supports multiple free and commercial TTS providers.
 
 ## Usage
 
-### CLI
-
-#### Generate speech
-
-For Edge TTS:
+For Kokoro TTS:
 
 ```bash
-voicegenhub synthesize "Hello, world!" \
-  --voice en-US-AriaNeural \
-  --provider edge \
-  --output hello.mp3
+voicegenhub synthesize "Hello, world!" --provider kokoro --voice kokoro-af_alloy --output hello.wav
 ```
 
-or for Google TTS:
+**Kokoro supported voices:** Check the list of supported voices [here](https://github.com/nazdridoy/kokoro-tts?tab=readme-ov-file#supported-voices).
+
+For MeloTTS:
 
 ```bash
-voicegenhub synthesize "Hello, world!" \
-  --voice en-US-Wavenet-D \
-  --provider google \
-  --output hello_google.mp3
+voicegenhub synthesize "Hello, world!" --provider melotts --voice melotts-EN-US --output hello.wav
 ```
 
-or for Piper TTS (offline, Linux/macOS):
+or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` (Australia), `melotts-EN-INDIA`. 
 
-```bash
-voicegenhub synthesize "Hello, world!" \
-  --voice en_US-lessac-medium \
-  --provider piper \
-  --output hello_piper.wav
-```
+**MeloTTS supported voices/languages:** Check the list of supported voices [here](https://github.com/myshell-ai/MeloTTS?tab=readme-ov-file#introduction).
 
-or for Coqui TTS (offline, Linux/macOS):
-
-```bash
-voicegenhub synthesize "Hello, world!" \
-  --voice tacotron2-en \
-  --provider coqui \
-  --output hello_coqui.wav
-```
-
-# List available voices
+# Print all available voices per provider
 
 ```bash
 voicegenhub voices --language en --provider edge
 voicegenhub voices --language en --provider google
+voicegenhub voices --language en --provider melotts
+voicegenhub voices --language en --provider kokoro
 ```
 
 ### Python API
@@ -75,13 +57,16 @@ import asyncio
 from voicegenhub import VoiceGenHub
 
 async def main():
-    tts = VoiceGenHub()
-    await tts.initialize(provider="edge")  # or "google"
+    # Specify provider in constructor
+    tts = VoiceGenHub(provider="edge")  # or "google", "melotts", "kokoro"
+    await tts.initialize()
 
     response = await tts.generate(
         text="Hello, world!",
         voice="en-US-AriaNeural"  # Edge voice
         # voice="en-US-Wavenet-D"  # Google voice
+        # voice="melotts-EN-US"    # MeloTTS American English
+        # voice="kokoro-af_alloy"  # Kokoro voice
     )
 
     with open("speech.mp3", "wb") as f:
@@ -90,28 +75,7 @@ async def main():
 asyncio.run(main())
 ```
 
-### Help
-
-```bash
-voicegenhub --help
-```
-
-# CLI Reference
-voicegenhub --help
-
-# Commands
-`synthesize` – Generate speech from text
-`voices` – List available voices
-
-Options for synthesize:
-`-v`, `--voice TEXT` – Voice ID (e.g., en-US-AriaNeural, en-US-Wavenet-D, en_US-lessac-medium, tacotron2-en)
-`-l`, `--language TEXT` – Language code (e.g., en)
-`-o`, `--output PATH` – Output file path
-`-f`, `--format [mp3|wav]` – Audio format
-`-r`, `--rate FLOAT` – Speech rate (0.5-2.0, default 1.0)
-`-p`, `--provider [edge|google|piper|coqui]` – Choose TTS provider
-
-## Reliability
+## Reliability (applicable for Edge TTS)
 
 VoiceGenHub is designed to handle transient service issues gracefully:
 
@@ -141,20 +105,12 @@ pip install voicegenhub[piper]
 # Install Coqui TTS (offline neural TTS, Linux/macOS only)
 pip install voicegenhub[coqui]
 
-# Install both
-pip install voicegenhub[piper,coqui]
+# Install MeloTTS (self-hosted neural TTS)
+pip install voicegenhub[melotts]
+
+# Install Kokoro TTS (self-hosted lightweight TTS)
+pip install voicegenhub[kokoro]
+
+# Install all optional providers
+pip install voicegenhub[piper,coqui,melotts,kokoro]
 ```
-
-### Platform Support
-
-| Provider | Windows | macOS | Linux | Notes |
-|----------|---------|-------|-------|-------|
-| Edge TTS | ✅ | ✅ | ✅ | Cloud-based, requires internet |
-| Google TTS | ✅ | ✅ | ✅ | Requires Google Cloud credentials |
-| Piper TTS | ⚠️ | ✅ | ✅ | Offline neural TTS; gracefully disables on Windows |
-| Coqui TTS | ⚠️ | ✅ | ✅ | Offline neural TTS; requires Visual C++ Build Tools on Windows |
-
-**Legend:**
-- ✅ Full support
-- ⚠️ Graceful degradation (logs warning, provider disables automatically)
-

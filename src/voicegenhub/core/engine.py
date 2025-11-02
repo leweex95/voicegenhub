@@ -74,13 +74,30 @@ class VoiceGenHub:
         # Auto-detect SSML content
         is_ssml = text.strip().startswith('<') and ('</speak>' in text or '<speak' in text or '<prosody' in text or '<voice' in text)
         
+        # Get provider capabilities to determine appropriate defaults
+        capabilities = await self._provider.get_capabilities()
+        
+        # Use provider's preferred sample rate if none specified
+        default_sample_rate = sample_rate
+        if default_sample_rate is None and capabilities.supported_sample_rates:
+            default_sample_rate = capabilities.supported_sample_rates[0]  # Use first supported rate
+        elif default_sample_rate is None:
+            default_sample_rate = 22050  # Fallback
+        
+        # Use provider's preferred format if none specified
+        default_format = audio_format
+        if default_format is None and capabilities.supported_formats:
+            default_format = capabilities.supported_formats[0]
+        elif default_format is None:
+            default_format = AudioFormat.MP3
+        
         # Prepare request
         request = TTSRequest(
             text=text,
             voice_id=voice or "en-US-AriaNeural",
             language=language,
-            audio_format=audio_format or AudioFormat.MP3,
-            sample_rate=sample_rate or 22050,
+            audio_format=default_format,
+            sample_rate=default_sample_rate,
             speed=speed,
             ssml=is_ssml,
         )

@@ -16,6 +16,8 @@ class ProviderFactory:
         self._google_provider_class = None
         self._piper_provider_class = None
         self._coqui_provider_class = None
+        self._melotts_provider_class = None
+        self._kokoro_provider_class = None
     
     async def discover_and_register_providers(self) -> None:
         """Discover and register available TTS providers."""
@@ -50,6 +52,22 @@ class ProviderFactory:
             logger.info("Discovered Coqui TTS provider")
         except ImportError as e:
             logger.warning(f"Coqui TTS provider not available: {e}")
+        
+        # Discover MeloTTS provider
+        try:
+            from .melotts import MeloTTSProvider
+            self._melotts_provider_class = MeloTTSProvider
+            logger.info("Discovered MeloTTS provider")
+        except ImportError as e:
+            logger.warning(f"MeloTTS provider not available: {e}")
+        
+        # Discover Kokoro TTS provider
+        try:
+            from .kokoro import KokoroTTSProvider
+            self._kokoro_provider_class = KokoroTTSProvider
+            logger.info("Discovered Kokoro TTS provider")
+        except ImportError as e:
+            logger.warning(f"Kokoro TTS provider not available: {e}")
     
     async def create_provider(
         self, 
@@ -98,8 +116,24 @@ class ProviderFactory:
             await provider.initialize()
             return provider
         
+        elif provider_id == "melotts":
+            if self._melotts_provider_class is None:
+                raise TTSError("MeloTTS provider not available. Install with: pip install voicegenhub[melotts]")
+            
+            provider = self._melotts_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+        
+        elif provider_id == "kokoro":
+            if self._kokoro_provider_class is None:
+                raise TTSError("Kokoro TTS provider not available. Install with: pip install voicegenhub[kokoro]")
+            
+            provider = self._kokoro_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+        
         else:
-            raise TTSError(f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, coqui")
+            raise TTSError(f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, coqui, melotts, kokoro")
 
 
 # Global provider factory instance

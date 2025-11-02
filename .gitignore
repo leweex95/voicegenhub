@@ -88,3 +88,6 @@ google-credentials.json
 secrets/
 .env.local
 .env.*.local
+
+# Copilot specifics
+copilot-instructions.md
