@@ -27,14 +27,14 @@ jobs:
             mkdir -p dist
             exit 0
           fi
-          
+
           cd dist
           if [ "$(ls -A)" ]; then
             # Get the latest tag
             latest_tag=$(git tag --sort=-creatordate | head -1)
             clean_latest_tag="${latest_tag#v}"
             echo "Keeping files for latest tag: ${latest_tag}"
-            
+
             # Remove all files not matching the latest tag
             for file in *; do
               if [[ "$file" != *${clean_latest_tag}* ]]; then

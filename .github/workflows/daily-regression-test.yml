@@ -9,36 +9,36 @@ jobs:
   test-edge-tts:
     runs-on: ubuntu-latest
     name: test edge tts generation
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: setup python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
+
       - name: install poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-          
+
       - name: install dependencies
         run: |
           poetry install --with test
-          
+
       - name: test edge tts audio generation
         run: |
           poetry run python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_edge_tts_generation -v --cov=src/voicegenhub --cov-report=xml
-          
+
       - name: Upload coverage to artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
           path: coverage.xml
-          
-          
+
+
       - name: send edge tts failure notification
         if: failure()
         uses: dawidd6/action-send-mail@v3
@@ -50,20 +50,20 @@ jobs:
           subject: "voicegenhub edge tts nightly test failed"
           body: |
             the edge tts nightly test failed in voicegenhub repository.
-            
+
             note: if this is due to microsoft api 401/403 errors, the provider has been
             updated with retry logic and graceful degradation to prevent downstream
             project outages. the test failure is informational.
-            
+
             workflow: ${{ github.workflow }}
             run: ${{ github.run_number }}
             commit: ${{ github.sha }}
-            
+
             please check the workflow logs at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.SMTP_USERNAME }}
           from: voicegenhub nightly tests <${{ secrets.SMTP_USERNAME }}>
-          
+
       - name: upload failure logs
         if: failure()
         uses: actions/upload-artifact@v4
@@ -76,25 +76,25 @@ jobs:
   test-google-tts:
     runs-on: ubuntu-latest
     name: test google tts generation
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: setup python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
+
       - name: install poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-          
+
       - name: install dependencies
         run: |
           poetry install --with test
-          
+
       - name: test google tts audio generation
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
@@ -112,14 +112,14 @@ jobs:
 
           echo "Running Google TTS test..."
           poetry run python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_google_tts_generation -v --cov=src/voicegenhub --cov-report=xml --cov-append
-          
+
       - name: Upload Google TTS coverage to artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports-google
           path: coverage.xml
-          
+
       - name: send google tts failure notification
         if: failure()
         uses: dawidd6/action-send-mail@v3
@@ -131,16 +131,16 @@ jobs:
           subject: "voicegenhub google tts nightly test failed"
           body: |
             the google tts nightly test failed in voicegenhub repository.
-            
+
             workflow: ${{ github.workflow }}
             run: ${{ github.run_number }}
             commit: ${{ github.sha }}
-            
+
             please check the workflow logs at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.SMTP_USERNAME }}
           from: voicegenhub nightly tests <${{ secrets.SMTP_USERNAME }}>
-          
+
       - name: upload failure logs
         if: failure()
         uses: actions/upload-artifact@v4
@@ -153,29 +153,29 @@ jobs:
   test-piper-tts:
     runs-on: ubuntu-latest
     name: test piper tts generation
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: setup python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
+
       - name: install poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-          
+
       - name: install dependencies
         run: |
           poetry install --with test,piper
-          
+
       - name: test piper tts audio generation
         run: |
           poetry run python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_piper_tts_generation -v --cov=src/voicegenhub --cov-report=xml
-          
+
       - name: send piper tts failure notification
         if: failure()
         uses: dawidd6/action-send-mail@v3
@@ -187,15 +187,15 @@ jobs:
           subject: "voicegenhub piper tts nightly test failed - WINDOWS WARNING"
           body: |
             the piper tts nightly test failed in voicegenhub repository.
-            
+
             WARNING: Piper TTS has known compatibility issues on Windows due to ONNX Runtime DLL loading failures.
             On Windows, this provider gracefully disables itself and logs appropriate warnings.
             Linux and macOS: Full neural TTS support with excellent quality.
-            
+
             workflow: ${{ github.workflow }}
             run: ${{ github.run_number }}
             commit: ${{ github.sha }}
-            
+
             please check the workflow logs at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.SMTP_USERNAME }}
@@ -204,29 +204,29 @@ jobs:
   test-coqui-tts:
     runs-on: ubuntu-latest
     name: test coqui tts generation
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: setup python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
+
       - name: install poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
-          
+
       - name: install dependencies
         run: |
           poetry install --with test,coqui
-          
+
       - name: test coqui tts audio generation
         run: |
           poetry run python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_coqui_tts_generation -v --cov=src/voicegenhub --cov-report=xml
-          
+
       - name: send coqui tts failure notification
         if: failure()
         uses: dawidd6/action-send-mail@v3
@@ -238,15 +238,15 @@ jobs:
           subject: "voicegenhub coqui tts nightly test failed - WINDOWS WARNING"
           body: |
             the coqui tts nightly test failed in voicegenhub repository.
-            
+
             WARNING: Coqui TTS requires Microsoft Visual C++ Build Tools on Windows for compilation.
             On Windows, this provider gracefully disables itself and logs appropriate installation instructions.
             Linux and macOS: Full neural TTS support with state-of-the-art models.
-            
+
             workflow: ${{ github.workflow }}
             run: ${{ github.run_number }}
             commit: ${{ github.sha }}
-            
+
             please check the workflow logs at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           to: ${{ secrets.SMTP_USERNAME }}
@@ -257,13 +257,13 @@ jobs:
     needs: [test-edge-tts, test-google-tts, test-piper-tts, test-coqui-tts]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download coverage reports
         uses: actions/download-artifact@v4
         with:
           pattern: coverage-reports*
           merge-multiple: true
-          
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

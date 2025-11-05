@@ -6,12 +6,12 @@ from typing import Optional
 
 class Settings:
     """Simple application settings."""
-    
+
     def __init__(self):
         # General settings
         self.debug = os.getenv("VOICEGENHUB_DEBUG", "false").lower() == "true"
         self.log_level = os.getenv("VOICEGENHUB_LOG_LEVEL", "INFO").upper()
-        
+
         # Audio settings
         self.default_format = "mp3"
         self.max_text_length = 10000

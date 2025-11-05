@@ -2,15 +2,15 @@ name: Unit tests
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
-    branches: 
+    branches:
       - master
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repo
@@ -28,9 +28,9 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
 
-    - name: Install dependencies with test group
+    - name: Install all dependencies
       run: |
-        poetry install --with test
+        poetry install --with test,edge,google,piper,melotts,kokoro
 
     - name: Run tests
       run: |

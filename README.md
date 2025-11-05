@@ -9,7 +9,7 @@ Supports multiple free and commercial TTS providers.
 
 ## Features
 
-- **Multiple Providers**: 
+- **Multiple Providers**:
   - Microsoft Edge TTS (free, cloud-based)
   - Google Cloud TTS (commercial, requires credentials)
   - Piper TTS (free, offline neural TTS - Linux/macOS)
@@ -37,7 +37,7 @@ For MeloTTS:
 voicegenhub synthesize "Hello, world!" --provider melotts --voice melotts-EN-US --output hello.wav
 ```
 
-or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` (Australia), `melotts-EN-INDIA`. 
+or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` (Australia), `melotts-EN-INDIA`.
 
 **MeloTTS supported voices/languages:** Check the list of supported voices [here](https://github.com/myshell-ai/MeloTTS?tab=readme-ov-file#introduction).
 
