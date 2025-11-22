@@ -16,6 +16,7 @@ Supports multiple free and commercial TTS providers.
   - Coqui TTS (free, offline neural TTS - Linux/macOS)
   - MeloTTS (free, self-hosted neural TTS)
   - Kokoro TTS (free, self-hosted lightweight TTS)
+  - ElevenLabs TTS (commercial, high-quality voices)
 - **Resilient**: Built-in retry logic and graceful degradation for transient service issues
 - **Easy to Use**: Simple CLI and Python API
 - **Rich Voice Selection**: Access to hundreds of voices in multiple languages
@@ -41,6 +42,16 @@ or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` 
 
 **MeloTTS supported voices/languages:** Check the list of supported voices [here](https://github.com/myshell-ai/MeloTTS?tab=readme-ov-file#introduction).
 
+For ElevenLabs:
+
+```bash
+voicegenhub synthesize "Hello, world!" --provider elevenlabs --voice elevenlabs-EXAVITQu4vr4xnSDxMaL --output hello.mp3
+```
+
+Set your API key: `export ELEVENLABS_API_KEY=your_api_key_here`
+
+**ElevenLabs supported voices:** Check the list of supported voices [here](https://elevenlabs.io/docs/voices).
+
 # Print all available voices per provider
 
 ```bash
@@ -48,6 +59,7 @@ voicegenhub voices --language en --provider edge
 voicegenhub voices --language en --provider google
 voicegenhub voices --language en --provider melotts
 voicegenhub voices --language en --provider kokoro
+voicegenhub voices --language en --provider elevenlabs
 ```
 
 ### Python API
@@ -58,7 +70,7 @@ from voicegenhub import VoiceGenHub
 
 async def main():
     # Specify provider in constructor
-    tts = VoiceGenHub(provider="edge")  # or "google", "melotts", "kokoro"
+    tts = VoiceGenHub(provider="edge")  # or "google", "melotts", "kokoro", "elevenlabs"
     await tts.initialize()
 
     response = await tts.generate(
@@ -67,6 +79,7 @@ async def main():
         # voice="en-US-Wavenet-D"  # Google voice
         # voice="melotts-EN-US"    # MeloTTS American English
         # voice="kokoro-af_alloy"  # Kokoro voice
+        # voice="elevenlabs-EXAVITQu4vr4xnSDxMaL"  # ElevenLabs voice
     )
 
     with open("speech.mp3", "wb") as f:
