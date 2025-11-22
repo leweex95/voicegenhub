@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "0.5.1"
+version = "0.6.0"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
@@ -28,6 +28,9 @@ melo = "*"
 [tool.poetry.group.kokoro.dependencies]
 kokoro = "*"
 soundfile = "*"
+
+[tool.poetry.group.elevenlabs.dependencies]
+elevenlabs = "*"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.0.0"

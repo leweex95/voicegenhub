@@ -11,6 +11,7 @@ from voicegenhub.providers.base import (
     Voice,
 )
 from voicegenhub.providers.edge import EdgeTTSProvider
+from voicegenhub.providers.elevenlabs import ElevenLabsTTSProvider
 from voicegenhub.providers.google import GoogleTTSProvider
 from voicegenhub.providers.kokoro import KokoroTTSProvider
 from voicegenhub.providers.melotts import MeloTTSProvider
@@ -366,6 +367,116 @@ class TestKokoroTTSProvider:
             pytest.skip("Kokoro provider not available (optional dependency)")
         request = TTSRequest(
             text="Hello", voice_id="invalid-voice", audio_format=AudioFormat.WAV
+        )
+        with pytest.raises(TTSError):
+            await provider.synthesize(request)
+
+
+class TestElevenLabsTTSProvider:
+    """Test ElevenLabs TTS provider."""
+
+    @pytest.fixture
+    def provider(self):
+        """Create ElevenLabsTTSProvider instance."""
+        return ElevenLabsTTSProvider()
+
+    @pytest.fixture
+    def sample_request(self):
+        """Create sample TTS request."""
+        return TTSRequest(
+            text="Hello world",
+            voice_id="elevenlabs-EXAVITQu4vr4xnSDxMaL",
+            language="en",
+            audio_format=AudioFormat.MP3,
+        )
+
+    @pytest.mark.asyncio
+    async def test_initialize_without_api_key(self, provider):
+        """Test initialization without API key."""
+        with patch.dict("os.environ", {}, clear=True):
+            with pytest.raises(Exception):
+                await provider.initialize()
+
+    @pytest.mark.asyncio
+    async def test_initialize(self, provider):
+        """Test provider initialization."""
+        import os
+
+        if not os.getenv("ELEVENLABS_API_KEY"):
+            pytest.skip("ElevenLabs API key not available for integration test")
+
+        await provider.initialize()
+
+    @pytest.mark.asyncio
+    async def test_get_voices(self, provider):
+        """Test getting available voices."""
+        import os
+
+        if not os.getenv("ELEVENLABS_API_KEY"):
+            pytest.skip("ElevenLabs API key not available for integration test")
+
+        await provider.initialize()
+        if provider._initialization_failed:
+            pytest.skip("ElevenLabs provider not available (optional dependency)")
+
+        voices = await provider.get_voices()
+        assert len(voices) > 0, "ElevenLabs should return available voices"
+        assert all(isinstance(v, Voice) for v in voices)
+        assert all(v.provider == "elevenlabs" for v in voices)
+
+    @pytest.mark.asyncio
+    async def test_get_voices_with_language_filter(self, provider):
+        """Test getting voices with language filter."""
+        import os
+
+        if not os.getenv("ELEVENLABS_API_KEY"):
+            pytest.skip("ElevenLabs API key not available for integration test")
+
+        await provider.initialize()
+        if provider._initialization_failed:
+            pytest.skip("ElevenLabs provider not available (optional dependency)")
+
+        voices = await provider.get_voices(language="en")
+        assert len(voices) > 0, "Should return English voices"
+
+    @pytest.mark.asyncio
+    async def test_get_capabilities(self, provider):
+        """Test getting provider capabilities."""
+        import os
+
+        if not os.getenv("ELEVENLABS_API_KEY"):
+            pytest.skip("ElevenLabs API key not available for integration test")
+
+        await provider.initialize()
+        if provider._initialization_failed:
+            pytest.skip("ElevenLabs provider not available (optional dependency)")
+
+        caps = await provider.get_capabilities()
+        assert caps.supported_formats == [AudioFormat.MP3]
+        assert 24000 in caps.supported_sample_rates
+        assert caps.supports_streaming is True
+
+    @pytest.mark.asyncio
+    async def test_synthesize_unavailable(self, provider, sample_request):
+        """Test synthesis when provider is unavailable."""
+        provider._initialization_failed = True
+        with pytest.raises(TTSError, match="ElevenLabs provider is not available"):
+            await provider.synthesize(sample_request)
+
+    @pytest.mark.asyncio
+    async def test_synthesize_invalid_voice_id(self, provider):
+        """Test synthesis with invalid voice ID."""
+        import os
+
+        if not os.getenv("ELEVENLABS_API_KEY"):
+            pytest.skip("ElevenLabs API key not available for integration test")
+
+        await provider.initialize()
+        if provider._initialization_failed:
+            pytest.skip("ElevenLabs provider not available (optional dependency)")
+
+        request = TTSRequest(
+            text="Hello", voice_id="invalid-voice", audio_format=AudioFormat.MP3
         )
         with pytest.raises(TTSError):
             await provider.synthesize(request)

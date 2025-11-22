@@ -17,6 +17,7 @@ class ProviderFactory:
         self._piper_provider_class = None
         self._melotts_provider_class = None
         self._kokoro_provider_class = None
+        self._elevenlabs_provider_class = None
 
     async def discover_and_register_providers(self) -> None:
         """Discover and register available TTS providers."""
@@ -64,6 +65,15 @@ class ProviderFactory:
             logger.info("Discovered Kokoro TTS provider")
         except ImportError as e:
             logger.warning(f"Kokoro TTS provider not available: {e}")
+
+        # Discover ElevenLabs TTS provider
+        try:
+            from .elevenlabs import ElevenLabsTTSProvider
+
+            self._elevenlabs_provider_class = ElevenLabsTTSProvider
+            logger.info("Discovered ElevenLabs TTS provider")
+        except ImportError as e:
+            logger.warning(f"ElevenLabs TTS provider not available: {e}")
 
     async def create_provider(
         self, provider_id: str, config: Optional[Dict[str, Any]] = None
@@ -126,9 +136,19 @@ class ProviderFactory:
             await provider.initialize()
             return provider
 
+        elif provider_id == "elevenlabs":
+            if self._elevenlabs_provider_class is None:
+                raise TTSError(
+                    "ElevenLabs TTS provider not available. Install with: pip install voicegenhub[elevenlabs]"
+                )
+
+            provider = self._elevenlabs_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
         else:
             raise TTSError(
-                f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, melotts, kokoro"
+                f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, melotts, kokoro, elevenlabs"
             )
 
 

@@ -82,6 +82,7 @@ Thumbs.db
 *.aac
 
 # Credentials and secrets
+config/
 config/google-credentials.json
 google-credentials.json
 *.credentials.json
