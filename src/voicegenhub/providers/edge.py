@@ -128,6 +128,7 @@ class EdgeTTSProvider(TTSProvider):
     def __init__(self, name: str = "edge", config: Dict[str, Any] = None):
         super().__init__(name, config)
         self._voices_cache: Optional[List[Voice]] = None
+        self._raw_voices_cache: Optional[List[Dict]] = None
         self._rate_limit_delay = config.get("rate_limit_delay", 0.1) if config else 0.1
         self._initialization_failed = False
         self._max_retries = config.get("max_retries", 3) if config else 3
@@ -234,7 +235,10 @@ class EdgeTTSProvider(TTSProvider):
         applied to edge_tts.list_voices(). This method provides a retry loop with
         exponential backoff for any failures.
         """
-        # Ensure correct event loop on Windows
+        if self._raw_voices_cache is not None:
+            logger.debug(f"Using cached voices ({len(self._raw_voices_cache)} voices)")
+            return self._raw_voices_cache
+
         _ensure_windows_event_loop()
 
         last_error = None
@@ -245,6 +249,7 @@ class EdgeTTSProvider(TTSProvider):
                 )
                 voices = await edge_tts.list_voices()
                 logger.info(f"Successfully fetched {len(voices)} voices from Edge TTS")
+                self._raw_voices_cache = voices
                 return voices
             except Exception as e:
                 last_error = e
@@ -252,12 +257,10 @@ class EdgeTTSProvider(TTSProvider):
                     f"Failed to fetch voices (attempt {attempt + 1}/{self._max_retries}): {e}"
                 )
                 if attempt < self._max_retries - 1:
-                    # Exponential backoff
                     delay = self._retry_delay * (2**attempt)
                     logger.info(f"Retrying in {delay} seconds...")
                     await asyncio.sleep(delay)
 
-        # All retries failed
         raise TTSError(
             f"Failed to fetch voices after {self._max_retries} attempts: {last_error}",
             error_code="VOICE_FETCH_FAILED",
@@ -341,23 +344,18 @@ class EdgeTTSProvider(TTSProvider):
             List of available voices
         """
         try:
-            # Use cached voices if available
             if self._voices_cache:
                 voices = self._voices_cache
             else:
-                # Get raw voices from Edge TTS using retry logic
                 raw_voices = await self._fetch_voices_with_retry()
 
                 voices = []
                 for raw_voice in raw_voices:
-                    # Parse voice information
                     voice = self._parse_edge_voice(raw_voice)
                     voices.append(voice)
 
-                # Cache the results
                 self._voices_cache = voices
 
-            # Apply language filter if specified
             if language:
                 filtered_voices = []
                 for voice in voices:
@@ -664,7 +662,7 @@ class EdgeTTSProvider(TTSProvider):
         return "adult"  # Default
 
     async def _get_voice_info(self, voice_id: str) -> Optional[Dict]:
-        """Get detailed voice information by ID with retry logic."""
+        """Get detailed voice information by ID using cached data."""
         try:
             voices = await self._fetch_voices_with_retry()
             for voice in voices:
