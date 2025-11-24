@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "0.6.1"
+version = "0.6.2"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
 packages = [{include = "voicegenhub", from = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<4.0"
 click = "^8.1.0"
 structlog = "^23.2.0"
 rich = "^13.7.0"
