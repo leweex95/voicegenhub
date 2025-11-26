@@ -24,6 +24,15 @@ Supports multiple free and commercial TTS providers.
 
 ## Usage
 
+For Edge TTS:
+
+```bash
+voicegenhub synthesize "Hello, world!" --provider edge --voice en-US-AriaNeural --output hello.mp3
+```
+
+**Edge TTS supported voices:** Check the list of supported voices [here](https://speech.microsoft.com/portal/voicegallery).
+
+
 For Kokoro TTS:
 
 ```bash
