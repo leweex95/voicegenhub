@@ -14,7 +14,7 @@ rich = "^13.7.0"
 pydantic = "^2.11.9"
 
 [tool.poetry.group.edge.dependencies]
-edge-tts = "^6.1.0"
+edge-tts = "^7.2.0"
 
 [tool.poetry.group.google.dependencies]
 google-cloud-texttospeech = "*"
