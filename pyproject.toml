@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "0.6.3"
+version = "0.6.4"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
@@ -14,7 +14,7 @@ rich = "^13.7.0"
 pydantic = "^2.11.9"
 
 [tool.poetry.group.edge.dependencies]
-edge-tts = "^6.1.0"
+edge-tts = "^7.2.0"
 
 [tool.poetry.group.google.dependencies]
 google-cloud-texttospeech = "*"

@@ -57,10 +57,10 @@ class TestCLI:
         assert "Unsupported provider 'coqui'" in result.output
         assert "edge, google, piper, melotts, kokoro" in result.output
 
-    def test_cli_accepts_supported_providers_synthesize(self, runner):
+    def test_cli_accepts_supported_providers_synthesize(self, runner, tmp_path):
         """Test CLI accepts supported providers in synthesize command."""
         for provider in ["edge", "google", "piper", "melotts", "kokoro"]:
-            result = runner.invoke(cli, ["synthesize", "hello", "--provider", provider])
+            result = runner.invoke(cli, ["synthesize", "hello", "--provider", provider, "--output", str(tmp_path / "dummy.wav")])
             # Should fail due to provider issues, not validation
             assert "Unsupported provider" not in result.output
 
@@ -72,7 +72,7 @@ class TestCLI:
             assert "Unsupported provider" not in result.output
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_cli_synthesize_basic_call(self, mock_tts_class, runner):
+    def test_cli_synthesize_basic_call(self, mock_tts_class, runner, tmp_path):
         """Test synthesize command makes correct calls."""
         # Mock the TTS instance
         mock_tts = AsyncMock()
@@ -80,7 +80,7 @@ class TestCLI:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello world", "--voice", "en-US-AriaNeural"]
+            cli, ["synthesize", "hello world", "--voice", "en-US-AriaNeural", "--output", str(tmp_path / "speech.wav")]
         )
         assert result.exit_code == 0
         assert "Audio saved to:" in result.output
@@ -95,7 +95,7 @@ class TestCLI:
         assert call_args[1]["pitch"] == 1.0  # default pitch
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_cli_synthesize_with_params(self, mock_tts_class, runner):
+    def test_cli_synthesize_with_params(self, mock_tts_class, runner, tmp_path):
         """Test synthesize command with custom parameters."""
         mock_tts = AsyncMock()
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake_audio")
@@ -117,7 +117,7 @@ class TestCLI:
                 "--format",
                 "wav",
                 "--output",
-                "test.wav",
+                str(tmp_path / "test.wav"),
             ],
         )
         assert result.exit_code == 0
