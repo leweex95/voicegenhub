@@ -402,10 +402,14 @@ class EdgeTTSProvider(TTSProvider):
         Returns:
             TTS response with audio data
         """
+        import time
+
         # Ensure correct event loop on Windows
         _ensure_windows_event_loop()
 
         await self.validate_request(request)
+
+        setup_start = time.perf_counter()
 
         try:
             # Get voice information
@@ -443,9 +447,12 @@ class EdgeTTSProvider(TTSProvider):
                 pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
 
             # Synthesize with retry logic
+            inference_start = time.perf_counter()
             audio_data = await self._synthesize_with_retry(
                 text, voice_info["Name"], rate_param, volume_param, pitch_param
             )
+            inference_end = time.perf_counter()
+            logger.debug(f"Edge TTS inference time: {inference_end - inference_start:.3f}s")
 
             # Convert format if needed
             if request.audio_format != AudioFormat.MP3:
@@ -455,6 +462,9 @@ class EdgeTTSProvider(TTSProvider):
 
             # Calculate duration (approximate)
             duration = self._estimate_duration(request.text, request.speed)
+
+            setup_end = time.perf_counter()
+            logger.info(f"Edge TTS setup time: {setup_end - setup_start:.3f}s")
 
             response = TTSResponse(
                 audio_data=audio_data,

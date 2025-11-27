@@ -15,6 +15,7 @@ class TestVoiceGenHub:
     """Integration tests for VoiceGenHub."""
 
     @pytest.mark.asyncio
+    @pytest.mark.slow
     async def test_edge_tts_generation(self):
         """Test Edge TTS generation through VoiceGenHub."""
         tts = VoiceGenHub(provider="edge")
@@ -41,6 +42,7 @@ class TestVoiceGenHub:
                 raise
 
     @pytest.mark.asyncio
+    @pytest.mark.slow
     async def test_piper_tts_generation(self):
         """Test Piper TTS generation through VoiceGenHub."""
         tts = VoiceGenHub(provider="piper")
@@ -76,6 +78,7 @@ class TestVoiceGenHub:
                 raise
 
     @pytest.mark.asyncio
+    @pytest.mark.slow
     async def test_google_tts_generation(self):
         """Test Google TTS generation through VoiceGenHub."""
         # Check for Google credentials in order of preference:

@@ -52,6 +52,14 @@ class KokoroTTSProvider(TTSProvider):
 
     async def initialize(self) -> None:
         """Initialize the Kokoro TTS provider."""
+        # Set cache directory BEFORE any kokoro imports
+        import os
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        self._local_cache_dir = os.path.join(project_root, 'cache', 'kokoro')
+        os.environ['HF_HUB_CACHE'] = self._local_cache_dir
+        os.environ['TRANSFORMERS_CACHE'] = self._local_cache_dir
+        logger.info(f"Configured Kokoro cache: {self._local_cache_dir}")
+
         try:
             import kokoro  # noqa: F401
 
@@ -297,6 +305,8 @@ class KokoroTTSProvider(TTSProvider):
 
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Kokoro."""
+        import time
+
         if self._initialization_failed:
             raise TTSError(
                 "Kokoro TTS provider is not available",
@@ -341,18 +351,24 @@ class KokoroTTSProvider(TTSProvider):
 
             kokoro_lang = lang_code_map.get(prefix, "a")  # Default to American English
 
-            # Lazy load model
+            # Cache directory should already be set in initialize()
+            logger.info(f"Using local Kokoro cache: {self._local_cache_dir}")
+
+            # Import kokoro (cache should already be configured)
             import kokoro
 
+            setup_start = time.perf_counter()
             if self.model is None:
                 device = self.config.get("device", "cpu")
                 self.model = kokoro.KPipeline(lang_code=kokoro_lang, device=device)
                 logger.info(f"Loaded Kokoro pipeline for {kokoro_lang} ({prefix})")
+            setup_end = time.perf_counter()
 
             # Run synthesis in thread pool to avoid blocking
             def _synthesize():
                 import tempfile
 
+                inference_start = time.perf_counter()
                 output_path = None
                 try:
                     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
@@ -377,6 +393,9 @@ class KokoroTTSProvider(TTSProvider):
                     with open(output_path, "rb") as f:
                         audio_data = f.read()
 
+                    inference_end = time.perf_counter()
+                    logger.debug(f"Kokoro inference time: {inference_end - inference_start:.3f}s")
+
                     return audio_data
                 finally:
                     if output_path:
@@ -389,6 +408,8 @@ class KokoroTTSProvider(TTSProvider):
 
             loop = asyncio.get_event_loop()
             audio_data = await loop.run_in_executor(None, _synthesize)
+
+            logger.info(f"Kokoro setup time: {setup_end - setup_start:.3f}s")
 
             # Calculate duration (approximately)
             duration = len(request.text) / 150  # rough estimate
