@@ -92,3 +92,6 @@ secrets/
 
 # Copilot specifics
 copilot-instructions.md
+
+# TTS Model Cache
+cache/kokoro/*

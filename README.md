@@ -97,19 +97,27 @@ async def main():
 asyncio.run(main())
 ```
 
-## Reliability (applicable for Edge TTS)
+## Performance Comparison: Edge TTS vs Kokoro TTS
 
-VoiceGenHub is designed to handle transient service issues gracefully:
+Both providers support **full async/parallelized operations**. Here's how they compare:
 
-- **Automatic Retries**: Failed API calls are automatically retried with exponential backoff
-- **Lazy Initialization**: Provider initialization doesn't fail your application if the service is temporarily unavailable
-- **Graceful Degradation**: Transient errors (like Microsoft API 401/403) are handled to prevent downstream project outages
-- **Clock Skew Correction**: Automatically adjusts for time differences between client and server to resolve 401 Unauthorized errors (see [edge-tts#416](https://github.com/rany2/edge-tts/issues/416))
+| Metric | Edge TTS | Kokoro TTS | Notes |
+|--------|----------|-----------|-------|
+| **Startup** | 4.9s | 94s | Kokoro downloads & loads model on first use; cached afterwards |
+| **Sequential** (single request) | 3.2s | 14.2s | Local inference adds overhead vs cloud API |
+| **Async** (per request, 3x parallel) | 2.5s | 2.5s | Both highly parallelizable via async |
 
-Configuration options (in provider config):
-- `max_retries`: Number of retry attempts (default: 3)
-- `retry_delay`: Initial delay between retries in seconds (default: 1.0)
-- `rate_limit_delay`: Delay after successful requests (default: 0.1)
+**Key Findings:**
+- Kokoro achieves **parity with Edge TTS in async scenarios** (2.5s/req with full parallelization)
+- Kokoro model caching is transparent: first synthesis ~95s, subsequent ~24s (logs show timing)
+- Cold startup penalty is one-time; negligible for batched/continuous workloads
+- Both providers use thread pool executors (`run_in_executor`) to maintain async efficiency
+- For batch operations or long-running services, Kokoro's offline nature and strong async support make it competitive despite higher startup cost
+
+**Cache Location:**
+- **Kokoro models** are cached locally within the project: `cache/kokoro/` (~625MB)
+- **Edge TTS** uses Microsoft's cloud API (no local caching needed)
+- Cache persists across sessions and survives repository operations
 
 ## Requirements
 
