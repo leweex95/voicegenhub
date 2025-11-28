@@ -18,8 +18,8 @@ repos:
   - repo: local
     hooks:
       - id: pytest
-        name: pytest
-        entry: poetry run pytest
+        name: pytest (fast unit tests only)
+        entry: poetry run pytest --ignore=tests/test_integration.py -m "not integration" -v
         language: system
         pass_filenames: false
         always_run: true
