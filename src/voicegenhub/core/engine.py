@@ -34,8 +34,8 @@ class VoiceGenHub:
 
         logger.info("Initializing VoiceGenHub engine")
 
-        # Discover and register providers
-        await provider_factory.discover_and_register_providers()
+        # Discover only the requested provider
+        await provider_factory.discover_provider(self._provider_id)
 
         # Create provider instance
         try:
@@ -52,9 +52,12 @@ class VoiceGenHub:
 
     async def get_available_providers(self) -> List[str]:
         """Get list of available provider IDs."""
-        await provider_factory.discover_and_register_providers()
-
+        all_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs"]
         providers = []
+
+        for provider_id in all_providers:
+            await provider_factory.discover_provider(provider_id)
+
         if provider_factory._edge_provider_class:
             providers.append("edge")
         if provider_factory._google_provider_class:
@@ -65,6 +68,8 @@ class VoiceGenHub:
             providers.append("melotts")
         if provider_factory._kokoro_provider_class:
             providers.append("kokoro")
+        if provider_factory._elevenlabs_provider_class:
+            providers.append("elevenlabs")
 
         return providers
 

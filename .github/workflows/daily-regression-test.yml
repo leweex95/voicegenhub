@@ -38,7 +38,6 @@ jobs:
           name: coverage-reports
           path: coverage.xml
 
-
       - name: send edge tts failure notification
         if: failure()
         uses: dawidd6/action-send-mail@v3
