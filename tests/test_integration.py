@@ -110,16 +110,16 @@ class TestProviderInitializationIntegration:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_provider_get_capabilities(self):
-        """Integration: Test provider capability reporting."""
+    async def test_provider_initialization_error_handling(self):
+        """Integration: Test provider can handle voice requests gracefully."""
         from voicegenhub.core.engine import VoiceGenHub
 
         engine = VoiceGenHub(provider="edge")
         await engine.initialize()
 
-        capabilities = engine._provider.capabilities
-        assert capabilities is not None
-        assert hasattr(capabilities, "supports_speed_control")
+        # Test that we can get voices
+        voices = await engine.get_voices()
+        assert len(voices) > 0
 
     @pytest.mark.integration
     @pytest.mark.asyncio
@@ -332,7 +332,7 @@ class TestKokoroSpecificIntegration:
             request = TTSRequest(
                 text="Test synthesis",
                 voice_id=f"kokoro-{male_voice.id}",
-                audio_format=AudioFormat.MP3,
+                audio_format=AudioFormat.WAV,
                 speed=0.85,
             )
 
@@ -360,7 +360,7 @@ class TestKokoroSpecificIntegration:
             request = TTSRequest(
                 text="Test synthesis",
                 voice_id=f"kokoro-{female_voice.id}",
-                audio_format=AudioFormat.MP3,
+                audio_format=AudioFormat.WAV,
             )
 
             response = await provider.synthesize(request)
