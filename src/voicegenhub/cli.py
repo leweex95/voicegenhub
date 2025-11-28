@@ -43,7 +43,37 @@ def cli():
     "--pitch", type=float, default=1.0, help="Speech pitch (0.5-2.0, default 1.0)"
 )
 @click.option("--provider", "-p", help="TTS provider")
-def synthesize(text, voice, language, output, format, rate, pitch, provider):
+@click.option(
+    "--lowpass",
+    type=int,
+    help="Apply lowpass filter with cutoff frequency in Hz (e.g., 1200 for horror effect)",
+)
+@click.option(
+    "--normalize",
+    is_flag=True,
+    help="Normalize audio loudness",
+)
+@click.option(
+    "--distortion",
+    type=float,
+    help="Apply distortion/overdrive (gain 1-20, higher = more evil)",
+)
+@click.option(
+    "--noise",
+    type=float,
+    help="Add white noise static (volume 0.0-1.0)",
+)
+@click.option(
+    "--reverb",
+    is_flag=True,
+    help="Add reverb with delay effect",
+)
+@click.option(
+    "--pitch-shift",
+    type=int,
+    help="Pitch shift in semitones (negative = lower/darker)",
+)
+def synthesize(text, voice, language, output, format, rate, pitch, provider, lowpass, normalize, distortion, noise, reverb, pitch_shift):
     """Generate speech from text."""
     # Validate provider immediately
     supported_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs"]
@@ -72,10 +102,57 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider):
 
         # Save output
         output_path = Path(output) if output else Path(f"speech.{format}")
-        with open(output_path, "wb") as f:
+        temp_path = output_path if not any([lowpass, normalize, distortion, noise, reverb, pitch_shift]) else Path(str(output_path).replace(f".{format}", f"_temp.{format}"))
+
+        with open(temp_path, "wb") as f:
             f.write(response.audio_data)
 
-        click.echo(f"Audio saved to: {output_path}")
+        # Apply post-processing effects if requested
+        if any([lowpass, normalize, distortion, noise, reverb, pitch_shift]):
+            import subprocess
+
+            # Build FFmpeg filter chain
+            audio_filters = []
+            complex_filter = None
+
+            if pitch_shift:
+                audio_filters.append(f"asetrate=44100*{2**(pitch_shift/12.0)},aresample=44100")
+            if lowpass:
+                audio_filters.append(f"lowpass=f={lowpass}")
+            if distortion:
+                audio_filters.append(f"volume={distortion}dB,acompressor=threshold=-6dB:ratio=20:attack=5:release=50")
+            if reverb:
+                audio_filters.append("aecho=0.8:0.9:1000:0.3")
+            if normalize:
+                audio_filters.append("dynaudnorm=f=150:g=15")
+
+            # Noise requires filter_complex (separate stream)
+            if noise:
+                noise_filter = f"anoisesrc=d=10:c=white:r=44100:a={noise}[noise];[0:a][noise]amix=inputs=2:duration=first"
+                if audio_filters:
+                    complex_filter = noise_filter + "[mixed];" + "[mixed]" + ",".join(audio_filters)
+                else:
+                    complex_filter = noise_filter
+
+            cmd = ["ffmpeg", "-i", str(temp_path)]
+            if complex_filter:
+                cmd.extend(["-filter_complex", complex_filter])
+            elif audio_filters:
+                cmd.extend(["-af", ",".join(audio_filters)])
+            cmd.extend(["-y", str(output_path)])
+
+            try:
+                subprocess.run(cmd, capture_output=True, check=True)
+                temp_path.unlink()  # Remove temp file
+                click.echo(f"Audio with effects saved to: {output_path}")
+            except subprocess.CalledProcessError as e:
+                click.echo(f"Warning: Post-processing failed: {e.stderr.decode()}", err=True)
+                click.echo(f"Original audio saved to: {temp_path}")
+            except FileNotFoundError:
+                click.echo("Warning: FFmpeg not found. Install FFmpeg for post-processing.", err=True)
+                click.echo(f"Original audio saved to: {temp_path}")
+        else:
+            click.echo(f"Audio saved to: {output_path}")
 
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
