@@ -138,8 +138,41 @@ pip install voicegenhub[coqui]
 # Install MeloTTS (self-hosted neural TTS)
 pip install voicegenhub[melotts]
 
+
 # Install Kokoro TTS (self-hosted lightweight TTS)
 pip install voicegenhub[kokoro]
+
+### Kokoro TTS Installation
+
+Kokoro TTS requires Python 3.11 or higher.
+
+#### Installation
+
+```bash
+# Using Poetry (recommended):
+poetry add voicegenhub[kokoro]
+
+# Or if already installed:
+poetry install --with kokoro
+
+# Using pip:
+pip install voicegenhub[kokoro]
+```
+
+#### Supported Python Versions
+
+- Python 3.11 ✅
+- Python 3.12 ✅
+- Python 3.13 ✅
+- Python 3.14+ (untested, likely works)
+
+#### Troubleshooting
+
+If you get `ImportError: No module named 'kokoro'`:
+
+1. Verify your Python version: `python --version` (must be 3.11+)
+2. Reinstall with extras: `pip install --force-reinstall voicegenhub[kokoro]`
+3. Check cache cleanup: `rm -rf ~/.cache/huggingface/` and retry
 
 # Install all optional providers
 pip install voicegenhub[piper,coqui,melotts,kokoro]

@@ -27,7 +27,7 @@ melo = "*"
 
 [tool.poetry.group.kokoro.dependencies]
 soundfile = "*"
-kokoro = {version = "<0.10", python = ">=3.11,<3.13"}
+kokoro = {version = "<0.10", python = ">=3.11"}
 
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"
