@@ -6,6 +6,7 @@ output formats and log levels.
 """
 
 import logging
+import warnings
 from typing import Optional
 
 import structlog
@@ -24,7 +25,16 @@ def configure_logging(
         format_type: Logging format ('rich', 'json', 'standard')
         show_locals: Whether to show local variables in tracebacks
     """
+    # Suppress third-party library warnings
+    warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
+    warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
+
     log_level = getattr(logging, level.upper(), logging.INFO)
+
+    # Suppress third-party library loggers
+    logging.getLogger("transformers").setLevel(logging.ERROR)
+    logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+    logging.getLogger("transformers.utils.hub").setLevel(logging.ERROR)
 
     # Configure stdlib logging
     if format_type == "rich":

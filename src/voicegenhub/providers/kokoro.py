@@ -54,6 +54,8 @@ class KokoroTTSProvider(TTSProvider):
         """Initialize the Kokoro TTS provider."""
         # Set cache directory BEFORE any kokoro imports
         import os
+        import warnings
+
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
         self._local_cache_dir = os.path.join(project_root, 'cache', 'kokoro')
         os.environ['HF_HUB_CACHE'] = self._local_cache_dir
@@ -61,22 +63,18 @@ class KokoroTTSProvider(TTSProvider):
         logger.info(f"Configured Kokoro cache: {self._local_cache_dir}")
 
         try:
-            import kokoro  # noqa: F401
+            # Suppress HuggingFace hub warnings during import
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
+                import kokoro  # noqa: F401
 
             # Models are loaded on-demand via get_voices
             self._initialization_failed = False
             logger.info("Kokoro TTS provider initialized successfully")
 
-        except ImportError as e:
-            logger.warning(f"Kokoro TTS dependencies not available: {e}")
-            logger.warning(
-                "Kokoro TTS provider will be disabled. Install with: pip install voicegenhub[kokoro]"
-            )
-            self._initialization_failed = True
-        except Exception as e:
-            logger.warning(f"Failed to initialize Kokoro TTS: {str(e)}")
-            logger.warning("Kokoro TTS provider will be disabled")
-            self._initialization_failed = True
+        except Exception:
+            # Re-raise the exception instead of catching it
+            raise
 
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
         """Get available Kokoro voices."""
@@ -92,7 +90,18 @@ class KokoroTTSProvider(TTSProvider):
         else:
             # Load available voices from Kokoro
             try:
-                import kokoro  # noqa: F401
+                import warnings
+                import sys
+                from io import StringIO
+
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
+                    old_stderr = sys.stderr
+                    sys.stderr = StringIO()
+                    try:
+                        import kokoro  # noqa: F401
+                    finally:
+                        sys.stderr = old_stderr
 
                 # Get available voices - these are the actual voice files from the repo
                 available_voice_names = [
@@ -352,15 +361,26 @@ class KokoroTTSProvider(TTSProvider):
             kokoro_lang = lang_code_map.get(prefix, "a")  # Default to American English
 
             # Cache directory should already be set in initialize()
+            if not hasattr(self, '_local_cache_dir'):
+                raise TTSError(
+                    "Kokoro provider not properly initialized - _local_cache_dir not set",
+                    error_code="PROVIDER_NOT_INITIALIZED",
+                    provider=self.provider_id,
+                )
             logger.info(f"Using local Kokoro cache: {self._local_cache_dir}")
 
             # Import kokoro (cache should already be configured)
-            import kokoro
+            import warnings
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
+                import kokoro
 
             setup_start = time.perf_counter()
             if self.model is None:
                 device = self.config.get("device", "cpu")
-                self.model = kokoro.KPipeline(lang_code=kokoro_lang, device=device)
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
+                    self.model = kokoro.KPipeline(lang_code=kokoro_lang, device=device)
                 logger.info(f"Loaded Kokoro pipeline for {kokoro_lang} ({prefix})")
             setup_end = time.perf_counter()
 
