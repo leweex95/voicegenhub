@@ -83,6 +83,7 @@ class TestCLI:
             cli, ["synthesize", "hello world", "--voice", "en-US-AriaNeural", "--output", str(tmp_path / "speech.wav")]
         )
         assert result.exit_code == 0
+        assert "Audio saved to:" in result.output
 
         # Verify TTS was called correctly
         mock_tts_class.assert_called_once_with(provider=None)  # Auto-select provider

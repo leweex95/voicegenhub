@@ -12,9 +12,6 @@ import click
 
 from .core.engine import VoiceGenHub
 from .providers.base import AudioFormat
-from .utils.logger import get_logger
-
-logger = get_logger(__name__)
 
 
 @click.group()
@@ -147,15 +144,15 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
             try:
                 subprocess.run(cmd, capture_output=True, check=True)
                 temp_path.unlink()  # Remove temp file
-                logger.info(f"Audio with effects saved to: {output_path}")
+                click.echo(f"Audio with effects saved to: {output_path}")
             except subprocess.CalledProcessError as e:
-                logger.warning(f"Post-processing failed: {e.stderr.decode()}")
-                logger.info(f"Original audio saved to: {temp_path}")
+                click.echo(f"Warning: Post-processing failed: {e.stderr.decode()}", err=True)
+                click.echo(f"Original audio saved to: {temp_path}")
             except FileNotFoundError:
-                logger.warning("FFmpeg not found. Install FFmpeg for post-processing.")
-                logger.info(f"Original audio saved to: {temp_path}")
+                click.echo("Warning: FFmpeg not found. Install FFmpeg for post-processing.", err=True)
+                click.echo(f"Original audio saved to: {temp_path}")
         else:
-            logger.info(f"Audio saved to: {output_path}")
+            click.echo(f"Audio saved to: {output_path}")
 
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
