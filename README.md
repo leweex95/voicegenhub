@@ -146,6 +146,25 @@ pip install voicegenhub[kokoro]
 
 Kokoro TTS requires Python 3.11 or higher.
 
+#### Windows & Python 3.13+ Build Limitation
+
+**Important:** On Windows with Python 3.13+, Kokoro TTS (via curated-tokenizers) may require compiling native code if pre-built wheels are not available. This requires Microsoft Visual C++ Build Tools.
+
+If you see errors about missing C++ compilers or build failures when installing Kokoro, follow these steps:
+
+1. Download and install [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+2. During installation, select "Desktop development with C++" workload.
+3. After installation, restart your terminal and retry installation:
+  ```bash
+  poetry install --with kokoro
+  # or
+  pip install voicegenhub[kokoro]
+  ```
+
+If you still see build errors, check for available wheels for `curated-tokenizers` on [PyPI](https://pypi.org/project/curated-tokenizers/#files). If no wheel is available for your Python version, you must build from source (requires Visual C++).
+
+**Recommendation:** For easiest installation, use Python 3.11 or 3.12 on Windows until wheels for Python 3.13+ are published.
+
 #### Installation
 
 ```bash

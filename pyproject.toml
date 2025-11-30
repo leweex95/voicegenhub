@@ -7,14 +7,15 @@ readme = "README.md"
 packages = [{include = "voicegenhub", from = "src"}]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<4.0"
+python = ">=3.11,<3.14"
 click = "^8.1.0"
 structlog = "^23.2.0"
 rich = "^13.7.0"
 pydantic = "^2.11.9"
 edge-tts = "^7.2.0"
-kokoro = {version = "<0.10", python = ">=3.11"}
+kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152ca444717ca5d78747ccb4bec"}
 soundfile = "*"
+misaki = {git = "https://github.com/hexgrad/misaki.git", rev = "fba1236595f2d2bf21d414ba6e57d25256afada3"}
 
 [tool.poetry.group.edge.dependencies]
 
