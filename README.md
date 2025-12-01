@@ -27,7 +27,7 @@ Supports multiple free and commercial TTS providers.
 For Edge TTS:
 
 ```bash
-voicegenhub synthesize "Hello, world!" --provider edge --voice en-US-AriaNeural --output hello.mp3
+poetry run voicegenhub synthesize "Hello, world!" --provider edge --voice en-US-AriaNeural --output hello.mp3
 ```
 
 **Edge TTS supported voices:** Check the list of supported voices [here](https://speech.microsoft.com/portal/voicegallery).
@@ -36,7 +36,7 @@ voicegenhub synthesize "Hello, world!" --provider edge --voice en-US-AriaNeural 
 For Kokoro TTS:
 
 ```bash
-voicegenhub synthesize "Hello, world!" --provider kokoro --voice kokoro-af_alloy --output hello.wav
+poetry run voicegenhub synthesize "Hello, world!" --provider kokoro --voice kokoro-af_alloy --output hello.wav
 ```
 
 **Kokoro supported voices:** Check the list of supported voices [here](https://github.com/nazdridoy/kokoro-tts?tab=readme-ov-file#supported-voices).
@@ -44,7 +44,7 @@ voicegenhub synthesize "Hello, world!" --provider kokoro --voice kokoro-af_alloy
 For MeloTTS:
 
 ```bash
-voicegenhub synthesize "Hello, world!" --provider melotts --voice melotts-EN-US --output hello.wav
+poetry run voicegenhub synthesize "Hello, world!" --provider melotts --voice melotts-EN-US --output hello.wav
 ```
 
 or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` (Australia), `melotts-EN-INDIA`.
@@ -54,7 +54,7 @@ or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` 
 For ElevenLabs:
 
 ```bash
-voicegenhub synthesize "Hello, world!" --provider elevenlabs --voice elevenlabs-EXAVITQu4vr4xnSDxMaL --output hello.mp3
+poetry run voicegenhub synthesize "Hello, world!" --provider elevenlabs --voice elevenlabs-EXAVITQu4vr4xnSDxMaL --output hello.mp3
 ```
 
 Set your API key: `export ELEVENLABS_API_KEY=your_api_key_here`
@@ -64,37 +64,11 @@ Set your API key: `export ELEVENLABS_API_KEY=your_api_key_here`
 # Print all available voices per provider
 
 ```bash
-voicegenhub voices --language en --provider edge
-voicegenhub voices --language en --provider google
-voicegenhub voices --language en --provider melotts
-voicegenhub voices --language en --provider kokoro
-voicegenhub voices --language en --provider elevenlabs
-```
-
-### Python API
-
-```python
-import asyncio
-from voicegenhub import VoiceGenHub
-
-async def main():
-    # Specify provider in constructor
-    tts = VoiceGenHub(provider="edge")  # or "google", "melotts", "kokoro", "elevenlabs"
-    await tts.initialize()
-
-    response = await tts.generate(
-        text="Hello, world!",
-        voice="en-US-AriaNeural"  # Edge voice
-        # voice="en-US-Wavenet-D"  # Google voice
-        # voice="melotts-EN-US"    # MeloTTS American English
-        # voice="kokoro-af_alloy"  # Kokoro voice
-        # voice="elevenlabs-EXAVITQu4vr4xnSDxMaL"  # ElevenLabs voice
-    )
-
-    with open("speech.mp3", "wb") as f:
-        f.write(response.audio_data)
-
-asyncio.run(main())
+poetry run voicegenhub voices --language en --provider edge
+poetry run voicegenhub voices --language en --provider google
+poetry run voicegenhub voices --language en --provider melotts
+poetry run voicegenhub voices --language en --provider kokoro
+poetry run voicegenhub voices --language en --provider elevenlabs
 ```
 
 ## Performance Comparison: Edge TTS vs Kokoro TTS
