@@ -119,7 +119,10 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
             complex_filter = None
 
             if pitch_shift:
-                audio_filters.append(f"asetrate=44100*{2**(pitch_shift/12.0)},aresample=44100")
+                # audio_filters.append(f"asetrate=44100*{2**(pitch_shift/12.0)},aresample=44100")
+                # Use rubberband for pitch shifting without changing tempo
+                # rubberband shifts pitch by semitones while maintaining duration
+                audio_filters.append(f"rubberband=pitch={2**(pitch_shift/12.0)}")
             if lowpass:
                 audio_filters.append(f"lowpass=f={lowpass}")
             if distortion:
