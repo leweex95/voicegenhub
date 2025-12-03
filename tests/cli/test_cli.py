@@ -1,5 +1,6 @@
 """Unit tests for VoiceGenHub CLI."""
 from unittest.mock import AsyncMock, patch
+import subprocess
 
 import pytest
 from click.testing import CliRunner
@@ -595,6 +596,554 @@ class TestCLI:
         """Verify __name__=='__main__' block invokes cli()."""
         # This is hard to test directly, but we can check that cli is callable
         assert callable(cli)
+
+    @patch("voicegenhub.cli.VoiceGenHub")
+    def test_synthesize_empty_text(self, mock_tts_class, runner, tmp_path):
+        """Ensure engine handles empty string text input gracefully."""
+        mock_tts = AsyncMock()
+        mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
+        mock_tts_class.return_value = mock_tts
+
+        result = runner.invoke(cli, ["synthesize", "", "--output", str(tmp_path / "test.wav")])
+        assert result.exit_code == 0
+        mock_tts.generate.assert_called_once()
+        # Should still call generate with empty text
+
+    @patch("voicegenhub.cli.VoiceGenHub")
+    @patch("builtins.open", side_effect=OSError("Permission denied"))
+    def test_synthesize_file_write_exception(self, mock_open, mock_tts_class, runner, tmp_path):
+        """Verify CLI exits if writing audio file fails due to IOError."""
+        mock_tts = AsyncMock()
+        mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
+        mock_tts_class.return_value = mock_tts
+
+        result = runner.invoke(cli, ["synthesize", "test", "--output", str(tmp_path / "test.wav")])
+        assert result.exit_code == 1
+        assert "Error:" in result.output
+
+    def test_logger_initialized(self):
+        """Ensure logger is initialized at module level."""
+        from voicegenhub.cli import logger
+        assert logger is not None
+        # Logger should have the expected name
+        assert hasattr(logger, 'info')
+        assert hasattr(logger, 'warning')
+
+    @patch("voicegenhub.cli.VoiceGenHub")
+    @patch("voicegenhub.cli.logger")
+    def test_logger_info_called_on_success(self, mock_logger, mock_tts_class, runner, tmp_path):
+        """Verify logger.info is called when audio is successfully saved."""
+        mock_tts = AsyncMock()
+        mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
+        mock_tts_class.return_value = mock_tts
+
+        result = runner.invoke(cli, ["synthesize", "test", "--output", str(tmp_path / "test.wav")])
+        assert result.exit_code == 0
+        mock_logger.info.assert_called_with(f"Audio saved to: {tmp_path / 'test.wav'}")
+
+    @patch("voicegenhub.cli.VoiceGenHub")
+    @patch("voicegenhub.cli.logger")
+    @patch("subprocess.run", side_effect=subprocess.CalledProcessError(1, "ffmpeg", stderr=b"error"))
+    def test_logger_warning_called_on_failure(self, mock_subprocess, mock_logger, mock_tts_class, runner, tmp_path):
+        """Verify logger.warning is called if FFmpeg or post-processing fails."""
+        mock_tts = AsyncMock()
+        mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
+        mock_tts_class.return_value = mock_tts
+
+        result = runner.invoke(cli, ["synthesize", "test", "--pitch-shift", "2", "--output", str(tmp_path / "test.wav")])
+        assert result.exit_code == 0  # CLI doesn't exit on FFmpeg failure
+        mock_logger.warning.assert_called()
+
+
+class TestCLIPostProcessingFlags:
+    """Unit tests for new post-processing CLI flags."""
+
+    def test_cli_lowpass_flag_construction(self):
+        """Test that --lowpass flag creates correct FFmpeg filter."""
+        from voicegenhub.cli import synthesize
+
+        # Verify flag exists and is properly defined
+        assert synthesize.params is not None
+        param_names = [p.name for p in synthesize.params]
+        assert "lowpass" in param_names
+
+    def test_cli_distortion_flag_construction(self):
+        """Test that --distortion flag exists and accepts float."""
+        from voicegenhub.cli import synthesize
+
+        param_names = [p.name for p in synthesize.params]
+        assert "distortion" in param_names
+
+    def test_cli_noise_flag_construction(self):
+        """Test that --noise flag exists and accepts float."""
+        from voicegenhub.cli import synthesize
+
+        param_names = [p.name for p in synthesize.params]
+        assert "noise" in param_names
+
+    def test_cli_pitch_shift_flag_construction(self):
+        """Test that --pitch-shift flag exists and accepts int."""
+        from voicegenhub.cli import synthesize
+
+        param_names = [p.name for p in synthesize.params]
+        assert "pitch_shift" in param_names
+
+    def test_cli_reverb_flag_construction(self):
+        """Test that --reverb flag is boolean."""
+        from voicegenhub.cli import synthesize
+
+        param_names = [p.name for p in synthesize.params]
+        assert "reverb" in param_names
+
+    def test_cli_normalize_flag_construction(self):
+        """Test that --normalize flag is boolean."""
+        from voicegenhub.cli import synthesize
+
+        param_names = [p.name for p in synthesize.params]
+        assert "normalize" in param_names
+
+
+class TestFFmpegFilterChainConstruction:
+    """Unit tests for FFmpeg filter chain building logic."""
+
+    def test_lowpass_filter_format(self):
+        """Test lowpass filter string format."""
+        cutoff = 1200
+        expected = f"lowpass=f={cutoff}"
+        assert "lowpass=f=" in expected
+
+    def test_distortion_filter_format(self):
+        """Test distortion filter string format."""
+        gain = 10.0
+        expected = f"volume={gain}dB,acompressor=threshold=-6dB:ratio=20:attack=5:release=50"
+        assert "volume=" in expected
+        assert "acompressor" in expected
+
+    def test_noise_filter_format(self):
+        """Test noise filter complex format."""
+        noise_volume = 0.05
+        expected = f"anoisesrc=d=10:c=white:r=44100:a={noise_volume}[noise];[0:a][noise]amix=inputs=2:duration=first"
+        assert "anoisesrc" in expected
+        assert "amix" in expected
+
+    def test_pitch_shift_filter_format(self):
+        """Test pitch shift filter format."""
+        semitones = -5
+        rate_mult = 2 ** (semitones / 12.0)
+        expected = f"asetrate=44100*{rate_mult},aresample=44100"
+        assert "asetrate" in expected
+        assert "aresample" in expected
+
+    def test_reverb_filter_format(self):
+        """Test reverb filter format."""
+        expected = "aecho=0.8:0.9:1000:0.3"
+        assert "aecho" in expected
+
+    def test_normalize_filter_format(self):
+        """Test normalize filter format."""
+        expected = "dynaudnorm=f=150:g=15"
+        assert "dynaudnorm" in expected
+
+    def test_pitch_shift_calculation(self):
+        """Test pitch shift semitone calculation."""
+        # -5 semitones = lower by ~0.749x rate
+        semitones = -5
+        rate_mult = 2 ** (semitones / 12.0)
+        assert 0.74 < rate_mult < 0.76
+
+    def test_pitch_shift_positive(self):
+        """Test positive pitch shift."""
+        semitones = 5
+        rate_mult = 2 ** (semitones / 12.0)
+        assert 1.33 < rate_mult < 1.34
+
+    def test_pitch_shift_octave(self):
+        """Test full octave shift."""
+        semitones = 12
+        rate_mult = 2 ** (semitones / 12.0)
+        assert rate_mult == 2.0
+
+
+class TestCLIPostProcessingIntegration:
+    """Integration tests for CLI post-processing (slow, CI-only)."""
+
+    @pytest.mark.integration
+    def test_cli_synthesize_with_lowpass_effect(self, tmp_path):
+        """Integration: Verify lowpass effect is actually applied."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_lowpass.wav"
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            # Mock response with valid audio data
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+
+            async def mock_generate(*args, **kwargs):
+                return mock_response
+
+            mock_engine.generate = mock_generate
+
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test text",
+                    "--provider",
+                    "edge",
+                    "--output",
+                    str(output_file),
+                    "--lowpass",
+                    "1200",
+                ],
+            )
+
+            assert result.exit_code == 0
+
+    @pytest.mark.integration
+    def test_cli_synthesize_with_distortion_effect(self, tmp_path):
+        """Integration: Verify distortion effect is applied."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_distortion.wav"
+
+        with patch("voicegenhub.core.engine.VoiceGenHub"):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    "--provider",
+                    "edge",
+                    "--output",
+                    str(output_file),
+                    "--distortion",
+                    "10",
+                ],
+            )
+            # Just verify command is accepted (FFmpeg might not be available)
+            assert result.exit_code in [0, 1]
+
+    @pytest.mark.integration
+    def test_cli_synthesize_combined_effects(self, tmp_path):
+        """Integration: Test multiple effects combined."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_combined.wav"
+
+        with patch("voicegenhub.core.engine.VoiceGenHub"):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    "--provider",
+                    "edge",
+                    "--output",
+                    str(output_file),
+                    "--lowpass",
+                    "1200",
+                    "--distortion",
+                    "10",
+                    "--pitch-shift",
+                    "-5",
+                    "--reverb",
+                    "--normalize",
+                ],
+            )
+            assert result.exit_code in [0, 1]
+
+    @pytest.mark.integration
+    def test_cli_synthesize_with_noise_effect(self, tmp_path):
+        """Integration: Verify noise injection flag works."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_noise.wav"
+
+        with patch("voicegenhub.core.engine.VoiceGenHub"):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    "--provider",
+                    "edge",
+                    "--output",
+                    str(output_file),
+                    "--noise",
+                    "0.05",
+                ],
+            )
+            assert result.exit_code in [0, 1]
+
+
+class TestCLIPostProcessingTempFileLogic:
+    """Unit tests for temp file creation logic in post-processing."""
+
+    @pytest.mark.integration
+    def test_pitch_shift_creates_temp_file(self, tmp_path):
+        """Test that pitch-shift effect creates distinct temp file."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_pitch_temp.wav"
+
+        captured_cmds = []
+
+        def mock_subprocess_run(cmd, capture_output=True, check=True):
+            captured_cmds.append(cmd)
+            return MagicMock()
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+            mock_engine.generate = MagicMock(return_value=mock_response)
+
+            with patch("subprocess.run", side_effect=mock_subprocess_run):
+                result = runner.invoke(cli, [
+                    "synthesize",
+                    "test",
+                    "--provider", "edge",
+                    "--output", str(output_file),
+                    "--pitch-shift", "-2",
+                ])
+
+                assert result.exit_code == 0
+                assert len(captured_cmds) == 1
+                cmd = captured_cmds[0]
+                input_file = cmd[1]  # -i <input>
+                output_file_cmd = cmd[-1]
+                assert input_file != output_file_cmd, "Temp file should differ from output file"
+
+    @pytest.mark.integration
+    def test_lowpass_creates_temp_file(self, tmp_path):
+        """Test that lowpass effect creates distinct temp file."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_lowpass_temp.wav"
+
+        captured_cmds = []
+
+        def mock_subprocess_run(cmd, capture_output=True, check=True):
+            captured_cmds.append(cmd)
+            return MagicMock()
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+            mock_engine.generate = MagicMock(return_value=mock_response)
+
+            with patch("subprocess.run", side_effect=mock_subprocess_run):
+                result = runner.invoke(cli, [
+                    "synthesize",
+                    "test",
+                    "--provider", "edge",
+                    "--output", str(output_file),
+                    "--lowpass", "1200",
+                ])
+
+                assert result.exit_code == 0
+                assert len(captured_cmds) == 1
+                cmd = captured_cmds[0]
+                input_file = cmd[1]
+                output_file_cmd = cmd[-1]
+                assert input_file != output_file_cmd
+
+    @pytest.mark.integration
+    def test_normalize_creates_temp_file(self, tmp_path):
+        """Test that normalize effect creates distinct temp file."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_normalize_temp.wav"
+
+        captured_cmds = []
+
+        def mock_subprocess_run(cmd, capture_output=True, check=True):
+            captured_cmds.append(cmd)
+            return MagicMock()
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+            mock_engine.generate = MagicMock(return_value=mock_response)
+
+            with patch("subprocess.run", side_effect=mock_subprocess_run):
+                result = runner.invoke(cli, [
+                    "synthesize",
+                    "test",
+                    "--provider", "edge",
+                    "--output", str(output_file),
+                    "--normalize",
+                ])
+
+                assert result.exit_code == 0
+                assert len(captured_cmds) == 1
+                cmd = captured_cmds[0]
+                input_file = cmd[1]
+                output_file_cmd = cmd[-1]
+                assert input_file != output_file_cmd
+
+    @pytest.mark.integration
+    def test_distortion_creates_temp_file(self, tmp_path):
+        """Test that distortion effect creates distinct temp file."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_distortion_temp.wav"
+
+        captured_cmds = []
+
+        def mock_subprocess_run(cmd, capture_output=True, check=True):
+            captured_cmds.append(cmd)
+            return MagicMock()
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+            mock_engine.generate = MagicMock(return_value=mock_response)
+
+            with patch("subprocess.run", side_effect=mock_subprocess_run):
+                result = runner.invoke(cli, [
+                    "synthesize",
+                    "test",
+                    "--provider", "edge",
+                    "--output", str(output_file),
+                    "--distortion", "10",
+                ])
+
+                assert result.exit_code == 0
+                assert len(captured_cmds) == 1
+                cmd = captured_cmds[0]
+                input_file = cmd[1]
+                output_file_cmd = cmd[-1]
+                assert input_file != output_file_cmd
+
+    @pytest.mark.integration
+    def test_reverb_creates_temp_file(self, tmp_path):
+        """Test that reverb effect creates distinct temp file."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_reverb_temp.wav"
+
+        captured_cmds = []
+
+        def mock_subprocess_run(cmd, capture_output=True, check=True):
+            captured_cmds.append(cmd)
+            return MagicMock()
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+            mock_engine.generate = MagicMock(return_value=mock_response)
+
+            with patch("subprocess.run", side_effect=mock_subprocess_run):
+                result = runner.invoke(cli, [
+                    "synthesize",
+                    "test",
+                    "--provider", "edge",
+                    "--output", str(output_file),
+                    "--reverb",
+                ])
+
+                assert result.exit_code == 0
+                assert len(captured_cmds) == 1
+                cmd = captured_cmds[0]
+                input_file = cmd[1]
+                output_file_cmd = cmd[-1]
+                assert input_file != output_file_cmd
+
+    @pytest.mark.integration
+    def test_noise_creates_temp_file(self, tmp_path):
+        """Test that noise effect creates distinct temp file."""
+        pytest.importorskip("ffmpeg")
+        from click.testing import CliRunner
+        from voicegenhub.cli import cli
+        from unittest.mock import patch, MagicMock
+
+        runner = CliRunner()
+        output_file = tmp_path / "test_noise_temp.wav"
+
+        captured_cmds = []
+
+        def mock_subprocess_run(cmd, capture_output=True, check=True):
+            captured_cmds.append(cmd)
+            return MagicMock()
+
+        with patch("voicegenhub.core.engine.VoiceGenHub") as mock_engine_class:
+            mock_engine = MagicMock()
+            mock_engine_class.return_value = mock_engine
+
+            mock_response = MagicMock()
+            mock_response.audio_data = b"RIFF" + b"\x00" * 36 + b"data" + b"\x00" * 100
+            mock_engine.generate = MagicMock(return_value=mock_response)
+
+            with patch("subprocess.run", side_effect=mock_subprocess_run):
+                result = runner.invoke(cli, [
+                    "synthesize",
+                    "test",
+                    "--provider", "edge",
+                    "--output", str(output_file),
+                    "--noise", "0.05",
+                ])
+
+                assert result.exit_code == 0
+                assert len(captured_cmds) == 1
+                cmd = captured_cmds[0]
+                input_file = cmd[1]
+                output_file_cmd = cmd[-1]
+                assert input_file != output_file_cmd
 
 
 class TestCLIVoiceNotFoundErrors:

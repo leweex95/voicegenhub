@@ -20,7 +20,7 @@ class TestVoiceSelectionIntegration:
         # First call should populate cache
         voices1 = await engine.get_voices()
         assert len(voices1) > 0
-        assert all(hasattr(v, "id") for v in voices1)
+        assert all("id" in v for v in voices1)
 
         # Second call should return cached voices
         voices2 = await engine.get_voices()
@@ -38,13 +38,13 @@ class TestVoiceSelectionIntegration:
         # Get all voices
         all_voices = await engine.get_voices()
         assert len(all_voices) > 0
-        assert all(hasattr(v, "language") for v in all_voices)
+        assert all("language" in v for v in all_voices)
 
         # Filter by language
         en_voices = await engine.get_voices(language="en")
         assert len(en_voices) > 0
         for voice in en_voices:
-            assert voice.language.startswith("en")
+            assert voice["language"].startswith("en")
 
     @pytest.mark.integration
     @pytest.mark.asyncio
@@ -58,7 +58,7 @@ class TestVoiceSelectionIntegration:
 
         voices = await engine.get_voices()
         assert len(voices) > 0
-        assert all(hasattr(v, "id") and hasattr(v, "provider") for v in voices)
+        assert all("id" in v and "provider" in v for v in voices)
 
     @pytest.mark.integration
     @pytest.mark.asyncio
@@ -74,8 +74,8 @@ class TestVoiceSelectionIntegration:
 
         # Check that voices have gender attribute
         for v in voices:
-            assert hasattr(v, "gender")
-            assert v.gender is not None
+            assert "gender" in v
+            assert v["gender"] is not None
 
 
 class TestProviderInitializationIntegration:

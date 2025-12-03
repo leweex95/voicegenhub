@@ -86,6 +86,7 @@ Thumbs.db
 
 # Credentials and secrets
 config/
+!tests/config/
 config/google-credentials.json
 google-credentials.json
 *.credentials.json

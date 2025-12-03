@@ -104,14 +104,22 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
         )
 
         # Save output
-        output_path = Path(output) if output else Path(f"speech.{format}")
-        temp_path = output_path if not any([lowpass, normalize, distortion, noise, reverb, pitch_shift]) else Path(str(output_path).replace(f".{format}", f"_temp.{format}"))
 
-        with open(temp_path, "wb") as f:
-            f.write(response.audio_data)
+        import tempfile
+        output_path = Path(output) if output else Path(f"speech.{format}")
+        effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
+        if effects_requested:
+            # Always use a true temp file for effects
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{format}") as tmp:
+                temp_path = Path(tmp.name)
+                tmp.write(response.audio_data)
+        else:
+            temp_path = output_path
+            with open(temp_path, "wb") as f:
+                f.write(response.audio_data)
 
         # Apply post-processing effects if requested
-        if any([lowpass, normalize, distortion, noise, reverb, pitch_shift]):
+        if effects_requested:
             import subprocess
 
             # Build FFmpeg filter chain
@@ -149,7 +157,8 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
 
             try:
                 subprocess.run(cmd, capture_output=True, check=True)
-                temp_path.unlink()  # Remove temp file
+                if temp_path != output_path and temp_path.exists():
+                    temp_path.unlink()  # Remove temp file
                 logger.info(f"Audio with effects saved to: {output_path}")
             except subprocess.CalledProcessError as e:
                 logger.warning(f"Post-processing failed: {e.stderr.decode()}")
