@@ -42,7 +42,7 @@ tts.tts_to_file(
 # Available languages in XTTS-v2
 languages = {
     "en": "English",
-    "es": "Spanish", 
+    "es": "Spanish",
     "fr": "French",
     "de": "German",
     "it": "Italian",
@@ -220,19 +220,19 @@ from voicegenhub.providers.base import TTSProvider
 
 class ProviderFactory:
     _providers: Dict[str, TTSProvider] = {}
-    
+
     @staticmethod
     def register(name: str, provider_class):
         """Register a TTS provider"""
         ProviderFactory._providers[name] = provider_class
-    
+
     @staticmethod
     def create(name: str, **kwargs) -> TTSProvider:
         """Create a provider instance"""
         if name not in ProviderFactory._providers:
             raise ValueError(f"Unknown provider: {name}")
         return ProviderFactory._providers[name](**kwargs)
-    
+
     @staticmethod
     def list_providers():
         """List available providers"""
@@ -257,43 +257,43 @@ class XTTSv2Provider(TTSProvider):
         self.device = device if torch.cuda.is_available() else "cpu"
         self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(self.device)
         self.supported_languages = [
-            "en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", 
+            "en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl",
             "zh", "ja", "ko", "hu", "cs", "ro"
         ]
-    
+
     def synthesize(self, text: str, **kwargs) -> bytes:
         """Synthesize speech from text"""
         language = kwargs.get("language", "en")
         speaker_wav = kwargs.get("speaker_wav", None)
         speed = kwargs.get("speed", 1.0)
-        
+
         wav = self.tts.tts(
             text=text,
             speaker_wav=speaker_wav,
             language=language
         )
-        
+
         return wav
-    
+
     def synthesize_to_file(self, text: str, output_path: str, **kwargs):
         """Synthesize and save to file"""
         language = kwargs.get("language", "en")
         speaker_wav = kwargs.get("speaker_wav", None)
-        
+
         self.tts.tts_to_file(
             text=text,
             speaker_wav=speaker_wav,
             language=language,
             file_path=output_path
         )
-    
+
     def list_voices(self):
         """Return available voices/languages"""
         return self.supported_languages
-    
+
     def supports_cloning(self) -> bool:
         return True
-    
+
     def supports_streaming(self) -> bool:
         return True
 ```
@@ -311,30 +311,30 @@ class TTSConfig:
     provider: str = "xtts_v2"  # xtts_v2, styletts2, bark
     device: str = "cuda"  # cuda or cpu
     language: str = "en"
-    
+
     # Quality settings
     quality: str = "high"  # high, normal, fast
     sample_rate: int = 22050  # 22050, 24000
-    
+
     # XTTS-v2 specific
     xtts_streaming: bool = False
     xtts_split_sentences: bool = True
-    
+
     # StyleTTS2 specific
     styletts2_steps: int = 50
     styletts2_speed: float = 1.0
-    
+
     # Bark specific
     bark_history_prompt: Optional[str] = "v2/en_speaker_1"
-    
+
     # Cache settings
     use_cache: bool = True
     cache_dir: str = "./cache/tts"
-    
+
     def get_provider_kwargs(self) -> dict:
         """Get provider-specific kwargs"""
         return {
-            k: v for k, v in self.__dict__.items() 
+            k: v for k, v in self.__dict__.items()
             if not k.startswith('_')
         }
 ```
@@ -392,7 +392,7 @@ Piper           | 3.7         | 3.6          | N/A         | 3.6 ⭐⭐⭐
 ```python
 # Solution 1: Use CPU
 from TTS.api import TTS
-tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", 
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2",
           gpu=False)  # Force CPU
 
 # Solution 2: Use smaller model
@@ -420,7 +420,7 @@ manager.download_model("tts_models/multilingual/multi-dataset/xtts_v2")
 # Use multiple reference samples
 reference_wavs = [
     "sample1.wav",
-    "sample2.wav", 
+    "sample2.wav",
     "sample3.wav"
 ]
 wav = tts.tts(
@@ -535,14 +535,14 @@ async def synthesize(
     speaker_wav: UploadFile = None
 ):
     """Synthesize speech from text"""
-    
+
     speaker_path = None
     if speaker_wav:
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
             content = await speaker_wav.read()
             tmp.write(content)
             speaker_path = tmp.name
-    
+
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as output:
         tts.tts_to_file(
             text=text,
@@ -550,10 +550,10 @@ async def synthesize(
             language=language,
             file_path=output.name
         )
-        
+
         if speaker_path:
             os.unlink(speaker_path)
-        
+
         return FileResponse(output.name, media_type="audio/wav")
 
 @app.get("/languages")
@@ -561,7 +561,7 @@ async def get_languages():
     """Return supported languages"""
     return {
         "languages": [
-            "en", "es", "fr", "de", "it", "pt", "pl", "tr", 
+            "en", "es", "fr", "de", "it", "pt", "pl", "tr",
             "ru", "nl", "zh", "ja", "ko", "hu", "cs", "ro"
         ]
     }
@@ -593,10 +593,10 @@ cache = {}
 
 def synthesize_cached(text, language="en"):
     key = hashlib.md5(f"{text}_{language}".encode()).hexdigest()
-    
+
     if key in cache:
         return cache[key]
-    
+
     wav = tts.tts(text=text, language=language)
     cache[key] = wav
     return wav
@@ -608,20 +608,20 @@ def preprocess_text(text):
     """Optimize text for TTS"""
     # Remove extra whitespace
     text = ' '.join(text.split())
-    
+
     # Abbreviation expansion
     replacements = {
         "Dr.": "Doctor",
         "Mr.": "Mister",
         "etc.": "et cetera",
     }
-    
+
     for abbr, full in replacements.items():
         text = text.replace(abbr, full)
-    
+
     # Remove emojis/special chars
     text = ''.join(c for c in text if ord(c) < 128)
-    
+
     return text
 ```
 
@@ -639,5 +639,5 @@ def preprocess_text(text):
 
 ---
 
-**Last Updated:** December 4, 2024  
+**Last Updated:** December 4, 2024
 **Compatibility:** Python 3.9+, PyTorch 2.0+

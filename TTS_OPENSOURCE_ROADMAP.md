@@ -1,7 +1,7 @@
 # Open-Source TTS Alternatives to ElevenLabs: Comprehensive Roadmap
 
-**Date**: December 4, 2025  
-**Status**: Research and Testing Phase  
+**Date**: December 4, 2025
+**Status**: Research and Testing Phase
 **Objective**: Evaluate open-source TTS libraries to approximate ElevenLabs quality for production narration
 
 ---
@@ -11,7 +11,7 @@
 After extensive research and hands-on testing, we've identified **three primary alternatives** that can significantly improve upon Kokoro's current limitations:
 
 1. **XTTS-v2 (Coqui)** - Best overall quality improvement (Tier 1)
-2. **Bark (Suno)** - Innovative voice control and cloning (Tier 1)  
+2. **Bark (Suno)** - Innovative voice control and cloning (Tier 1)
 3. **StyleTTS2** - Advanced emotion and expressiveness (Tier 2)
 
 **Key Finding**: While no single open-source model fully replicates ElevenLabs' quality, a hybrid approach using **XTTS-v2 as the primary engine** with **fallback to Bark for specific use cases** would provide 75-90% of ElevenLabs' capabilities for **$0 cost**.
@@ -126,15 +126,15 @@ sf.write("output_xtts.wav", audio, 22050)
 class XTSV2Provider(TTSProvider):
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         from TTS.api import TTS
-        
+
         tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
-        
+
         wav = tts.tts(
             text=request.text,
             speaker_wav=request.speaker_reference,  # New parameter for voice cloning
             language=request.language
         )
-        
+
         # Process and return TTSResponse
         return TTSResponse(audio_data=wav, format=AudioFormat.WAV, ...)
 ```
@@ -236,7 +236,7 @@ sf.write("output_bark.wav", audio_array, samplerate=SAMPLE_RATE)
 # Perfect for dramatic narration with sound effects
 narration = """
 [serious male speaker, text_temp=0.6]
-The report arrived at midnight. 
+The report arrived at midnight.
 [pause]
 (notification sound)
 [whisper]An encrypted message.
@@ -254,20 +254,20 @@ audio = generate_audio(narration, history_prompt="en_speaker_0")
 class BarkProvider(TTSProvider):
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         from bark import generate_audio, SAMPLE_RATE, preload_models
-        
+
         preload_models()
-        
+
         # Enable prosody markers if requested
         text = request.text
         if request.apply_prosody_markers:
             text = self._apply_prosody_markers(text, request.emotions)
-        
+
         audio = generate_audio(
             text,
             history_prompt=request.voice_id,
             text_temp=request.expressiveness or 0.7
         )
-        
+
         return TTSResponse(audio_data=audio, sample_rate=SAMPLE_RATE, ...)
 ```
 
@@ -436,7 +436,7 @@ else:
 
 **Test Sentence:**
 ```
-"Communication was fragile: intermittent phone signals, 
+"Communication was fragile: intermittent phone signals,
 dropped calls, delayed messages, each carrying the weight of potential loss."
 ```
 
@@ -511,11 +511,11 @@ config = {
 ```python
 narration_with_markers = """
 [serious_narrator male speaker]
-Communication was fragile: 
+Communication was fragile:
 [emphasis]intermittent phone signals,
 [pause 0.5]
-dropped calls, 
-[concern]delayed messages, 
+dropped calls,
+[concern]delayed messages,
 [dramatic]each carrying the weight of potential loss.
 """
 ```
@@ -606,6 +606,6 @@ When evaluating generated audio:
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: December 4, 2025  
+**Document Version**: 1.0
+**Last Updated**: December 4, 2025
 **Status**: COMPLETE - Initial Research & Testing Phase

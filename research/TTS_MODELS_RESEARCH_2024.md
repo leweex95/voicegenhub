@@ -17,9 +17,9 @@ This document provides comprehensive research on production-ready, open-source T
 ## 🏆 Tier 1: Premium Quality Models (Closest to ElevenLabs)
 
 ### 1. **XTTS-v2** (by Coqui TTS) ⭐ HIGHEST PRIORITY
-**GitHub:** https://github.com/coqui-ai/TTS  
-**PyPI:** `pip install TTS`  
-**Current Version:** 0.22.0 (Dec 2023)  
+**GitHub:** https://github.com/coqui-ai/TTS
+**PyPI:** `pip install TTS`
+**Current Version:** 0.22.0 (Dec 2023)
 **License:** MPL-2.0
 
 #### Features:
@@ -55,8 +55,8 @@ from TTS.api import TTS
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
-wav = tts.tts(text="Hello world!", 
-              speaker_wav="path/to/reference.wav", 
+wav = tts.tts(text="Hello world!",
+              speaker_wav="path/to/reference.wav",
               language="en")
 ```
 
@@ -75,9 +75,9 @@ wav = tts.tts(text="Hello world!",
 ---
 
 ### 2. **StyleTTS2** ⭐ BEST NATURALNESS
-**GitHub:** https://github.com/yl4579/StyleTTS2  
-**PyPI:** `pip install styletts2` (MIT-licensed fork available)  
-**Current Version:** Research release (active development)  
+**GitHub:** https://github.com/yl4579/StyleTTS2
+**PyPI:** `pip install styletts2` (MIT-licensed fork available)
+**Current Version:** Research release (active development)
 **License:** MIT (code), special pre-trained model license
 
 #### Features:
@@ -136,9 +136,9 @@ output_wav = tts_model.synthesize(
 ---
 
 ### 3. **Bark** (by Suno)
-**GitHub:** https://github.com/suno-ai/bark  
-**PyPI:** `pip install git+https://github.com/suno-ai/bark.git`  
-**Current Version:** Latest (active development)  
+**GitHub:** https://github.com/suno-ai/bark
+**PyPI:** `pip install git+https://github.com/suno-ai/bark.git`
+**Current Version:** Latest (active development)
 **License:** MIT
 
 #### Features:
@@ -202,9 +202,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ## 🥈 Tier 2: Very Good Quality Models
 
 ### 4. **OpenVoice** (by MyShell & MIT)
-**GitHub:** https://github.com/myshell-ai/OpenVoice  
-**PyPI:** Install from GitHub  
-**Current Version:** V2 (April 2024)  
+**GitHub:** https://github.com/myshell-ai/OpenVoice
+**PyPI:** Install from GitHub
+**Current Version:** V2 (April 2024)
 **License:** MIT
 
 #### Features:
@@ -244,9 +244,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ---
 
 ### 5. **Tortoise TTS**
-**GitHub:** https://github.com/neonbjb/tortoise-tts  
-**PyPI:** `pip install tortoise-tts`  
-**Current Version:** Latest  
+**GitHub:** https://github.com/neonbjb/tortoise-tts
+**PyPI:** `pip install tortoise-tts`
+**Current Version:** Latest
 **License:** Apache 2.0
 
 #### Features:
@@ -290,9 +290,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ## 🥉 Tier 3: Good Quality, Specialized
 
 ### 6. **ChatTTS** (by 2noise)
-**GitHub:** https://github.com/2noise/ChatTTS  
-**PyPI:** Install from GitHub  
-**Current Version:** Latest (active development)  
+**GitHub:** https://github.com/2noise/ChatTTS
+**PyPI:** Install from GitHub
+**Current Version:** Latest (active development)
 **License:** Proprietary (check repo)
 
 #### Features:
@@ -313,9 +313,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ---
 
 ### 7. **CosyVoice** (by FunAudioLLM)
-**GitHub:** https://github.com/FunAudioLLM/CosyVoice  
-**PyPI:** Install from GitHub  
-**Current Version:** Latest  
+**GitHub:** https://github.com/FunAudioLLM/CosyVoice
+**PyPI:** Install from GitHub
+**Current Version:** Latest
 **License:** Check repo
 
 #### Features:
@@ -336,9 +336,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ---
 
 ### 8. **GPT-SoVITS** (by RVC-Boss)
-**GitHub:** https://github.com/RVC-Boss/GPT-SoVITS  
-**PyPI:** Install from GitHub  
-**Current Version:** Latest  
+**GitHub:** https://github.com/RVC-Boss/GPT-SoVITS
+**PyPI:** Install from GitHub
+**Current Version:** Latest
 **License:** MIT-like
 
 #### Features:
@@ -361,9 +361,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ## 📊 Tier 4: Traditional/Foundational Models
 
 ### 9. **VITS & VITS2** (by Jaywalnut310 & others)
-**GitHub:** https://github.com/jaywalnut310/vits  
-**PyPI:** No direct PyPI, but wrapper available  
-**Current Version:** Latest  
+**GitHub:** https://github.com/jaywalnut310/vits
+**PyPI:** No direct PyPI, but wrapper available
+**Current Version:** Latest
 **License:** MIT
 
 #### Features:
@@ -384,9 +384,9 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ---
 
 ### 10. **Piper** (by Rhasspy)
-**GitHub:** https://github.com/rhasspy/piper  
-**PyPI:** Available as `piper-tts`  
-**Current Version:** Latest  
+**GitHub:** https://github.com/rhasspy/piper
+**PyPI:** Available as `piper-tts`
+**Current Version:** Latest
 **License:** MIT
 
 #### Features:
@@ -410,8 +410,8 @@ write("output.wav", SAMPLE_RATE, audio_array)
 ---
 
 ### 11. **Glow-TTS & FastPitch**
-**Availability:** Via Coqui TTS library (`TTS`)  
-**PyPI:** `pip install TTS`  
+**Availability:** Via Coqui TTS library (`TTS`)
+**PyPI:** `pip install TTS`
 **License:** MPL-2.0
 
 #### Features:
@@ -627,7 +627,7 @@ class XTTV2Provider(TTSProvider):
         self.device = "cuda"
         from TTS.api import TTS
         self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(self.device)
-    
+
     def synthesize(self, text, voice_id=None, **kwargs):
         return self.tts.tts_to_file(
             text=text,
@@ -673,7 +673,7 @@ All models in this research have been verified as of December 2024:
 - ✅ Free and open-source (mostly MIT/MPL-2.0)
 - ✅ Capable of offline inference
 
-**Last Updated:** December 4, 2024  
+**Last Updated:** December 4, 2024
 **Research Depth:** Comprehensive (4,000+ repository analysis, multiple model architectures)
 
 ---

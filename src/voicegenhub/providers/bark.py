@@ -173,11 +173,11 @@ class BarkProvider(TTSProvider):
                         # Retry with weights_only=False
                         import torch.serialization
                         original_load = torch.load
-                        
+
                         def patched_load(f, *args, **kwargs):
                             kwargs['weights_only'] = False
                             return original_load(f, *args, **kwargs)
-                        
+
                         torch.load = patched_load
                         preload_models()
                         torch.load = original_load

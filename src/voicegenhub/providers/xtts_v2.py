@@ -75,7 +75,7 @@ class XTTSv2Provider(TTSProvider):
             try:
                 from transformers import GenerationMixin
                 from TTS.tts.layers.xtts.gpt_inference import GPT2InferenceModel
-                
+
                 # Make GPT2InferenceModel inherit from GenerationMixin if it doesn't already
                 if not issubclass(GPT2InferenceModel, GenerationMixin):
                     GPT2InferenceModel.__bases__ = (GenerationMixin,) + GPT2InferenceModel.__bases__
@@ -182,7 +182,7 @@ class XTTSv2Provider(TTSProvider):
 
             # Parse voice ID - support both direct language codes and full voice IDs
             voice_id = request.voice_id
-            
+
             # If it's already in xtts_v2-{code} format, extract the language code
             if voice_id.startswith("xtts_v2-"):
                 lang_code = voice_id[8:]  # Remove "xtts_v2-" prefix
@@ -193,13 +193,13 @@ class XTTSv2Provider(TTSProvider):
                     (v for v in available_voices if v.name == voice_id or v.id == voice_id),
                     None
                 )
-                
+
                 if matching_voice:
                     lang_code = matching_voice.language
                 else:
                     # Fall back to treating it as a language code
                     lang_code = voice_id.split("-")[0] if "-" in voice_id else voice_id
-                    
+
                     # Validate it's a supported language
                     supported_langs = {
                         "en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru",
@@ -225,7 +225,7 @@ class XTTSv2Provider(TTSProvider):
                 # Use a default speaker for the language
                 speaker_map = {
                     "en": "Claribel Dervla",
-                    "es": "Ana Florence", 
+                    "es": "Ana Florence",
                     "fr": "Gracie Wise",
                     "de": "Alison Dietlinde",
                     "it": "Henriette Usha",

@@ -129,7 +129,7 @@ This generates:
 
 ### Production Ready
 - ✓ Kokoro provider (functional, tested)
-- ✓ Factory integration  
+- ✓ Factory integration
 - ✓ Core engine support
 - ✓ Configuration documentation
 
@@ -141,7 +141,7 @@ This generates:
 
 **For immediate deployment**: Use **Kokoro** - it's fully functional and reliable.
 
-**For better quality**: 
+**For better quality**:
 1. Fix Bark's PyTorch weights issue (modify torch.load call)
 2. Adjust XTTS-v2 voice ID validation
 3. Both will provide higher quality (4.0+ vs 3.5/5)

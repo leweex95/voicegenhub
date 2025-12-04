@@ -39,7 +39,7 @@ python sample_tts_comparison.py
 
 Generates audio samples in `/audio_samples/` directory using the test sentence:
 ```
-"Communication was fragile: intermittent phone signals, dropped calls, 
+"Communication was fragile: intermittent phone signals, dropped calls,
 delayed messages, each carrying the weight of potential loss."
 ```
 
@@ -94,8 +94,8 @@ audio = generate_audio(text, history_prompt="en_speaker_0")
 ```
 
 ### Multilingual Support
-**XTTS-v2**: 16 languages  
-**Bark**: 12 languages  
+**XTTS-v2**: 16 languages
+**Bark**: 12 languages
 **Kokoro**: 12 languages
 
 ---
@@ -251,6 +251,6 @@ This research demonstrates that open-source TTS models can effectively replace E
 
 ---
 
-**Document Version**: 1.0  
-**Date**: December 4, 2025  
+**Document Version**: 1.0
+**Date**: December 4, 2025
 **Status**: Complete & Ready for Implementation
