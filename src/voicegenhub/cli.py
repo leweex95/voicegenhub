@@ -79,7 +79,7 @@ def cli():
 def synthesize(text, voice, language, output, format, rate, pitch, provider, lowpass, normalize, distortion, noise, reverb, pitch_shift):
     """Generate speech from text."""
     # Validate provider immediately
-    supported_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs"]
+    supported_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs", "xtts_v2", "bark"]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
@@ -187,7 +187,7 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
 def voices(language: Optional[str], format: str, provider: str):
     """List available voices."""
     # Validate provider immediately
-    supported_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs"]
+    supported_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs", "xtts_v2", "bark"]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",

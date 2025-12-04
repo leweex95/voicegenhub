@@ -35,6 +35,12 @@ melo = "*"
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"
 
+[tool.poetry.group.xtts.dependencies]
+TTS = "*"
+
+[tool.poetry.group.bark.dependencies]
+bark = "*"
+
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"
 pytest-asyncio = "^1.3.0"

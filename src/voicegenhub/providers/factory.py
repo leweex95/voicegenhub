@@ -18,6 +18,8 @@ class ProviderFactory:
         self._melotts_provider_class = None
         self._kokoro_provider_class = None
         self._elevenlabs_provider_class = None
+        self._xtts_v2_provider_class = None
+        self._bark_provider_class = None
 
     async def discover_provider(self, provider_id: str) -> None:
         """Discover and register a specific TTS provider."""
@@ -55,6 +57,18 @@ class ProviderFactory:
             try:
                 from .elevenlabs import ElevenLabsTTSProvider
                 self._elevenlabs_provider_class = ElevenLabsTTSProvider
+            except ImportError:
+                pass
+        elif provider_id == "xtts_v2":
+            try:
+                from .xtts_v2 import XTTSv2Provider
+                self._xtts_v2_provider_class = XTTSv2Provider
+            except ImportError:
+                pass
+        elif provider_id == "bark":
+            try:
+                from .bark import BarkProvider
+                self._bark_provider_class = BarkProvider
             except ImportError:
                 pass
 
@@ -129,9 +143,29 @@ class ProviderFactory:
             await provider.initialize()
             return provider
 
+        elif provider_id == "xtts_v2":
+            if self._xtts_v2_provider_class is None:
+                raise TTSError(
+                    "XTTS-v2 provider not available. Install with: pip install TTS"
+                )
+
+            provider = self._xtts_v2_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
+        elif provider_id == "bark":
+            if self._bark_provider_class is None:
+                raise TTSError(
+                    "Bark provider not available. Install with: pip install bark-model"
+                )
+
+            provider = self._bark_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
         else:
             raise TTSError(
-                f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, melotts, kokoro, elevenlabs"
+                f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, melotts, kokoro, elevenlabs, xtts_v2, bark"
             )
 
 
