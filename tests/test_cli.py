@@ -62,18 +62,18 @@ class TestCLI:
         )
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, google, piper, melotts, kokoro" in result.output
+        assert "edge, piper, melotts, kokoro" in result.output
 
     def test_cli_rejects_unsupported_provider_voices(self, runner):
         """Test CLI rejects unsupported provider in voices command."""
         result = runner.invoke(cli, ["voices", "--provider", "coqui"])
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, google, piper, melotts, kokoro" in result.output
+        assert "edge, piper, melotts, kokoro" in result.output
 
     def test_cli_accepts_supported_providers_synthesize(self, runner, tmp_path):
         """Test CLI accepts supported providers in synthesize command."""
-        for provider in ["edge", "google", "piper", "melotts", "kokoro"]:
+        for provider in ["edge", "piper", "melotts", "kokoro"]:
             result = runner.invoke(cli, ["synthesize", "hello", "--provider", provider, "--output", str(tmp_path / "dummy.wav")])
             # Should fail due to provider issues, not validation
             assert "Unsupported provider" not in result.output
@@ -338,7 +338,7 @@ class TestCLI:
 
     def test_cli_accepts_supported_providers_voices(self, runner):
         """Test CLI accepts supported providers in voices command."""
-        for provider in ["edge", "google", "piper", "melotts", "kokoro"]:
+        for provider in ["edge", "piper", "melotts", "kokoro"]:
             result = runner.invoke(cli, ["voices", "--provider", provider])
             # Should fail due to provider issues, not validation
             assert "Unsupported provider" not in result.output

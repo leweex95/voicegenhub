@@ -13,7 +13,6 @@ class ProviderFactory:
 
     def __init__(self):
         self._edge_provider_class = None
-        self._google_provider_class = None
         self._piper_provider_class = None
         self._melotts_provider_class = None
         self._kokoro_provider_class = None
@@ -27,12 +26,6 @@ class ProviderFactory:
             try:
                 from .edge import EdgeTTSProvider
                 self._edge_provider_class = EdgeTTSProvider
-            except ImportError:
-                pass
-        elif provider_id == "google":
-            try:
-                from .google import GoogleTTSProvider
-                self._google_provider_class = GoogleTTSProvider
             except ImportError:
                 pass
         elif provider_id == "piper":
@@ -79,7 +72,7 @@ class ProviderFactory:
         Create TTS provider instance.
 
         Args:
-            provider_id: Provider ID ("edge", "google", or "piper")
+            provider_id: Provider ID ("edge", "piper", "melotts", "kokoro", "elevenlabs", "xtts_v2", "bark")
             config: Optional configuration
 
         Returns:
@@ -90,16 +83,6 @@ class ProviderFactory:
                 raise TTSError("Edge TTS provider not available")
 
             provider = self._edge_provider_class(name=provider_id, config=config)
-            await provider.initialize()
-            return provider
-
-        elif provider_id == "google":
-            if self._google_provider_class is None:
-                raise TTSError(
-                    "Google TTS provider not available. Install with: pip install google-cloud-texttospeech"
-                )
-
-            provider = self._google_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
 
@@ -165,7 +148,7 @@ class ProviderFactory:
 
         else:
             raise TTSError(
-                f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, melotts, kokoro, elevenlabs, xtts_v2, bark"
+                f"Unsupported provider: '{provider_id}'. Available: edge, piper, melotts, kokoro, elevenlabs, xtts_v2, bark"
             )
 
 
