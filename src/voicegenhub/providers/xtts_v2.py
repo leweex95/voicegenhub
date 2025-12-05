@@ -6,6 +6,8 @@ with voice cloning capabilities.
 """
 
 import asyncio
+import os
+import warnings
 from typing import Any, Dict, List, Optional
 
 from ..utils.logger import get_logger
@@ -22,6 +24,14 @@ from .base import (
     VoiceType,
 )
 
+# Suppress jieba pkg_resources deprecation warning
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning, module="jieba")
+# Suppress XTTS attention mask warning
+warnings.filterwarnings("ignore", message="The attention mask is not set and cannot be inferred", category=UserWarning)
+warnings.filterwarnings("ignore", message=".*attention mask.*", category=UserWarning)
+# Suppress all transformers warnings during TTS operations
+warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
+
 logger = get_logger(__name__)
 
 
@@ -37,6 +47,14 @@ class XTTSv2Provider(TTSProvider):
         self.model = None
         self._voices_cache: Optional[List[Voice]] = None
         self._initialization_failed = False
+
+        # Set up local cache directory for XTTS models (similar to Kokoro)
+        import pathlib
+        project_root = pathlib.Path(__file__).parent.parent.parent.parent
+        self._local_cache_dir = os.path.join(project_root, 'cache', 'xtts')
+        os.environ['HF_HUB_CACHE'] = self._local_cache_dir
+        os.environ['TRANSFORMERS_CACHE'] = self._local_cache_dir
+        logger.info(f"Configured XTTS cache: {self._local_cache_dir}")
 
     @property
     def provider_id(self) -> str:
@@ -214,45 +232,57 @@ class XTTSv2Provider(TTSProvider):
                         )
 
             def _synthesize():
+                import warnings
                 from TTS.api import TTS
                 import numpy as np
 
-                tts = TTS(
-                    model_name="tts_models/multilingual/multi-dataset/xtts_v2",
-                    gpu=self.config.get("gpu", False),
-                    progress_bar=False,
-                )
-                # Use a default speaker for the language
-                speaker_map = {
-                    "en": "Claribel Dervla",
-                    "es": "Ana Florence",
-                    "fr": "Gracie Wise",
-                    "de": "Alison Dietlinde",
-                    "it": "Henriette Usha",
-                    "pt": "Tammie Ema",
-                    "pl": "Gitta Nikolina",
-                    "tr": "Tanja Adelina",
-                    "ru": "Vjollca Johnnie",
-                    "nl": "Royston Min",
-                    "cs": "Viktor Eka",
-                    "ar": "Abrahan Mack",
-                    "zh": "Adde Michal",
-                    "ja": "Baldur Sanjin",
-                    "ko": "Craig Gutsy",
-                    "hu": "Damien Black",
-                }
-                speaker = speaker_map.get(lang_code, "Claribel Dervla")  # Default to English
+                # Suppress warnings during synthesis
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=UserWarning)
 
-                wav = tts.tts(
-                    text=request.text,
-                    speaker_wav=None,
-                    language=lang_code,
-                    speaker=speaker,
-                )
+                    # Use the new coqui-tts API
+                    tts = TTS(
+                        model_name="tts_models/multilingual/multi-dataset/xtts_v2",
+                        gpu=self.config.get("gpu", False),
+                        progress_bar=False,
+                    )
+
+                    # Use a default speaker for the language
+                    speaker_map = {
+                        "en": "Claribel Dervla",
+                        "es": "Ana Florence",
+                        "fr": "Gracie Wise",
+                        "de": "Alison Dietlinde",
+                        "it": "Henriette Usha",
+                        "pt": "Tammie Ema",
+                        "pl": "Gitta Nikolina",
+                        "tr": "Tanja Adelina",
+                        "ru": "Vjollca Johnnie",
+                        "nl": "Royston Min",
+                        "cs": "Viktor Eka",
+                        "ar": "Abrahan Mack",
+                        "zh": "Adde Michal",
+                        "ja": "Baldur Sanjin",
+                        "ko": "Craig Gutsy",
+                        "hu": "Damien Black",
+                    }
+                    speaker = speaker_map.get(lang_code, "Claribel Dervla")  # Default to English
+
+                    # Generate audio using the high-level API
+                    wav = tts.tts(
+                        text=request.text,
+                        speaker_wav=None,
+                        language=lang_code,
+                        speaker=speaker,
+                    )
 
                 wav = np.array(wav)
-                if wav.ndim == 1:
-                    wav = wav.reshape(-1, 1)
+                # Ensure it's 1D for mono audio
+                if wav.ndim > 1:
+                    wav = wav.flatten()
+
+                # Convert to float32 for better compatibility
+                wav = wav.astype(np.float32)
 
                 return wav
 
@@ -264,7 +294,7 @@ class XTTSv2Provider(TTSProvider):
             import io
 
             wav_io = io.BytesIO()
-            sf.write(wav_io, audio_array, 22050, format='WAV')
+            sf.write(wav_io, audio_array, 22050, format='WAV', subtype='PCM_16')
             audio_data = wav_io.getvalue()
 
             duration = len(request.text) / 150
