@@ -10,9 +10,6 @@ Supports multiple free and commercial TTS providers.
 ## Supported Providers
 
 - Microsoft Edge TTS (free, cloud-based)
-- Piper TTS (free, offline neural TTS - Linux/macOS)
-- Coqui TTS (free, offline neural TTS - Linux/macOS)
-- MeloTTS (free, self-hosted neural TTS)
 - Kokoro TTS (free, self-hosted lightweight TTS)
 - XTTS-v2 (free, self-hosted multilingual TTS with voice cloning)
 - Bark (free, self-hosted high-naturalness TTS with prosody control)
@@ -35,16 +32,6 @@ poetry run voicegenhub synthesize "Hello, world!" --provider kokoro --voice koko
 ```
 
 **Kokoro supported voices:** Check the list of supported voices [here](https://github.com/nazdridoy/kokoro-tts?tab=readme-ov-file#supported-voices).
-
-For MeloTTS:
-
-```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider melotts --voice melotts-EN-US --output hello.wav
-```
-
-or for other types of English: `melotts-EN-BR` (Great Britain), `melotts-EN-AU` (Australia), `melotts-EN-INDIA`.
-
-**MeloTTS supported voices/languages:** Check the list of supported voices [here](https://github.com/myshell-ai/MeloTTS?tab=readme-ov-file#introduction).
 
 For ElevenLabs:
 
@@ -87,7 +74,6 @@ poetry run voicegenhub synthesize "Hello, world!" --provider bark --voice bark-e
 
 ```bash
 poetry run voicegenhub voices --language en --provider edge
-poetry run voicegenhub voices --language en --provider melotts
 poetry run voicegenhub voices --language en --provider kokoro
 poetry run voicegenhub voices --language en --provider elevenlabs
 poetry run voicegenhub voices --language en --provider xtts_v2
@@ -147,16 +133,6 @@ Here's how all providers compare in terms of speed and quality:
 Install optional TTS providers:
 
 ```bash
-# Install Piper TTS (offline neural TTS, Linux/macOS only)
-pip install voicegenhub[piper]
-
-# Install Coqui TTS (offline neural TTS, Linux/macOS only)
-pip install voicegenhub[coqui]
-
-# Install MeloTTS (self-hosted neural TTS)
-pip install voicegenhub[melotts]
-
-
 # Install Kokoro TTS (self-hosted lightweight TTS)
 pip install voicegenhub[kokoro]
 
@@ -218,5 +194,5 @@ If you get `ImportError: No module named 'kokoro'`:
 3. Check cache cleanup: `rm -rf ~/.cache/huggingface/` and retry
 
 # Install all optional providers
-pip install voicegenhub[piper,coqui,melotts,kokoro,xtts_v2,bark]
+pip install voicegenhub[kokoro,xtts_v2,bark]
 ```
