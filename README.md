@@ -9,11 +9,12 @@ Supports multiple free and commercial TTS providers.
 
 ## Supported Providers
 
-- Microsoft Edge TTS (free, cloud-based)
-- Kokoro TTS (free, self-hosted lightweight TTS)
-- XTTS-v2 (free, self-hosted multilingual TTS with voice cloning)
-- Bark (free, self-hosted high-naturalness TTS with prosody control)
-- ElevenLabs TTS (commercial, high-quality voices)
+- **Microsoft Edge TTS** (free, cloud-based)
+- **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
+- **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control) ⭐ Recommended for commercial use
+- **ElevenLabs TTS** (commercial, high-quality voices)
+
+**For YouTube & Monetized Content:** Use Bark (MIT License) or Kokoro (Apache 2.0) - both are fully commercial-friendly. See [Commercial Licensing](#commercial-licensing) section below for details.
 
 ## Usage
 
@@ -43,18 +44,15 @@ Set your API key: `export ELEVENLABS_API_KEY=your_api_key_here`
 
 **ElevenLabs supported voices:** Check the list of supported voices [here](https://elevenlabs.io/docs/voices).
 
-For XTTS-v2 (Coqui TTS):
+### ⚠️ XTTS-v2 (Deprecated)
 
-```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider xtts_v2 --voice xtts_v2-en --output hello.wav
-```
+**⚠️ IMPORTANT:** XTTS-v2 uses CPML (Coqui Public Model License) which **does NOT allow commercial/monetized use** without purchasing a commercial license from Coqui.
 
-**XTTS-v2 features:**
-- 16 languages support (English, Spanish, French, German, Italian, Portuguese, Polish, Dutch, Russian, Chinese, Japanese, Korean, Turkish, Arabic, Hindi, Greek)
-- Zero-shot voice cloning (provide a 15-30 second speaker sample)
-- High-quality multilingual synthesis
+- ❌ **NOT suitable for YouTube, monetized content, or commercial applications**
+- ❌ Requires commercial license purchase from Coqui AI
+- ✅ Still supported for non-commercial use only
 
-**XTTS-v2 supported voices:** Use language codes like `xtts_v2-en`, `xtts_v2-es`, `xtts_v2-fr`, etc.
+**Use Bark instead** for commercial projects (see Bark section below).
 
 For Bark (Suno TTS):
 
@@ -108,21 +106,36 @@ Both providers support **full async/parallelized operations**. Here's how they c
 
 Here's how all providers compare in terms of speed and quality:
 
-| Provider | Quality (MOS) | Startup Time | Sequential (per req) | Async (3x parallel) | Model Size | Commercial Use |
+| Provider | Quality (MOS) | Startup Time | Sequential (per req) | Async (3x parallel) | Model Size | Commercial Licensed |
 |----------|---------------|--------------|---------------------|-------------------|------------|----------------|
 | **Edge TTS** | 3.8/5 | 4.9s | 3.2s | 2.5s | 0MB (cloud) | ✅ Free |
 | **Kokoro** | 3.5/5 | 94s | 14.2s | 2.5s | 625MB | ✅ Apache 2.0 |
-| **XTTS-v2** | 4.0/5 | 120s | 18-25s | 6-8s | 2GB | ✅ MPL-2.0 |
 | **Bark** | 4.2/5 | 180s | 25-40s | 8-12s | 4GB | ✅ MIT |
 | **ElevenLabs** | 4.5/5 | 2s | 3-5s | 2-3s | 0MB (cloud) | ⚠️ Paid API |
 
 **Key Findings:**
-- **Edge TTS**: Best for real-time, low-latency applications
-- **Kokoro**: Best balance of quality vs speed for offline use
-- **XTTS-v2**: Best for multilingual content and voice cloning
-- **Bark**: Highest naturalness, best for premium narration
-- All local providers have high initial startup cost but excellent async performance
-- Commercial licensing: All open-source providers are free for commercial use
+- **Edge TTS**: Best for real-time, low-latency applications; cloud-based (Microsoft)
+- **Kokoro**: Best balance of quality vs speed for offline use; Apache 2.0 licensed
+- **Bark**: Highest naturalness for premium narration; MIT licensed (full commercial freedom)
+- **ElevenLabs**: Highest quality but requires paid API and credit card
+- All locally-hosted providers require GPU or CPU inference (slow on first run, fast after caching)
+- **For YouTube & Monetized Content:** Use Bark (MIT) or Kokoro (Apache 2.0) - both fully commercial-friendly
+
+## Commercial Licensing
+
+If you're monetizing your content (YouTube, podcasts, etc.), ensure your TTS provider is commercially licensed:
+
+### ✅ Commercially Safe Models:
+- **Bark** (MIT License) - Unrestricted commercial use, no attribution required ⭐
+- **Kokoro** (Apache 2.0) - Commercial use allowed, attribution required
+- **Edge TTS** (Microsoft) - Commercial use allowed
+- **ElevenLabs** (Paid API) - Commercial use with valid subscription
+
+### ❌ NON-Commercial (Do Not Use):
+- **XTTS-v2** (CPML License) - Requires commercial license purchase from Coqui AI
+- Other CC-BY-NC-ND or custom non-commercial licenses
+
+For full commercial licensing details, see [commercial_models_summary.txt](./commercial_models_summary.txt).
 
 ## Requirements
 

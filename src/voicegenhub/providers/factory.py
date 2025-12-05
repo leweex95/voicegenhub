@@ -132,6 +132,10 @@ class ProviderFactory:
                     "XTTS-v2 provider not available. Install with: pip install TTS"
                 )
 
+            logger.warning(
+                "⚠️  XTTS-v2 uses CPML license which does NOT allow commercial/monetized use. "
+                "Use Bark (MIT) or Kokoro (Apache 2.0) for YouTube and monetized content."
+            )
             provider = self._xtts_v2_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider

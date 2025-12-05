@@ -52,7 +52,7 @@ class VoiceGenHub:
 
     async def get_available_providers(self) -> List[str]:
         """Get list of available provider IDs."""
-        all_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "xtts_v2", "bark"]
+        all_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "bark"]
         providers = []
 
         for provider_id in all_providers:
@@ -150,10 +150,22 @@ class VoiceGenHub:
                 f"Provider {self._provider.display_name} does not support pitch control. Pitch parameter will be ignored."
             )
 
+        # Get available voices to determine default voice
+        available_voices = await self._voice_selector.get_all_voices()
+        voice_ids = [v.id for v in available_voices]
+
+        # Use provided voice or first available voice
+        if not voice:
+            if voice_ids:
+                voice = voice_ids[0]
+                logger.info(f"No voice specified, using default: {voice}")
+            else:
+                voice = "en-US-AriaNeural"  # Fallback if no voices available
+
         # Prepare request
         request = TTSRequest(
             text=text,
-            voice_id=voice or "en-US-AriaNeural",
+            voice_id=voice,
             language=language,
             audio_format=default_format,
             sample_rate=default_sample_rate,
@@ -163,8 +175,6 @@ class VoiceGenHub:
         )
 
         # Verify voice is available
-        available_voices = await self._voice_selector.get_all_voices()
-        voice_ids = [v.id for v in available_voices]
         if request.voice_id not in voice_ids:
             # Try to provide helpful suggestions
             error_msg = f"Voice '{request.voice_id}' not found"
