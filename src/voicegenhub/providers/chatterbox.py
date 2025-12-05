@@ -164,7 +164,8 @@ class ChatterboxProvider(TTSProvider):
             _patch_cuda_on_cpu()
 
             # Set cache directories for local storage
-            cache_root = Path(__file__).parent.parent.parent / 'cache'
+            project_root = Path(__file__).parent.parent.parent.parent
+            cache_root = project_root / 'cache'
             cache_chatterbox = cache_root / 'chatterbox'
             cache_chatterbox.mkdir(parents=True, exist_ok=True)
 
