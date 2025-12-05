@@ -36,7 +36,7 @@ melo = "*"
 elevenlabs = "*"
 
 [tool.poetry.group.xtts.dependencies]
-TTS = "*"
+coqui-tts = {git = "https://github.com/idiap/coqui-ai-TTS.git"}
 
 [tool.poetry.group.bark.dependencies]
 bark = "*"
