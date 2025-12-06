@@ -31,7 +31,7 @@ def cli():
     help="Voice ID (e.g., 'en-US-AriaNeural', 'kokoro-af_alloy', 'melotts-EN')",
 )
 @click.option("--language", "-l", help="Language code (e.g., 'en')")
-@click.option("--output", "-o", type=click.Path(), help="Output file path")
+@click.option("--output", "-o", type=click.Path(), default="output.wav", help="Output file path")
 @click.option(
     "--format",
     "-f",
@@ -76,10 +76,15 @@ def cli():
     type=int,
     help="Pitch shift in semitones (negative = lower/darker)",
 )
-def synthesize(text, voice, language, output, format, rate, pitch, provider, lowpass, normalize, distortion, noise, reverb, pitch_shift):
+def synthesize(
+    text, voice, language, output, format, rate, pitch, provider,
+    lowpass, normalize, distortion, noise, reverb, pitch_shift
+):
     """Generate speech from text."""
     # Validate provider immediately
-    supported_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "xtts_v2", "bark"]
+    supported_providers = [
+        "edge", "piper", "melotts", "kokoro", "elevenlabs", "bark", "chatterbox"
+    ]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
@@ -106,7 +111,7 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
         # Save output
 
         import tempfile
-        output_path = Path(output) if output else Path(f"speech.{format}")
+        output_path = Path(output)
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
         if effects_requested:
             # Always use a true temp file for effects
@@ -142,7 +147,10 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
 
             # Noise requires filter_complex (separate stream)
             if noise:
-                noise_filter = f"anoisesrc=d=10:c=white:r=44100:a={noise}[noise];[0:a][noise]amix=inputs=2:duration=first"
+                noise_filter = (
+                    f"anoisesrc=d=10:c=white:r=44100:a={noise}[noise];"
+                    f"[0:a][noise]amix=inputs=2:duration=first"
+                )
                 if audio_filters:
                     complex_filter = noise_filter + "[mixed];" + "[mixed]" + ",".join(audio_filters)
                 else:
@@ -187,7 +195,7 @@ def synthesize(text, voice, language, output, format, rate, pitch, provider, low
 def voices(language: Optional[str], format: str, provider: str):
     """List available voices."""
     # Validate provider immediately
-    supported_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "xtts_v2", "bark"]
+    supported_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "bark", "chatterbox"]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",

@@ -16,6 +16,10 @@ from .base import (
     VoiceType,
 )
 
+# Suppress deprecated pkg_resources warning from perth watermarking
+import warnings
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning, module="perth.*")
+
 logger = get_logger(__name__)
 
 
@@ -173,6 +177,9 @@ class ChatterboxProvider(TTSProvider):
             os.environ['TORCH_HOME'] = str(cache_root / 'torch')
 
             logger.info(f"Cache directory: {cache_chatterbox}")
+
+            # Suppress deprecated pkg_resources warning from perth watermarking
+            warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 
             # Import here after env vars are set
             from chatterbox.tts import ChatterboxTTS

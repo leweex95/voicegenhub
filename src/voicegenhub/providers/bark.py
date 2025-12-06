@@ -38,6 +38,20 @@ class BarkProvider(TTSProvider):
         self._voices_cache: Optional[List[Voice]] = None
         self._initialization_failed = False
 
+        # Set up local cache directory for Bark models
+        import os
+        import pathlib
+        project_root = pathlib.Path(__file__).parent.parent.parent.parent
+        self._local_cache_dir = os.path.join(project_root, 'cache', 'bark')
+        os.makedirs(self._local_cache_dir, exist_ok=True)
+
+        # Set environment variables for local caching
+        os.environ['HF_HUB_CACHE'] = self._local_cache_dir
+        os.environ['TRANSFORMERS_CACHE'] = self._local_cache_dir
+        os.environ['TORCH_HOME'] = self._local_cache_dir
+
+        logger.info(f"Configured Bark cache: {self._local_cache_dir}")
+
     @property
     def provider_id(self) -> str:
         return "bark"
@@ -51,6 +65,12 @@ class BarkProvider(TTSProvider):
         try:
             import torch
             import torch.serialization
+            import warnings
+
+            # Suppress torch weight_norm deprecation warning
+            warnings.filterwarnings(
+                "ignore", message=".*torch.nn.utils.weight_norm.*deprecated.*", category=FutureWarning
+            )
 
             # Patch torch.load for PyTorch 2.6+ compatibility with Bark models
             _original_torch_load = torch.load
@@ -162,7 +182,6 @@ class BarkProvider(TTSProvider):
 
             def _synthesize():
                 from bark import generate_audio, preload_models, SAMPLE_RATE
-                import numpy as np
                 import torch
 
                 # Patch torch.load to handle weights_only issue with newer PyTorch

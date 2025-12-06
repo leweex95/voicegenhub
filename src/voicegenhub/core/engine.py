@@ -142,12 +142,14 @@ class VoiceGenHub:
         # Check provider capabilities and warn about unsupported parameters
         if speed != 1.0 and not capabilities.supports_speed_control:
             logger.warning(
-                f"Provider {self._provider.display_name} does not support speed control. Speed parameter will be ignored."
+                f"Provider {self._provider.display_name} does not support speed control. "
+                "Speed parameter will be ignored."
             )
 
         if pitch != 1.0 and not capabilities.supports_pitch_control:
             logger.warning(
-                f"Provider {self._provider.display_name} does not support pitch control. Pitch parameter will be ignored."
+                f"Provider {self._provider.display_name} does not support pitch control. "
+                "Pitch parameter will be ignored."
             )
 
         # Get available voices to determine default voice

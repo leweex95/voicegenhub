@@ -58,18 +58,18 @@ class TestCLI:
     def test_cli_rejects_unsupported_provider_synthesize(self, runner):
         """Test CLI rejects unsupported provider in synthesize command."""
         result = runner.invoke(
-            cli, ["synthesize", "hello world", "--provider", "coqui"]
+            cli, ["synthesize", "hello world", "--provider", "coqui", "--output", "dummy.wav"]
         )
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, piper, melotts, kokoro" in result.output
+        assert "edge, piper, melotts, kokoro, elevenlabs, bark, chatterbox" in result.output
 
     def test_cli_rejects_unsupported_provider_voices(self, runner):
         """Test CLI rejects unsupported provider in voices command."""
         result = runner.invoke(cli, ["voices", "--provider", "coqui"])
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, piper, melotts, kokoro" in result.output
+        assert "edge, piper, melotts, kokoro, elevenlabs, bark, chatterbox" in result.output
 
     def test_cli_accepts_supported_providers_synthesize(self, runner, tmp_path):
         """Test CLI accepts supported providers in synthesize command."""
@@ -179,7 +179,7 @@ class TestCLI:
         mock_tts.generate.side_effect = Exception("Test error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test"])
+        result = runner.invoke(cli, ["synthesize", "test", "--output", "dummy.wav"])
         assert result.exit_code == 1
         assert "Error: Test error" in result.output
 
@@ -466,7 +466,7 @@ class TestCLI:
         mock_tts.generate.side_effect = Exception("Test error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "hello world"])
+        result = runner.invoke(cli, ["synthesize", "hello world", "--output", "dummy.wav"])
         assert result.exit_code == 1
         assert "Error: Test error" in result.output
 
@@ -644,7 +644,7 @@ class TestCLIVoiceNotFoundErrors:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello", "--voice", "en-US-NonExistentVoice"]
+            cli, ["synthesize", "hello", "--voice", "en-US-NonExistentVoice", "--output", "dummy.wav"]
         )
         assert result.exit_code == 1
         assert "Voice 'en-US-NonExistentVoice' not found" in result.output
@@ -692,7 +692,7 @@ class TestCLIVoiceNotFoundErrors:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello", "--voice", "SomeRandomVoice"]
+            cli, ["synthesize", "hello", "--voice", "SomeRandomVoice", "--output", "dummy.wav"]
         )
         assert result.exit_code == 1
         assert "Voice 'SomeRandomVoice' not found" in result.output
@@ -715,7 +715,7 @@ class TestCLIVoiceNotFoundErrors:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello", "--voice", "en-US-AriaNeural"]
+            cli, ["synthesize", "hello", "--voice", "en-US-AriaNeural", "--output", "dummy.wav"]
         )
         assert result.exit_code == 1
         assert "Voice 'en-US-AriaNeural' not found" in result.output
