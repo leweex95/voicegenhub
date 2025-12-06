@@ -30,6 +30,9 @@ jobs:
       with:
         poetry-version: latest
 
+    - name: Regenerate lock file
+      run: poetry lock --no-update
+
     - name: Install all dependencies
       run: |
         poetry install --with test,edge,piper,melotts,kokoro
