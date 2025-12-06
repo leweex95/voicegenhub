@@ -12,7 +12,6 @@ from voicegenhub.providers.base import (
 )
 from voicegenhub.providers.edge import EdgeTTSProvider
 from voicegenhub.providers.elevenlabs import ElevenLabsTTSProvider
-from voicegenhub.providers.google import GoogleTTSProvider
 from voicegenhub.providers.kokoro import KokoroTTSProvider
 from voicegenhub.providers.melotts import MeloTTSProvider
 
@@ -114,109 +113,6 @@ class TestEdgeTTSProvider:
 
         response = await provider.synthesize(sample_request)
         assert isinstance(response, TTSResponse)
-
-
-class TestGoogleTTSProvider:
-    """Test Google TTS provider."""
-
-    @pytest.fixture
-    def provider(self):
-        """Create GoogleTTSProvider instance."""
-        return GoogleTTSProvider()
-
-    @pytest.fixture
-    def sample_request(self):
-        """Create sample TTS request."""
-        return TTSRequest(
-            text="Hello world",
-            voice_id="en-US-Standard-A",
-            language="en-US",
-            audio_format=AudioFormat.MP3,
-        )
-
-    @pytest.mark.asyncio
-    async def test_initialize_without_credentials(self, provider):
-        """Test initialization without credentials (should not raise error)."""
-        with patch.dict("os.environ", {}, clear=True):
-            # Should not raise an exception, just log warning
-            await provider.initialize()
-            assert provider._client is None  # Client should not be initialized
-
-    @pytest.mark.asyncio
-    async def test_initialize_with_credentials(self, provider):
-        """Test initialization succeeds with credentials."""
-        # Check for Google credentials
-        import os
-
-        creds_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-        creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-
-        if not creds_json and not (creds_path and os.path.exists(creds_path)):
-            pytest.skip("Google credentials not available for integration test")
-
-        # Should not raise an exception with real credentials
-        await provider.initialize()
-        assert provider._client is not None
-
-    @pytest.mark.asyncio
-    async def test_synthesize_success(self, provider, sample_request):
-        """Test successful synthesis."""
-        # Check for Google credentials
-        import os
-
-        creds_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-        creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-
-        if not creds_json and not (creds_path and os.path.exists(creds_path)):
-            pytest.skip("Google credentials not available for integration test")
-
-        try:
-            await provider.initialize()
-            response = await provider.synthesize(sample_request)
-
-            assert isinstance(response, TTSResponse)
-            assert len(response.audio_data) > 0
-            assert response.duration > 0
-            assert response.metadata is not None
-        except Exception as e:
-            # Skip test if Google API is unavailable
-            if (
-                "403" in str(e)
-                or "401" in str(e)
-                or "quota" in str(e).lower()
-                or "permission" in str(e).lower()
-            ):
-                pytest.skip(f"Google TTS API unavailable: {e}")
-            else:
-                raise
-
-    @pytest.mark.asyncio
-    async def test_synthesize_google_api_error(self, provider, sample_request):
-        """Test that synthesis works with real Google API (or skips if unavailable)."""
-        # Check for Google credentials
-        import os
-
-        creds_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-        creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
-
-        if not creds_json and not (creds_path and os.path.exists(creds_path)):
-            pytest.skip("Google credentials not available for integration test")
-
-        try:
-            await provider.initialize()
-            response = await provider.synthesize(sample_request)
-            assert isinstance(response, TTSResponse)
-        except Exception as e:
-            # Skip test if Google API is unavailable
-            if (
-                "403" in str(e)
-                or "401" in str(e)
-                or "quota" in str(e).lower()
-                or "permission" in str(e).lower()
-            ):
-                pytest.skip(f"Google TTS API unavailable: {e}")
-            else:
-                raise
 
 
 class TestMeloTTSProvider:

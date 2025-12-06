@@ -52,7 +52,7 @@ class VoiceGenHub:
 
     async def get_available_providers(self) -> List[str]:
         """Get list of available provider IDs."""
-        all_providers = ["edge", "google", "piper", "melotts", "kokoro", "elevenlabs"]
+        all_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "bark"]
         providers = []
 
         for provider_id in all_providers:
@@ -142,18 +142,42 @@ class VoiceGenHub:
         # Check provider capabilities and warn about unsupported parameters
         if speed != 1.0 and not capabilities.supports_speed_control:
             logger.warning(
-                f"Provider {self._provider.display_name} does not support speed control. Speed parameter will be ignored."
+                f"Provider {self._provider.display_name} does not support speed control. "
+                "Speed parameter will be ignored."
             )
 
         if pitch != 1.0 and not capabilities.supports_pitch_control:
             logger.warning(
-                f"Provider {self._provider.display_name} does not support pitch control. Pitch parameter will be ignored."
+                f"Provider {self._provider.display_name} does not support pitch control. "
+                "Pitch parameter will be ignored."
             )
+
+        # Get available voices to determine appropriate default
+        available_voices = await self._voice_selector.get_all_voices()
+        voice_ids = [v.id for v in available_voices]
+
+        # Use provided voice or find appropriate default based on language
+        if not voice:
+            # Try to find a voice matching the requested or default language
+            target_lang = (language or "en").lower()
+            matching_voices = [
+                v for v in available_voices
+                if v.language.lower().startswith(target_lang)
+            ]
+
+            if matching_voices:
+                voice = matching_voices[0].id
+                logger.info(f"Using {target_lang.upper()} voice: {voice}")
+            elif voice_ids:
+                voice = voice_ids[0]
+                logger.info(f"No {target_lang.upper()} voice available, using: {voice}")
+            else:
+                voice = "en-US-AriaNeural"  # Fallback if no voices available
 
         # Prepare request
         request = TTSRequest(
             text=text,
-            voice_id=voice or "en-US-AriaNeural",
+            voice_id=voice,
             language=language,
             audio_format=default_format,
             sample_rate=default_sample_rate,
@@ -163,8 +187,6 @@ class VoiceGenHub:
         )
 
         # Verify voice is available
-        available_voices = await self._voice_selector.get_all_voices()
-        voice_ids = [v.id for v in available_voices]
         if request.voice_id not in voice_ids:
             # Try to provide helpful suggestions
             error_msg = f"Voice '{request.voice_id}' not found"

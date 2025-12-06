@@ -13,11 +13,12 @@ class ProviderFactory:
 
     def __init__(self):
         self._edge_provider_class = None
-        self._google_provider_class = None
         self._piper_provider_class = None
         self._melotts_provider_class = None
         self._kokoro_provider_class = None
         self._elevenlabs_provider_class = None
+        self._bark_provider_class = None
+        self._chatterbox_provider_class = None
 
     async def discover_provider(self, provider_id: str) -> None:
         """Discover and register a specific TTS provider."""
@@ -25,12 +26,6 @@ class ProviderFactory:
             try:
                 from .edge import EdgeTTSProvider
                 self._edge_provider_class = EdgeTTSProvider
-            except ImportError:
-                pass
-        elif provider_id == "google":
-            try:
-                from .google import GoogleTTSProvider
-                self._google_provider_class = GoogleTTSProvider
             except ImportError:
                 pass
         elif provider_id == "piper":
@@ -57,6 +52,18 @@ class ProviderFactory:
                 self._elevenlabs_provider_class = ElevenLabsTTSProvider
             except ImportError:
                 pass
+        elif provider_id == "bark":
+            try:
+                from .bark import BarkProvider
+                self._bark_provider_class = BarkProvider
+            except ImportError:
+                pass
+        elif provider_id == "chatterbox":
+            try:
+                from .chatterbox import ChatterboxProvider
+                self._chatterbox_provider_class = ChatterboxProvider
+            except ImportError:
+                pass
 
     async def create_provider(
         self, provider_id: str, config: Optional[Dict[str, Any]] = None
@@ -65,7 +72,7 @@ class ProviderFactory:
         Create TTS provider instance.
 
         Args:
-            provider_id: Provider ID ("edge", "google", or "piper")
+            provider_id: Provider ID ("edge", "piper", "melotts", "kokoro", "elevenlabs", "bark")
             config: Optional configuration
 
         Returns:
@@ -76,16 +83,6 @@ class ProviderFactory:
                 raise TTSError("Edge TTS provider not available")
 
             provider = self._edge_provider_class(name=provider_id, config=config)
-            await provider.initialize()
-            return provider
-
-        elif provider_id == "google":
-            if self._google_provider_class is None:
-                raise TTSError(
-                    "Google TTS provider not available. Install with: pip install google-cloud-texttospeech"
-                )
-
-            provider = self._google_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
 
@@ -129,9 +126,31 @@ class ProviderFactory:
             await provider.initialize()
             return provider
 
+        elif provider_id == "bark":
+            if self._bark_provider_class is None:
+                raise TTSError(
+                    "Bark provider not available. Install with: pip install bark-model"
+                )
+
+            provider = self._bark_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
+        elif provider_id == "chatterbox":
+            if self._chatterbox_provider_class is None:
+                raise TTSError(
+                    "Chatterbox provider not available. Install with: "
+                    "poetry run pip install git+https://github.com/rsxdalv/chatterbox.git@faster"
+                )
+
+            provider = self._chatterbox_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
         else:
             raise TTSError(
-                f"Unsupported provider: '{provider_id}'. Available: edge, google, piper, melotts, kokoro, elevenlabs"
+                f"Unsupported provider: '{provider_id}'. "
+                "Available: edge, piper, melotts, kokoro, elevenlabs, bark, chatterbox"
             )
 
 
