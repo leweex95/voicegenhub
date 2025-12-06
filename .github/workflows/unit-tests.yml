@@ -31,7 +31,7 @@ jobs:
         poetry-version: latest
 
     - name: Regenerate lock file
-      run: poetry lock --no-update
+      run: poetry lock
 
     - name: Install all dependencies
       run: |
