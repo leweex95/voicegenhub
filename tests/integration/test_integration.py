@@ -314,6 +314,7 @@ class TestKokoroSpecificIntegration:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
+    @pytest.mark.xfail(reason="Voice files may not be available on HuggingFace")
     async def test_kokoro_male_voice_synthesis(self):
         """Integration: Test Kokoro male voice synthesis."""
         pytest.importorskip("kokoro")
@@ -342,6 +343,7 @@ class TestKokoroSpecificIntegration:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
+    @pytest.mark.xfail(reason="Voice files may not be available on HuggingFace")
     async def test_kokoro_female_voice_synthesis(self):
         """Integration: Test Kokoro female voice synthesis."""
         pytest.importorskip("kokoro")
