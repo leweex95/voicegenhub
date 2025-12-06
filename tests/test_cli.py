@@ -1,4 +1,5 @@
 """Unit tests for VoiceGenHub CLI."""
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -764,6 +765,27 @@ class TestCLI:
         """Verify __name__=='__main__' block invokes cli()."""
         # This is hard to test directly, but we can check that cli is callable
         assert callable(cli)
+
+    @patch("voicegenhub.cli.StableAudioEffectGenerator")
+    def test_effect_run_command(self, mock_generator_class, runner, tmp_path):
+        """Effect run command passes prompt and output path through the generator."""
+        mock_generator = mock_generator_class.return_value
+        mock_generator.generate.return_value = SimpleNamespace(path=tmp_path / "effect.wav")
+
+        result = runner.invoke(
+            cli,
+            [
+                "effect",
+                "run",
+                "--prompt",
+                "distant artillery shelling sounds",
+                "--output",
+                str(tmp_path / "effect.wav"),
+            ],
+        )
+
+        assert result.exit_code == 0
+        mock_generator.generate.assert_called_once()
 
 
 class TestCLIVoiceNotFoundErrors:

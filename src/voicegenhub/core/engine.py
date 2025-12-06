@@ -234,6 +234,23 @@ class VoiceGenHub:
         logger.info(f"Successfully generated {response.duration:.2f}s of audio")
         return response
 
+    async def synthesize(self, request: TTSRequest) -> TTSResponse:
+        """Legacy convenience wrapper for generate()."""
+        payload = request.model_dump()
+        text = payload.pop("text")
+        voice_id = payload.pop("voice_id")
+
+        return await self.generate(
+            text=text,
+            voice=voice_id,
+            language=payload.pop("language", None),
+            audio_format=payload.pop("audio_format", None),
+            sample_rate=payload.pop("sample_rate", None),
+            speed=payload.pop("speed", 1.0),
+            pitch=payload.pop("pitch", 1.0),
+            **payload,
+        )
+
     def _extract_language_from_voice_name(self, voice_name: str) -> Optional[str]:
         """
         Extract language code from voice name.

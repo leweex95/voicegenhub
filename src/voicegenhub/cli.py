@@ -13,11 +13,113 @@ from typing import Optional
 
 import click
 
+from .content.effect import EffectGenerationError, StableAudioEffectGenerator
 from .core.engine import VoiceGenHub
 from .providers.base import AudioFormat
 from .utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+SUPPORTED_TTS_PROVIDERS = [
+    "edge",
+    "piper",
+    "melotts",
+    "kokoro",
+    "elevenlabs",
+    "bark",
+    "chatterbox",
+]
+DEFAULT_EFFECT_OUTPUT = "sound_effect.wav"
+
+
+def _apply_tts_run_options(func):
+    options = [
+        click.option(
+            "--voice",
+            "-v",
+            help="Voice ID (e.g., 'en-US-AriaNeural', 'kokoro-af_alloy', 'melotts-EN')",
+        ),
+        click.option("--language", "-l", help="Language code (e.g., 'en')"),
+        click.option(
+            "--output",
+            "-o",
+            type=click.Path(),
+            help="Output file path (auto-numbered for multiple texts)",
+        ),
+        click.option(
+            "--format",
+            "-f",
+            "audio_format",
+            type=click.Choice(["mp3", "wav"]),
+            default="wav",
+            help="Audio format",
+        ),
+        click.option(
+            "--rate",
+            "-r",
+            type=float,
+            default=1.0,
+            help="Speech rate (0.5-2.0, default 1.0)",
+        ),
+        click.option(
+            "--pitch",
+            type=float,
+            default=1.0,
+            help="Speech pitch (0.5-2.0, default 1.0)",
+        ),
+        click.option("--provider", "-p", help="TTS provider"),
+        click.option(
+            "--lowpass",
+            type=int,
+            help="Apply lowpass filter with cutoff frequency in Hz (e.g., 1200 for horror effect)",
+        ),
+        click.option(
+            "--normalize",
+            is_flag=True,
+            help="Normalize audio loudness",
+        ),
+        click.option(
+            "--distortion",
+            type=float,
+            help="Apply distortion/overdrive (gain 1-20, higher = more evil)",
+        ),
+        click.option(
+            "--noise",
+            type=float,
+            help="Add white noise static (volume 0.0-1.0)",
+        ),
+        click.option(
+            "--reverb",
+            is_flag=True,
+            help="Add reverb with delay effect",
+        ),
+        click.option(
+            "--pitch-shift",
+            type=int,
+            help="Pitch shift in semitones (negative = lower/darker)",
+        ),
+    ]
+    for option in reversed(options):
+        func = option(func)
+    return func
+
+
+def _apply_tts_voice_options(func):
+    options = [
+        click.option("--language", "-l", help="Filter by language"),
+        click.option(
+            "--format",
+            "-f",
+            "output_format",
+            type=click.Choice(["table", "json"]),
+            default="table",
+            help="Output format",
+        ),
+        click.option("--provider", "-p", help="TTS provider"),
+    ]
+    for option in reversed(options):
+        func = option(func)
+    return func
 
 
 def _process_single(
@@ -245,82 +347,30 @@ def _process_batch(
         sys.exit(1)
 
 
-@click.group()
-def cli():
-    """VoiceGenHub - Simple Text-to-Speech CLI."""
-    pass
-
-
-@cli.command()
-@click.argument("texts", nargs=-1, required=True)
-@click.option(
-    "--voice",
-    "-v",
-    help="Voice ID (e.g., 'en-US-AriaNeural', 'kokoro-af_alloy', 'melotts-EN')",
-)
-@click.option("--language", "-l", help="Language code (e.g., 'en')")
-@click.option("--output", "-o", type=click.Path(), help="Output file path (auto-numbered for multiple texts)")
-@click.option(
-    "--format",
-    "-f",
-    type=click.Choice(["mp3", "wav"]),
-    default="wav",
-    help="Audio format",
-)
-@click.option(
-    "--rate", "-r", type=float, default=1.0, help="Speech rate (0.5-2.0, default 1.0)"
-)
-@click.option(
-    "--pitch", type=float, default=1.0, help="Speech pitch (0.5-2.0, default 1.0)"
-)
-@click.option("--provider", "-p", help="TTS provider")
-@click.option(
-    "--lowpass",
-    type=int,
-    help="Apply lowpass filter with cutoff frequency in Hz (e.g., 1200 for horror effect)",
-)
-@click.option(
-    "--normalize",
-    is_flag=True,
-    help="Normalize audio loudness",
-)
-@click.option(
-    "--distortion",
-    type=float,
-    help="Apply distortion/overdrive (gain 1-20, higher = more evil)",
-)
-@click.option(
-    "--noise",
-    type=float,
-    help="Add white noise static (volume 0.0-1.0)",
-)
-@click.option(
-    "--reverb",
-    is_flag=True,
-    help="Add reverb with delay effect",
-)
-@click.option(
-    "--pitch-shift",
-    type=int,
-    help="Pitch shift in semitones (negative = lower/darker)",
-)
-def synthesize(
-    texts, voice, language, output, format, rate, pitch, provider,
-    lowpass, normalize, distortion, noise, reverb, pitch_shift
+def _execute_tts_run(
+    texts,
+    voice,
+    language,
+    output,
+    audio_format,
+    rate,
+    pitch,
+    provider,
+    lowpass,
+    normalize,
+    distortion,
+    noise,
+    reverb,
+    pitch_shift,
 ):
-    """Generate speech from text(s)."""
-    # Validate provider immediately
-    supported_providers = [
-        "edge", "piper", "melotts", "kokoro", "elevenlabs", "bark", "chatterbox"
-    ]
-    if provider and provider not in supported_providers:
+    """Execute the shared TTS workflow for both primary and alias commands."""
+    if provider and provider not in SUPPORTED_TTS_PROVIDERS:
         click.echo(
-            f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
+            f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(SUPPORTED_TTS_PROVIDERS)}",
             err=True,
         )
         sys.exit(1)
 
-    # Validate required parameters - fail fast on missing inputs
     if not language:
         click.echo("Error: --language (-l) is required", err=True)
         sys.exit(1)
@@ -329,28 +379,25 @@ def synthesize(
         click.echo("Error: --voice (-v) is required", err=True)
         sys.exit(1)
 
-    # Collect all texts
     all_texts = list(texts)
-
     if not all_texts:
         click.echo("Error: No text provided", err=True)
         sys.exit(1)
 
-    # Check if this is a batch operation (multiple texts)
+    effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
     is_batch = len(all_texts) > 1
 
     if is_batch:
-        # Batch processing with concurrency control
         _process_batch(
             texts=all_texts,
             provider=provider,
             voice=voice,
             language=language,
             output_base=output,
-            audio_format=format,
+            audio_format=audio_format,
             speed=rate,
             pitch=pitch,
-            effects_enabled=any([lowpass, normalize, distortion, noise, reverb, pitch_shift]),
+            effects_enabled=effects_requested,
             lowpass=lowpass,
             normalize=normalize,
             distortion=distortion,
@@ -359,14 +406,13 @@ def synthesize(
             pitch_shift=pitch_shift,
         )
     else:
-        # Single text processing (original behavior)
         _process_single(
             text=all_texts[0],
             provider=provider,
             voice=voice,
             language=language,
             output=output,
-            audio_format=format,
+            audio_format=audio_format,
             speed=rate,
             pitch=pitch,
             lowpass=lowpass,
@@ -378,35 +424,20 @@ def synthesize(
         )
 
 
-@cli.command()
-@click.option("--language", "-l", help="Filter by language")
-@click.option(
-    "--format",
-    "-f",
-    type=click.Choice(["table", "json"]),
-    default="table",
-    help="Output format",
-)
-@click.option("--provider", "-p", help="TTS provider")
-def voices(language: Optional[str], format: str, provider: str):
-    """List available voices."""
-    # Validate provider immediately
-    supported_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "bark", "chatterbox"]
-    if provider and provider not in supported_providers:
+def _list_tts_voices(language: Optional[str], output_format: str, provider: Optional[str]) -> None:
+    """Shared voice listing logic for TTS commands."""
+    if provider and provider not in SUPPORTED_TTS_PROVIDERS:
         click.echo(
-            f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
+            f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(SUPPORTED_TTS_PROVIDERS)}",
             err=True,
         )
         sys.exit(1)
 
     try:
-        # Create engine (will auto-select provider if none specified)
         tts = VoiceGenHub(provider=provider)
-
-        # Get voices - engine handles provider validation
         voices_data = asyncio.run(tts.get_voices(language=language))
 
-        if format == "json":
+        if output_format == "json":
             output = {
                 "voices": [
                     {
@@ -421,15 +452,226 @@ def voices(language: Optional[str], format: str, provider: str):
         else:
             click.echo("Available Voices:")
             click.echo("-" * 50)
-            for voice in voices_data[:10]:  # Show first 10
+            for voice in voices_data[:10]:
                 click.echo(f"{voice['id']} - {voice['name']} ({voice['language']})")
 
             if len(voices_data) > 10:
                 click.echo(f"... and {len(voices_data) - 10} more voices")
-
-    except Exception as e:
-        click.echo(f"Error: {e}", err=True)
+    except Exception as exc:
+        click.echo(f"Error: {exc}", err=True)
         sys.exit(1)
+
+
+@click.group()
+def cli():
+    """VoiceGenHub - multi-modal generation CLI."""
+
+
+@cli.group()
+def tts():
+    """Text-to-Speech commands."""
+
+
+@tts.command("run")
+@_apply_tts_run_options
+@click.argument("texts", nargs=-1, required=True)
+def tts_run(
+    texts,
+    voice,
+    language,
+    output,
+    audio_format,
+    rate,
+    pitch,
+    provider,
+    lowpass,
+    normalize,
+    distortion,
+    noise,
+    reverb,
+    pitch_shift,
+):
+    """Generate speech from text(s)."""
+    _execute_tts_run(
+        texts,
+        voice,
+        language,
+        output,
+        audio_format,
+        rate,
+        pitch,
+        provider,
+        lowpass,
+        normalize,
+        distortion,
+        noise,
+        reverb,
+        pitch_shift,
+    )
+
+
+@tts.command("voices")
+@_apply_tts_voice_options
+def tts_list_voices(language: Optional[str], output_format: str, provider: Optional[str]):
+    """List available voices for the selected providers."""
+    _list_tts_voices(language, output_format, provider)
+
+
+@cli.command("synthesize")
+@_apply_tts_run_options
+@click.argument("texts", nargs=-1, required=True)
+def synthesize(
+    texts,
+    voice,
+    language,
+    output,
+    audio_format,
+    rate,
+    pitch,
+    provider,
+    lowpass,
+    normalize,
+    distortion,
+    noise,
+    reverb,
+    pitch_shift,
+):
+    """Generate speech from text(s)."""
+    _execute_tts_run(
+        texts,
+        voice,
+        language,
+        output,
+        audio_format,
+        rate,
+        pitch,
+        provider,
+        lowpass,
+        normalize,
+        distortion,
+        noise,
+        reverb,
+        pitch_shift,
+    )
+
+
+@cli.command("voices")
+@_apply_tts_voice_options
+def voices_alias(language: Optional[str], output_format: str, provider: Optional[str]):
+    """List available voices."""
+    _list_tts_voices(language, output_format, provider)
+
+
+@cli.group()
+def music():
+    """Music generation commands (coming soon)."""
+
+
+@music.command("run")
+@click.option(
+    "--style",
+    "-s",
+    default="cinematic",
+    show_default=True,
+    help="Target music style (placeholder).",
+)
+@click.option(
+    "--duration",
+    "-d",
+    type=click.IntRange(10, 360),
+    default=60,
+    show_default=True,
+    help="Duration in seconds (placeholder).",
+)
+@click.argument("keywords", nargs=-1)
+def music_run(style: str, duration: int, keywords: tuple[str, ...]):
+    """Placeholder music generator that logs the requested style."""
+    keyword_summary = " ".join(keywords) if keywords else "no keywords"
+    click.echo(
+        f"Music generation will be available soon (style={style}, duration={duration}, keywords={keyword_summary})."
+    )
+
+
+@cli.group()
+def effect():
+    """Sound effect generation commands."""
+
+
+@effect.command("run")
+@click.option(
+    "--prompt",
+    "-p",
+    required=True,
+    help="Describe the sound effect you want to generate.",
+)
+@click.option(
+    "--model",
+    "-m",
+    default="stabilityai/stable-audio-open-1.0",
+    show_default=True,
+    help="HuggingFace model ID to use for generation.",
+)
+@click.option(
+    "--duration",
+    "-d",
+    type=click.IntRange(1, 60),
+    default=30,
+    show_default=True,
+    help="Duration of the generated clip in seconds.",
+)
+@click.option(
+    "--guidance-scale",
+    type=click.FloatRange(0.1, 15.0),
+    default=7.0,
+    show_default=True,
+    help="Guidance scale that balances prompt adherence and diversity.",
+)
+@click.option("--seed", type=int, help="Optional random seed for deterministic outputs.")
+@click.option(
+    "--format",
+    "-f",
+    "output_format",
+    type=click.Choice(["wav", "mp3"]),
+    default="wav",
+    show_default=True,
+    help="Output audio format.",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(dir_okay=False, writable=True),
+    default=DEFAULT_EFFECT_OUTPUT,
+    help="Destination path for the generated sound effect.",
+)
+def effect_run(
+    prompt: str,
+    model: str,
+    duration: int,
+    guidance_scale: float,
+    seed: Optional[int],
+    output_format: str,
+    output: str,
+):
+    """Generate a single sound effect clip using StabilityAI's models."""
+    generator = StableAudioEffectGenerator(model_id=model)
+    try:
+        result = generator.generate(
+            prompt=prompt,
+            output_path=Path(output),
+            duration=duration,
+            output_format=output_format,
+            guidance_scale=guidance_scale,
+            seed=seed,
+        )
+        click.echo(f"Sound effect saved to {result.path}")
+    except EffectGenerationError as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(1)
+    except Exception as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(1)
+    finally:
+        generator.close()
 
 
 if __name__ == "__main__":
