@@ -14,8 +14,6 @@ Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supp
 - **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
 - **ElevenLabs TTS** (commercial, high-quality voices)
 
-**For YouTube & Monetized Content:** Use Bark (MIT), Chatterbox (MIT), or Kokoro (Apache 2.0) - all are fully commercial-friendly. See [Commercial Licensing](#commercial-licensing) section below for details.
-
 ## Usage
 
 ### ElevenLabs

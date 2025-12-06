@@ -4,7 +4,6 @@ Simple Command Line Interface for VoiceGenHub.
 
 import asyncio
 import json
-import os
 import sys
 import tempfile
 import threading
@@ -53,7 +52,7 @@ def _process_single(
             pitch=pitch,
         ))
 
-        output_path = Path(output)
+        output_path = Path(output) if output else Path(f"output.{audio_format}")
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
 
         if effects_requested:
@@ -140,7 +139,7 @@ def _process_batch(
     pitch_shift: int,
 ):
     """Process multiple texts concurrently with provider-specific limits.
-    
+
     Concurrency defaults are conservative (max 1-2 concurrent jobs):
     - Most providers use 1 to avoid memory exhaustion and API rate limiting
     - Only Bark uses 2 (tested and verified safe for concurrent processing)
@@ -165,26 +164,26 @@ def _process_batch(
 
     # Create shared provider instance (loaded once, reused across jobs)
     click.echo(f"Initializing {provider} provider (this may take a moment for heavy models)...")
-    
+
     async def init_provider():
         shared_tts = VoiceGenHub(provider=provider)
         await shared_tts.initialize()
         return shared_tts
-    
+
     shared_tts = asyncio.run(init_provider())
     click.echo(f"{provider} provider ready for batch processing")
 
     # Use threading for concurrent processing
     results = []
     lock = threading.Lock()
-    
+
     def process_item(index: int, text: str):
         """Process a single text item."""
         output_file = Path(f"{output_base}_{index + 1:02d}.{audio_format}")
-        
+
         with lock:
             click.echo(f"Processing item {index + 1}/{len(texts)}: {text[:50]}...")
-        
+
         try:
             # Run async generation in thread
             async def generate():
@@ -196,9 +195,9 @@ def _process_batch(
                     speed=speed,
                     pitch=pitch,
                 )
-            
+
             response = asyncio.run(generate())
-            
+
             # Apply effects if requested (single processing with effects)
             if effects_enabled:
                 _process_single(
@@ -233,7 +232,7 @@ def _process_batch(
     # Run jobs with controlled concurrency
     with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
         futures = [executor.submit(process_item, i, text) for i, text in enumerate(texts)]
-        
+
         for future in as_completed(futures):
             results.append(future.result())
 
@@ -241,7 +240,7 @@ def _process_batch(
     failed = len(results) - successful
 
     click.echo(f"\nBatch complete: {successful} successful, {failed} failed")
-    
+
     if failed > 0:
         sys.exit(1)
 
@@ -325,21 +324,21 @@ def synthesize(
     if not language:
         click.echo("Error: --language (-l) is required", err=True)
         sys.exit(1)
-    
+
     if not voice:
         click.echo("Error: --voice (-v) is required", err=True)
         sys.exit(1)
 
     # Collect all texts
-    all_texts = [t for t in texts if t.strip()]  # Filter out empty texts
-    
+    all_texts = list(texts)
+
     if not all_texts:
         click.echo("Error: No text provided", err=True)
         sys.exit(1)
 
     # Check if this is a batch operation (multiple texts)
     is_batch = len(all_texts) > 1
-    
+
     if is_batch:
         # Batch processing with concurrency control
         _process_batch(
@@ -377,7 +376,6 @@ def synthesize(
             reverb=reverb,
             pitch_shift=pitch_shift,
         )
-
 
 
 @cli.command()
