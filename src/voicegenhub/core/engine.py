@@ -152,15 +152,25 @@ class VoiceGenHub:
                 "Pitch parameter will be ignored."
             )
 
-        # Get available voices to determine default voice
+        # Get available voices to determine appropriate default
         available_voices = await self._voice_selector.get_all_voices()
         voice_ids = [v.id for v in available_voices]
 
-        # Use provided voice or first available voice
+        # Use provided voice or find appropriate default based on language
         if not voice:
-            if voice_ids:
+            # Try to find a voice matching the requested or default language
+            target_lang = (language or "en").lower()
+            matching_voices = [
+                v for v in available_voices
+                if v.language.lower().startswith(target_lang)
+            ]
+            
+            if matching_voices:
+                voice = matching_voices[0].id
+                logger.info(f"Using {target_lang.upper()} voice: {voice}")
+            elif voice_ids:
                 voice = voice_ids[0]
-                logger.info(f"No voice specified, using default: {voice}")
+                logger.info(f"No {target_lang.upper()} voice available, using: {voice}")
             else:
                 voice = "en-US-AriaNeural"  # Fallback if no voices available
 

@@ -1,6 +1,7 @@
 """Chatterbox TTS Provider - MIT Licensed, Multilingual, Emotion Control."""
 
 import os
+import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -16,9 +17,9 @@ from .base import (
     VoiceType,
 )
 
-# Suppress deprecated pkg_resources warning from perth watermarking
-import warnings
-warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning, module="perth.*")
+# Suppress warnings from dependencies to keep output clean
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
+warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*deprecated", category=FutureWarning)
 
 logger = get_logger(__name__)
 
@@ -243,42 +244,32 @@ class ChatterboxProvider(TTSProvider):
         Returns:
             Tuple of (audio_bytes, sample_rate)
         """
-        import torch
+        import asyncio
 
-        try:
-            exaggeration = kwargs.get("exaggeration", 0.5)
-            cfg_weight = kwargs.get("cfg_weight", 0.5)
-            audio_prompt_path = kwargs.get("audio_prompt_path", None)
+        def _sync_synthesize():
+            import torch
 
-            logger.info(f"Generating {language} audio with text: {text[:50]}...")
+            try:
+                exaggeration = kwargs.get("exaggeration", 0.5)
+                cfg_weight = kwargs.get("cfg_weight", 0.5)
+                audio_prompt_path = kwargs.get("audio_prompt_path", None)
 
-            # Validate parameters
-            exaggeration = max(0.0, min(1.0, exaggeration))
-            cfg_weight = max(0.0, min(1.0, cfg_weight))
+                logger.info(f"Generating {language} audio with text: {text[:50]}...")
 
-            # Disable CUDA graph capture on CPU
-            if self.device == "cpu":
-                # Use no_grad and disable graph capture
-                torch.cuda.is_available = lambda: False  # Fake CUDA availability check
+                # Validate parameters
+                exaggeration = max(0.0, min(1.0, exaggeration))
+                cfg_weight = max(0.0, min(1.0, cfg_weight))
 
-            # Select model based on language
-            if language.lower() == "en" or self._multilingual_model is None:
-                model = self._model
-                logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
+                # Disable CUDA graph capture on CPU
+                if self.device == "cpu":
+                    # Use no_grad and disable graph capture
+                    torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
-                with torch.no_grad():
-                    t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
-                    wav = model.generate(
-                        text,
-                        exaggeration=exaggeration,
-                        cfg_weight=cfg_weight,
-                        audio_prompt_path=audio_prompt_path,
-                        t3_params=t3_params
-                    )
-            else:
-                if self._multilingual_model is None:
-                    logger.warning("Multilingual support not available on CPU, falling back to English")
+                # Select model based on language
+                if language.lower() == "en" or self._multilingual_model is None:
                     model = self._model
+                    logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
+
                     with torch.no_grad():
                         t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
                         wav = model.generate(
@@ -289,78 +280,95 @@ class ChatterboxProvider(TTSProvider):
                             t3_params=t3_params
                         )
                 else:
-                    model = self._multilingual_model
-                    language_id = language.lower()
-                    logger.info(f"Using Multilingual model for {language_id}")
+                    if self._multilingual_model is None:
+                        logger.warning("Multilingual support not available on CPU, falling back to English")
+                        model = self._model
+                        with torch.no_grad():
+                            t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
+                            wav = model.generate(
+                                text,
+                                exaggeration=exaggeration,
+                                cfg_weight=cfg_weight,
+                                audio_prompt_path=audio_prompt_path,
+                                t3_params=t3_params
+                            )
+                    else:
+                        model = self._multilingual_model
+                        language_id = language.lower()
+                        logger.info(f"Using Multilingual model for {language_id}")
 
-                    with torch.no_grad():
-                        t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
-                        wav = model.generate(
-                            text,
-                            language_id=language_id,
-                            exaggeration=exaggeration,
-                            cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path,
-                            t3_params=t3_params
-                        )
+                        with torch.no_grad():
+                            t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
+                            wav = model.generate(
+                                text,
+                                language_id=language_id,
+                                exaggeration=exaggeration,
+                                cfg_weight=cfg_weight,
+                                audio_prompt_path=audio_prompt_path,
+                                t3_params=t3_params
+                            )
 
-            # Convert to bytes
-            sample_rate = model.sr
+                # Convert to bytes
+                sample_rate = model.sr
 
-            # Ensure wav is 1D or 2D
-            if wav.dim() == 3:
-                wav = wav.squeeze(0)  # Remove batch dimension if present
-            if wav.dim() == 2:
-                wav = wav.squeeze(0) if wav.shape[0] == 1 else wav[0]  # Take first channel if stereo/multi
+                # Ensure wav is 1D or 2D
+                if wav.dim() == 3:
+                    wav = wav.squeeze(0)  # Remove batch dimension if present
+                if wav.dim() == 2:
+                    wav = wav.squeeze(0) if wav.shape[0] == 1 else wav[0]  # Take first channel if stereo/multi
 
-            logger.info(f"Audio tensor shape after processing: {wav.shape}")
+                logger.info(f"Audio tensor shape after processing: {wav.shape}")
 
-            # Normalize audio
-            if wav.abs().max() > 1.0:
-                wav = wav / wav.abs().max()
+                # Normalize audio
+                if wav.abs().max() > 1.0:
+                    wav = wav / wav.abs().max()
 
-            # Convert to 16-bit PCM
-            wav_int16 = (wav * 32767).short().cpu().numpy() if wav.is_cuda else (wav * 32767).short().numpy()
+                # Convert to 16-bit PCM
+                wav_int16 = (wav * 32767).short().cpu().numpy() if wav.is_cuda else (wav * 32767).short().numpy()
 
-            # Create WAV file manually to avoid torchaudio issues on CPU
-            import struct
-            import io
+                # Create WAV file manually to avoid torchaudio issues on CPU
+                import struct
+                import io
 
-            buffer = io.BytesIO()
+                buffer = io.BytesIO()
 
-            # WAV header
-            n_channels = 1
-            n_samples = len(wav_int16)
-            byte_rate = sample_rate * n_channels * 2
-            block_align = n_channels * 2
+                # WAV header
+                n_channels = 1
+                n_samples = len(wav_int16)
+                byte_rate = sample_rate * n_channels * 2
+                block_align = n_channels * 2
 
-            # RIFF header
-            buffer.write(b'RIFF')
-            buffer.write(struct.pack('<I', 36 + n_samples * n_channels * 2))
-            buffer.write(b'WAVE')
+                # RIFF header
+                buffer.write(b'RIFF')
+                buffer.write(struct.pack('<I', 36 + n_samples * n_channels * 2))
+                buffer.write(b'WAVE')
 
-            # fmt subchunk
-            buffer.write(b'fmt ')
-            buffer.write(struct.pack('<I', 16))  # Subchunk1Size
-            buffer.write(struct.pack('<H', 1))   # AudioFormat (1=PCM)
-            buffer.write(struct.pack('<H', n_channels))
-            buffer.write(struct.pack('<I', sample_rate))
-            buffer.write(struct.pack('<I', byte_rate))
-            buffer.write(struct.pack('<H', block_align))
-            buffer.write(struct.pack('<H', 16))  # BitsPerSample
+                # fmt subchunk
+                buffer.write(b'fmt ')
+                buffer.write(struct.pack('<I', 16))  # Subchunk1Size
+                buffer.write(struct.pack('<H', 1))   # AudioFormat (1=PCM)
+                buffer.write(struct.pack('<H', n_channels))
+                buffer.write(struct.pack('<I', sample_rate))
+                buffer.write(struct.pack('<I', byte_rate))
+                buffer.write(struct.pack('<H', block_align))
+                buffer.write(struct.pack('<H', 16))  # BitsPerSample
 
-            # data subchunk
-            buffer.write(b'data')
-            buffer.write(struct.pack('<I', n_samples * n_channels * 2))
-            buffer.write(wav_int16.tobytes())
+                # data subchunk
+                buffer.write(b'data')
+                buffer.write(struct.pack('<I', n_samples * n_channels * 2))
+                buffer.write(wav_int16.tobytes())
 
-            audio_bytes = buffer.getvalue()
-            logger.info(f"Successfully generated {len(audio_bytes)} bytes of audio")
-            return audio_bytes, sample_rate
+                audio_bytes = buffer.getvalue()
+                logger.info(f"Successfully generated {len(audio_bytes)} bytes of audio")
+                return audio_bytes, sample_rate
 
-        except Exception as e:
-            logger.error(f"Audio generation failed: {str(e)}")
-            raise TTSError(f"Chatterbox synthesis failed: {str(e)}")
+            except Exception as e:
+                logger.error(f"Audio generation failed: {str(e)}")
+                raise TTSError(f"Chatterbox synthesis failed: {str(e)}")
+
+        # Run the synchronous synthesis in a thread pool
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, _sync_synthesize)
 
     def _detect_device(self) -> str:
         """Detect available device (cuda or cpu)."""

@@ -20,9 +20,6 @@ misaki = {git = "https://github.com/hexgrad/misaki.git", rev = "fba1236595f2d2bf
 [tool.poetry.group.edge.dependencies]
 
 
-[tool.poetry.group.google.dependencies]
-google-cloud-texttospeech = "*"
-
 [tool.poetry.group.piper.dependencies]
 piper-tts = "^1.3.0"
 

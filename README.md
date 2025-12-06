@@ -96,6 +96,40 @@ poetry run voicegenhub voices --language en --provider chatterbox
 poetry run voicegenhub voices --language en --provider bark
 ```
 
+## Batch Processing with Concurrency Control
+
+Process multiple texts concurrently with automatic provider-specific resource management:
+
+```bash
+# Process a JSON array of texts (recommended)
+poetry run voicegenhub batch examples/batch_input.json --provider edge --output-dir batch_output
+
+# Or process a plain text file (one text per line)
+poetry run voicegenhub batch texts.txt --provider chatterbox --output-dir output
+
+# Control concurrency (auto-configured per provider if not specified)
+poetry run voicegenhub batch batch.json --provider bark --max-concurrent 2
+```
+
+**Provider Concurrency Limits (automatic):**
+- **Fast providers** (Edge, Piper, MeloTTS, Kokoro, ElevenLabs): Use all CPU cores
+- **Heavy providers** (Bark: 2 concurrent, Chatterbox: 1 concurrent)
+
+**Batch Input Format:**
+```json
+[
+  "First text to synthesize",
+  "Second text to process",
+  "Third text in the batch"
+]
+```
+
+**Benefits:**
+- Model instances are shared across concurrent jobs (no reloading)
+- Automatic resource management prevents system overload
+- Progress tracking for each job
+- Failed jobs don't stop the batch
+
 ## Performance Comparison: All TTS Providers
 
 Here's how all providers compare in terms of speed and quality:
