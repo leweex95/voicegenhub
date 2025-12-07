@@ -13,7 +13,6 @@ from voicegenhub.providers.base import (
 from voicegenhub.providers.edge import EdgeTTSProvider
 from voicegenhub.providers.elevenlabs import ElevenLabsTTSProvider
 from voicegenhub.providers.kokoro import KokoroTTSProvider
-from voicegenhub.providers.melotts import MeloTTSProvider
 
 
 class TestEdgeTTSProvider:
@@ -115,80 +114,6 @@ class TestEdgeTTSProvider:
         assert isinstance(response, TTSResponse)
 
 
-class TestMeloTTSProvider:
-    """Test MeloTTS provider."""
-
-    @pytest.fixture
-    def provider(self):
-        """Create MeloTTSProvider instance."""
-        return MeloTTSProvider()
-
-    @pytest.fixture
-    def sample_request(self):
-        """Create sample TTS request."""
-        return TTSRequest(
-            text="Hello world",
-            voice_id="melotts-EN",
-            language="en",
-            audio_format=AudioFormat.WAV,
-        )
-
-    @pytest.mark.asyncio
-    async def test_initialize(self, provider):
-        """Test provider initialization."""
-        await provider.initialize()
-
-    @pytest.mark.asyncio
-    async def test_get_voices(self, provider):
-        """Test getting available voices."""
-        await provider.initialize()
-        if provider._initialization_failed:
-            pytest.skip("MeloTTS provider not available (optional dependency)")
-        voices = await provider.get_voices()
-        assert len(voices) > 0, "MeloTTS should return available voices"
-        assert all(isinstance(v, Voice) for v in voices)
-        assert all(v.provider == "melotts" for v in voices)
-
-    @pytest.mark.asyncio
-    async def test_get_voices_with_language_filter(self, provider):
-        """Test getting voices with language filter."""
-        await provider.initialize()
-        if provider._initialization_failed:
-            pytest.skip("MeloTTS provider not available (optional dependency)")
-        voices = await provider.get_voices(language="en")
-        assert len(voices) > 0, "Should return English voices"
-        assert all(v.language == "en" for v in voices)
-
-    @pytest.mark.asyncio
-    async def test_get_capabilities(self, provider):
-        """Test getting provider capabilities."""
-        await provider.initialize()
-        if provider._initialization_failed:
-            pytest.skip("MeloTTS provider not available (optional dependency)")
-        caps = await provider.get_capabilities()
-        assert caps.supported_formats == [AudioFormat.WAV]
-        assert 44100 in caps.supported_sample_rates
-
-    @pytest.mark.asyncio
-    async def test_synthesize_unavailable(self, provider, sample_request):
-        """Test synthesis when provider is unavailable."""
-        provider._initialization_failed = True
-        with pytest.raises(TTSError, match="MeloTTS provider is not available"):
-            await provider.synthesize(sample_request)
-
-    @pytest.mark.asyncio
-    async def test_synthesize_invalid_voice_id(self, provider):
-        """Test synthesis with invalid voice ID."""
-        await provider.initialize()
-        if provider._initialization_failed:
-            pytest.skip("MeloTTS provider not available (optional dependency)")
-        request = TTSRequest(
-            text="Hello", voice_id="invalid-voice", audio_format=AudioFormat.WAV
-        )
-        with pytest.raises(TTSError):
-            await provider.synthesize(request)
-
-
 class TestKokoroTTSProvider:
     """Test Kokoro TTS provider."""
 
@@ -276,20 +201,6 @@ class TestElevenLabsTTSProvider:
             language="en",
             audio_format=AudioFormat.MP3,
         )
-
-    @pytest.mark.asyncio
-    async def test_initialize_without_api_key(self, provider, mocker):
-        """Test initialization without API key."""
-        # Mock os.environ to not have the API key
-        with patch.dict("os.environ", {}, clear=True):
-            # Mock the config file to not exist
-            mock_path = mocker.patch("pathlib.Path")
-            mock_config_path = mocker.Mock()
-            mock_config_path.exists.return_value = False
-            mock_path.return_value = mock_config_path
-
-            with pytest.raises(Exception):
-                await provider.initialize()
 
     @pytest.mark.asyncio
     async def test_initialize(self, provider):

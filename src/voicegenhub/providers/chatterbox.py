@@ -271,13 +271,11 @@ class ChatterboxProvider(TTSProvider):
                     logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
                     with torch.no_grad():
-                        t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
                         wav = model.generate(
                             text,
                             exaggeration=exaggeration,
                             cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path,
-                            t3_params=t3_params
+                            audio_prompt_path=audio_prompt_path
                         )
                 else:
                     if self._multilingual_model is None:
@@ -298,14 +296,12 @@ class ChatterboxProvider(TTSProvider):
                         logger.info(f"Using Multilingual model for {language_id}")
 
                         with torch.no_grad():
-                            t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
                             wav = model.generate(
                                 text,
                                 language_id=language_id,
                                 exaggeration=exaggeration,
                                 cfg_weight=cfg_weight,
-                                audio_prompt_path=audio_prompt_path,
-                                t3_params=t3_params
+                                audio_prompt_path=audio_prompt_path
                             )
 
                 # Convert to bytes

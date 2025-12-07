@@ -6,7 +6,7 @@
 
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supports multiple free and commercial TTS providers.
 
-## Supported Providers
+## Optional Dependencies
 
 - **Microsoft Edge TTS** (free, cloud-based)
 - **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
@@ -110,7 +110,7 @@ poetry run voicegenhub batch batch.json --provider bark --max-concurrent 2
 ```
 
 **Provider Concurrency Limits (automatic):**
-- **Fast providers** (Edge, Piper, MeloTTS, Kokoro, ElevenLabs): Use all CPU cores
+- **Fast providers** (Edge, Kokoro, ElevenLabs): Use all CPU cores
 - **Heavy providers** (Bark: 2 concurrent, Chatterbox: 1 concurrent)
 
 **Batch Input Format:**
@@ -127,6 +127,20 @@ poetry run voicegenhub batch batch.json --provider bark --max-concurrent 2
 - Automatic resource management prevents system overload
 - Progress tracking for each job
 - Failed jobs don't stop the batch
+
+## Concurrency and Memory Management
+
+**Async Concurrency (Recommended):**
+- Use the `batch` command for safe concurrent processing within a single process
+- Models are loaded once and shared across concurrent jobs
+- Prevents out-of-memory (OOM) errors from duplicate model loading
+- Automatic provider-specific limits ensure stability
+
+**Multiprocessing Risks:**
+- Running multiple CLI processes simultaneously (e.g., via scripts or parallel jobs) loads separate model instances
+- Heavy models like Chatterbox (3.7GB) and Bark (4GB) can cause OOM when duplicated across processes
+- **Recommendation:** Use async batch processing instead of multiprocessing for heavy providers
+- For light providers (Edge, Kokoro), multiprocessing is safer due to minimal memory footprint
 
 ## Performance Comparison: All TTS Providers
 
@@ -158,6 +172,16 @@ Here's how all providers compare in terms of speed and quality:
 - **Kokoro** (Apache 2.0) - Commercial use allowed, attribution required
 - **Edge TTS** (Microsoft) - Commercial use allowed
 - **ElevenLabs** (Paid API) - Commercial use with valid subscription
+
+## Provider Licenses
+
+For transparency and compliance, here are direct links to the official license terms for each supported TTS provider:
+
+- **Edge TTS (Microsoft)**: [Microsoft Terms of Use](https://www.microsoft.com/en-us/legal/terms-of-use)
+- **Kokoro TTS**: [Apache License 2.0](https://github.com/hexgrad/kokoro/blob/main/LICENSE)
+- **ElevenLabs TTS**: [ElevenLabs Terms of Service](https://elevenlabs.io/terms)
+- **Bark TTS**: [MIT License](https://github.com/suno-ai/bark/blob/main/LICENSE)
+- **Chatterbox TTS**: [MIT License](https://github.com/rsxdalv/chatterbox/blob/main/LICENSE)
 
 ## Optional Dependencies
 

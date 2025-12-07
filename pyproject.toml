@@ -12,35 +12,18 @@ click = "^8.1.0"
 structlog = "^23.2.0"
 rich = "^13.7.0"
 pydantic = "^2.11.9"
+spacy = "^3.8"
 edge-tts = "^7.2.0"
 kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152ca444717ca5d78747ccb4bec"}
 soundfile = "*"
 misaki = {git = "https://github.com/hexgrad/misaki.git", rev = "fba1236595f2d2bf21d414ba6e57d25256afada3"}
-
-[tool.poetry.group.edge.dependencies]
-
-
-[tool.poetry.group.piper.dependencies]
-piper-tts = "^1.3.0"
-
-[tool.poetry.group.melotts.dependencies]
-melo = "*"
-
-[tool.poetry.group.kokoro.dependencies]
-
+chatterbox-tts = {git = "https://github.com/rsxdalv/chatterbox.git", rev = "a3b9c51129f397d0eabdc58711814be62c929227"}
 
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"
 
-[tool.poetry.group.xtts.dependencies]
-coqui-tts = {git = "https://github.com/idiap/coqui-ai-TTS.git"}
-
 [tool.poetry.group.bark.dependencies]
 bark = "*"
-
-[tool.poetry.group.chatterbox.dependencies]
-# Chatterbox is only available from git source
-
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"

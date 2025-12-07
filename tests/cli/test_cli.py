@@ -65,14 +65,14 @@ class TestCLI:
         )
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, piper, melotts, kokoro" in result.output
+        assert "edge, kokoro" in result.output
 
     def test_cli_rejects_unsupported_provider_voices(self, runner):
         """Test CLI rejects unsupported provider in voices command."""
         result = runner.invoke(cli, ["voices", "--provider", "coqui"])
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, piper, melotts, kokoro" in result.output
+        assert "edge, kokoro" in result.output
 
     @patch("voicegenhub.cli.VoiceGenHub")
     def test_cli_accepts_supported_providers_synthesize(self, mock_tts_class, runner, tmp_path):
@@ -81,7 +81,7 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        for provider in ["edge", "piper", "melotts", "kokoro"]:
+        for provider in ["edge", "kokoro"]:
             result = runner.invoke(
                 cli,
                 [
@@ -506,7 +506,7 @@ class TestCLI:
         mock_tts.get_voices.return_value = []
         mock_tts_class.return_value = mock_tts
 
-        for provider in ["edge", "piper", "melotts", "kokoro"]:
+        for provider in ["edge", "kokoro"]:
             result = runner.invoke(cli, ["voices", "--provider", provider])
             assert "Unsupported provider" not in result.output
 

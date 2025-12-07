@@ -52,7 +52,7 @@ class VoiceGenHub:
 
     async def get_available_providers(self) -> List[str]:
         """Get list of available provider IDs."""
-        all_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "bark"]
+        all_providers = ["edge", "kokoro", "elevenlabs", "bark"]
         providers = []
 
         for provider_id in all_providers:
@@ -62,10 +62,6 @@ class VoiceGenHub:
             providers.append("edge")
         if provider_factory._google_provider_class:
             providers.append("google")
-        if provider_factory._piper_provider_class:
-            providers.append("piper")
-        if provider_factory._melotts_provider_class:
-            providers.append("melotts")
         if provider_factory._kokoro_provider_class:
             providers.append("kokoro")
         if provider_factory._elevenlabs_provider_class:

@@ -13,8 +13,6 @@ class ProviderFactory:
 
     def __init__(self):
         self._edge_provider_class = None
-        self._piper_provider_class = None
-        self._melotts_provider_class = None
         self._kokoro_provider_class = None
         self._elevenlabs_provider_class = None
         self._bark_provider_class = None
@@ -26,18 +24,6 @@ class ProviderFactory:
             try:
                 from .edge import EdgeTTSProvider
                 self._edge_provider_class = EdgeTTSProvider
-            except ImportError:
-                pass
-        elif provider_id == "piper":
-            try:
-                from .piper import PiperTTSProvider
-                self._piper_provider_class = PiperTTSProvider
-            except ImportError:
-                pass
-        elif provider_id == "melotts":
-            try:
-                from .melotts import MeloTTSProvider
-                self._melotts_provider_class = MeloTTSProvider
             except ImportError:
                 pass
         elif provider_id == "kokoro":
@@ -72,7 +58,7 @@ class ProviderFactory:
         Create TTS provider instance.
 
         Args:
-            provider_id: Provider ID ("edge", "piper", "melotts", "kokoro", "elevenlabs", "bark")
+            provider_id: Provider ID ("edge", "kokoro", "elevenlabs", "bark")
             config: Optional configuration
 
         Returns:
@@ -83,26 +69,6 @@ class ProviderFactory:
                 raise TTSError("Edge TTS provider not available")
 
             provider = self._edge_provider_class(name=provider_id, config=config)
-            await provider.initialize()
-            return provider
-
-        elif provider_id == "piper":
-            if self._piper_provider_class is None:
-                raise TTSError(
-                    "Piper TTS provider not available. Install with: pip install voicegenhub[piper]"
-                )
-
-            provider = self._piper_provider_class(name=provider_id, config=config)
-            await provider.initialize()
-            return provider
-
-        elif provider_id == "melotts":
-            if self._melotts_provider_class is None:
-                raise TTSError(
-                    "MeloTTS provider not available. Install with: pip install voicegenhub[melotts]"
-                )
-
-            provider = self._melotts_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
 
@@ -150,7 +116,7 @@ class ProviderFactory:
         else:
             raise TTSError(
                 f"Unsupported provider: '{provider_id}'. "
-                "Available: edge, piper, melotts, kokoro, elevenlabs, bark, chatterbox"
+                "Available: edge, kokoro, elevenlabs, bark, chatterbox"
             )
 
 

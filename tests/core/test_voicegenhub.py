@@ -42,41 +42,6 @@ class TestVoiceGenHub:
                 raise
 
     @pytest.mark.asyncio
-    @pytest.mark.slow
-    async def test_piper_tts_generation(self):
-        """Test Piper TTS generation through VoiceGenHub."""
-        tts = VoiceGenHub(provider="piper")
-
-        try:
-            await tts.initialize()
-            response = await tts.generate(
-                text="test of piper tts provider",
-                voice="en_US-lessac-medium",
-                audio_format="wav",  # Piper only supports WAV format
-            )
-
-            assert len(response.audio_data) > 0, "no audio data generated"
-            assert response.duration > 0, "invalid audio duration"
-            assert response.metadata is not None
-        except Exception as e:
-            # Skip test if Piper dependencies/models are not available
-            error_msg = str(e).lower()
-            if any(
-                x in error_msg
-                for x in [
-                    "not initialized",
-                    "dependencies",
-                    "not available",
-                    "audio format",
-                    "model not found",
-                    "download it first",
-                    "no module named",
-                ]
-            ):
-                pytest.skip(f"Piper TTS not available: {e}")
-            else:
-                raise
-
     @pytest.mark.asyncio
     @pytest.mark.slow
     async def test_google_tts_generation(self):
@@ -267,62 +232,6 @@ class TestVoiceGenHub:
                 raise
 
     @pytest.mark.asyncio
-    async def test_piper_get_voices(self):
-        """Test Piper TTS get_voices functionality."""
-        tts = VoiceGenHub(provider="piper")
-
-        try:
-            await tts.initialize()
-            voices = await tts.get_voices()
-
-            assert len(voices) > 0, "Piper TTS should return available voices"
-            assert all(
-                isinstance(v, dict) for v in voices
-            ), "Voices should be dictionaries"
-            assert all(
-                "id" in v and "name" in v for v in voices
-            ), "Voices should have id and name"
-        except Exception as e:
-            error_msg = str(e).lower()
-            if any(
-                x in error_msg
-                for x in [
-                    "not initialized",
-                    "dependencies",
-                    "not available",
-                    "no module named",
-                ]
-            ):
-                pytest.skip(f"Piper TTS dependencies not available: {e}")
-            else:
-                raise
-
-    @pytest.mark.asyncio
-    async def test_piper_get_voices_with_language_filter(self):
-        """Test Piper TTS get_voices with language filter."""
-        tts = VoiceGenHub(provider="piper")
-
-        try:
-            await tts.initialize()
-            voices_en = await tts.get_voices(language="en")
-
-            assert len(voices_en) > 0, "Should return English voices"
-        except Exception as e:
-            error_msg = str(e).lower()
-            if any(
-                x in error_msg
-                for x in [
-                    "not initialized",
-                    "dependencies",
-                    "not available",
-                    "no module named",
-                ]
-            ):
-                pytest.skip(f"Piper TTS dependencies not available: {e}")
-            else:
-                raise
-
-    @pytest.mark.asyncio
     async def test_edge_invalid_voice(self):
         """Test Edge TTS with invalid voice raises error."""
         tts = VoiceGenHub(provider="edge")
@@ -335,31 +244,6 @@ class TestVoiceGenHub:
         except Exception as e:
             if "401" in str(e) or "403" in str(e) or "Failed to fetch voices" in str(e):
                 pytest.skip(f"Edge TTS API unavailable: {e}")
-            else:
-                raise
-
-    @pytest.mark.asyncio
-    async def test_piper_invalid_voice(self):
-        """Test Piper TTS with invalid voice raises error."""
-        tts = VoiceGenHub(provider="piper")
-
-        try:
-            await tts.initialize()
-
-            with pytest.raises(Exception):
-                await tts.generate(text="test", voice="invalid-voice-id-12345")
-        except Exception as e:
-            error_msg = str(e).lower()
-            if any(
-                x in error_msg
-                for x in [
-                    "not initialized",
-                    "dependencies",
-                    "not available",
-                    "no module named",
-                ]
-            ):
-                pytest.skip(f"Piper TTS dependencies not available: {e}")
             else:
                 raise
 
@@ -380,35 +264,6 @@ class TestVoiceGenHub:
         except Exception as e:
             if "401" in str(e) or "403" in str(e) or "Failed to fetch voices" in str(e):
                 pytest.skip(f"Edge TTS API unavailable: {e}")
-            else:
-                raise
-
-    @pytest.mark.asyncio
-    async def test_piper_voice_caching(self):
-        """Test Piper TTS caches voices properly."""
-        tts = VoiceGenHub(provider="piper")
-
-        try:
-            await tts.initialize()
-
-            # First call fetches voices
-            voices1 = await tts.get_voices()
-            # Second call should use cache (same object)
-            voices2 = await tts.get_voices()
-
-            assert len(voices1) == len(voices2)
-        except Exception as e:
-            error_msg = str(e).lower()
-            if any(
-                x in error_msg
-                for x in [
-                    "not initialized",
-                    "dependencies",
-                    "not available",
-                    "no module named",
-                ]
-            ):
-                pytest.skip(f"Piper TTS dependencies not available: {e}")
             else:
                 raise
 

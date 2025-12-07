@@ -148,12 +148,10 @@ def _process_batch(
     # Provider-specific concurrency limits (conservative defaults for safety)
     provider_limits = {
         "edge": 1,  # Conservative: cloud API with rate limiting
-        "piper": 1,  # Conservative: local model memory intensive
-        "melotts": 1,  # Conservative: local model memory intensive
         "kokoro": 1,  # Conservative: local model memory intensive
         "elevenlabs": 1,  # Conservative: cloud API with rate limiting
         "bark": 2,  # Cautiously increased to 2 (tested and verified safe)
-        "chatterbox": 1,  # Conservative: very heavy on resources
+        "chatterbox": 1,  # Conservative: heavy model (3.7GB), avoid OOM in multiprocessing
     }
 
     # Determine max concurrent jobs (defaults to provider's conservative limit for safety)
@@ -256,7 +254,7 @@ def cli():
 @click.option(
     "--voice",
     "-v",
-    help="Voice ID (e.g., 'en-US-AriaNeural', 'kokoro-af_alloy', 'melotts-EN')",
+    help="Voice ID (e.g., 'en-US-AriaNeural', 'kokoro-af_alloy')",
 )
 @click.option("--language", "-l", help="Language code (e.g., 'en')")
 @click.option("--output", "-o", type=click.Path(), help="Output file path (auto-numbered for multiple texts)")
@@ -311,7 +309,7 @@ def synthesize(
     """Generate speech from text(s)."""
     # Validate provider immediately
     supported_providers = [
-        "edge", "piper", "melotts", "kokoro", "elevenlabs", "bark", "chatterbox"
+        "edge", "kokoro", "elevenlabs", "bark", "chatterbox"
     ]
     if provider and provider not in supported_providers:
         click.echo(
@@ -391,7 +389,7 @@ def synthesize(
 def voices(language: Optional[str], format: str, provider: str):
     """List available voices."""
     # Validate provider immediately
-    supported_providers = ["edge", "piper", "melotts", "kokoro", "elevenlabs", "bark", "chatterbox"]
+    supported_providers = ["edge", "kokoro", "elevenlabs", "bark", "chatterbox"]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
