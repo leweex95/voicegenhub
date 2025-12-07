@@ -285,3 +285,115 @@ class TestElevenLabsTTSProvider:
         )
         with pytest.raises(TTSError):
             await provider.synthesize(request)
+
+
+class TestBaseProviderValidation:
+    """Unit tests for base provider validation methods."""
+
+    @pytest.fixture
+    def mock_provider(self, mocker):
+        """Create a mock provider for testing."""
+        from voicegenhub.providers.base import TTSProvider, ProviderCapabilities, AudioFormat
+
+        class MockProvider(TTSProvider):
+            def __init__(self):
+                super().__init__(name="mock")
+
+            @property
+            def provider_id(self):
+                return "mock"
+
+            @property
+            def display_name(self):
+                return "Mock Provider"
+
+            async def initialize(self):
+                pass
+
+            async def get_voices(self, language=None):
+                return []
+
+            async def get_capabilities(self):
+                return ProviderCapabilities(
+                    supported_formats=[AudioFormat.MP3, AudioFormat.WAV],
+                    supported_sample_rates=[22050, 44100],
+                    max_text_length=1000,
+                )
+
+            async def synthesize(self, request):
+                return None
+
+        return MockProvider()
+
+    @pytest.mark.asyncio
+    async def test_validate_request_text_too_long(self, mock_provider):
+        """Test validation of text length."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat, TextTooLongError
+
+        request = TTSRequest(
+            text="x" * 2000,  # Exceeds max_text_length of 1000
+            voice_id="test-voice",
+            audio_format=AudioFormat.MP3,
+        )
+
+        with pytest.raises(TextTooLongError):
+            await mock_provider.validate_request(request)
+
+    @pytest.mark.asyncio
+    async def test_validate_request_unsupported_format(self, mock_provider):
+        """Test validation of audio format."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat, TTSError
+
+        request = TTSRequest(
+            text="Hello",
+            voice_id="test-voice",
+            audio_format=AudioFormat.FLAC,  # Not in supported formats
+        )
+
+        with pytest.raises(TTSError, match="Audio format flac not supported"):
+            await mock_provider.validate_request(request)
+
+    @pytest.mark.asyncio
+    async def test_validate_request_unsupported_sample_rate(self, mock_provider):
+        """Test validation of sample rate."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat, TTSError
+
+        request = TTSRequest(
+            text="Hello",
+            voice_id="test-voice",
+            audio_format=AudioFormat.MP3,
+            sample_rate=8000,  # Not in supported sample rates
+        )
+
+        with pytest.raises(TTSError, match="Sample rate 8000 not supported"):
+            await mock_provider.validate_request(request)
+
+    @pytest.mark.asyncio
+    async def test_validate_request_valid(self, mock_provider):
+        """Test validation of valid request."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat
+
+        request = TTSRequest(
+            text="Hello",
+            voice_id="test-voice",
+            audio_format=AudioFormat.MP3,
+            sample_rate=22050,
+        )
+
+        # Should not raise
+        await mock_provider.validate_request(request)
+
+    @pytest.mark.asyncio
+    async def test_health_check_success(self, mock_provider, mocker):
+        """Test successful health check."""
+        # get_capabilities is already mocked to return successfully
+        result = await mock_provider.health_check()
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_health_check_failure(self, mock_provider, mocker):
+        """Test failed health check."""
+        mocker.patch.object(mock_provider, "get_capabilities", side_effect=Exception("Error"))
+
+        result = await mock_provider.health_check()
+        assert result is False
