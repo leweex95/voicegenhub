@@ -20,6 +20,10 @@ from .base import (
 # Suppress warnings from dependencies to keep output clean
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*deprecated", category=FutureWarning)
+warnings.filterwarnings("ignore", message=r".*torch\.backends\.cuda\.sdp_kernel.*deprecated", category=FutureWarning)
+warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
+warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
+warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
 
 logger = get_logger(__name__)
 
@@ -179,8 +183,20 @@ class ChatterboxProvider(TTSProvider):
 
             logger.info(f"Cache directory: {cache_chatterbox}")
 
+            # Set environment variables to suppress transformers warnings
+            os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+            os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = '1'
+            os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
+            os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+
             # Suppress deprecated pkg_resources warning from perth watermarking
             warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
+
+            # Additional warning suppressions for transformers
+            warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
+            warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
+            warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
+            warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
 
             # Import here after env vars are set
             from chatterbox.tts import ChatterboxTTS
@@ -270,7 +286,8 @@ class ChatterboxProvider(TTSProvider):
                     model = self._model
                     logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
-                    with torch.no_grad():
+                    with torch.no_grad(), warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
                         wav = model.generate(
                             text,
                             exaggeration=exaggeration,
@@ -281,7 +298,8 @@ class ChatterboxProvider(TTSProvider):
                     if self._multilingual_model is None:
                         logger.warning("Multilingual support not available on CPU, falling back to English")
                         model = self._model
-                        with torch.no_grad():
+                        with torch.no_grad(), warnings.catch_warnings():
+                            warnings.simplefilter("ignore")
                             t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
                             wav = model.generate(
                                 text,
@@ -295,7 +313,8 @@ class ChatterboxProvider(TTSProvider):
                         language_id = language.lower()
                         logger.info(f"Using Multilingual model for {language_id}")
 
-                        with torch.no_grad():
+                        with torch.no_grad(), warnings.catch_warnings():
+                            warnings.simplefilter("ignore")
                             wav = model.generate(
                                 text,
                                 language_id=language_id,
