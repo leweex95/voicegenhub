@@ -52,7 +52,9 @@ def _process_single(
             pitch=pitch,
         ))
 
-        output_path = Path(output) if output else Path(f"output.{audio_format}")
+        output_path = Path(output) if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
+        if not output:
+            click.echo(f"Output saved to: {output_path}")
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
 
         if effects_requested:
@@ -174,6 +176,12 @@ def _process_batch(
     # Use threading for concurrent processing
     results = []
     lock = threading.Lock()
+
+    if output_base is None:
+        output_base = f"{tempfile.gettempdir()}/voicegenhub_batch"
+        click.echo(f"Batch output saved to: {tempfile.gettempdir()}")
+    else:
+        click.echo(f"Batch output saved to: {Path('.').absolute()}")
 
     def process_item(index: int, text: str):
         """Process a single text item."""

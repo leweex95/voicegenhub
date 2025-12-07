@@ -99,28 +99,16 @@ poetry run voicegenhub voices --language en --provider bark
 Process multiple texts concurrently with automatic provider-specific resource management:
 
 ```bash
-# Process a JSON array of texts (recommended)
-poetry run voicegenhub batch examples/batch_input.json --provider edge --output-dir batch_output
-
-# Or process a plain text file (one text per line)
-poetry run voicegenhub batch texts.txt --provider chatterbox --output-dir output
+# Process multiple texts (auto-numbered output files)
+poetry run voicegenhub synthesize "First text" "Second text" "Third text" --provider edge --output batch_output
 
 # Control concurrency (auto-configured per provider if not specified)
-poetry run voicegenhub batch batch.json --provider bark --max-concurrent 2
+poetry run voicegenhub synthesize "Text 1" "Text 2" --provider bark --max-concurrent 2 --output output
 ```
 
 **Provider Concurrency Limits (automatic):**
 - **Fast providers** (Edge, Kokoro, ElevenLabs): Use all CPU cores
 - **Heavy providers** (Bark: 2 concurrent, Chatterbox: 1 concurrent)
-
-**Batch Input Format:**
-```json
-[
-  "First text to synthesize",
-  "Second text to process",
-  "Third text in the batch"
-]
-```
 
 **Benefits:**
 - Model instances are shared across concurrent jobs (no reloading)
@@ -131,7 +119,7 @@ poetry run voicegenhub batch batch.json --provider bark --max-concurrent 2
 ## Concurrency and Memory Management
 
 **Async Concurrency (Recommended):**
-- Use the `batch` command for safe concurrent processing within a single process
+- Use the `synthesize` command with multiple texts for safe concurrent processing within a single process
 - Models are loaded once and shared across concurrent jobs
 - Prevents out-of-memory (OOM) errors from duplicate model loading
 - Automatic provider-specific limits ensure stability
