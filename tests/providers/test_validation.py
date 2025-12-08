@@ -157,6 +157,144 @@ class TestProviderFactoryUnit:
         engine = VoiceGenHub(provider="kokoro")
         assert engine is not None
 
+    @pytest.mark.asyncio
+    async def test_discover_provider_edge(self, mocker):
+        """Test discovering edge provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+
+        # Mock import
+        mock_edge = mocker.MagicMock()
+        mocker.patch.dict('sys.modules', {'voicegenhub.providers.edge': mock_edge})
+        mock_edge.EdgeTTSProvider = mocker.MagicMock()
+
+        await factory.discover_provider("edge")
+        assert factory._edge_provider_class is not None
+
+    @pytest.mark.asyncio
+    async def test_discover_provider_kokoro(self, mocker):
+        """Test discovering kokoro provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+
+        # Mock import
+        mock_kokoro = mocker.MagicMock()
+        mocker.patch.dict('sys.modules', {'voicegenhub.providers.kokoro': mock_kokoro})
+        mock_kokoro.KokoroTTSProvider = mocker.MagicMock()
+
+        await factory.discover_provider("kokoro")
+        assert factory._kokoro_provider_class is not None
+
+    @pytest.mark.asyncio
+    async def test_discover_provider_elevenlabs(self, mocker):
+        """Test discovering elevenlabs provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+
+        # Mock import
+        mock_elevenlabs = mocker.MagicMock()
+        mocker.patch.dict('sys.modules', {'voicegenhub.providers.elevenlabs': mock_elevenlabs})
+        mock_elevenlabs.ElevenLabsTTSProvider = mocker.MagicMock()
+
+        await factory.discover_provider("elevenlabs")
+        assert factory._elevenlabs_provider_class is not None
+
+    @pytest.mark.asyncio
+    async def test_discover_provider_bark(self, mocker):
+        """Test discovering bark provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+
+        # Mock import
+        mock_bark = mocker.MagicMock()
+        mocker.patch.dict('sys.modules', {'voicegenhub.providers.bark': mock_bark})
+        mock_bark.BarkProvider = mocker.MagicMock()
+
+        await factory.discover_provider("bark")
+        assert factory._bark_provider_class is not None
+
+    @pytest.mark.asyncio
+    async def test_discover_provider_chatterbox(self, mocker):
+        """Test discovering chatterbox provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+
+        # Mock import
+        mock_chatterbox = mocker.MagicMock()
+        mocker.patch.dict('sys.modules', {'voicegenhub.providers.chatterbox': mock_chatterbox})
+        mock_chatterbox.ChatterboxProvider = mocker.MagicMock()
+
+        await factory.discover_provider("chatterbox")
+        assert factory._chatterbox_provider_class is not None
+
+    @pytest.mark.asyncio
+    async def test_discover_provider_invalid(self):
+        """Test discovering invalid provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+        # Should not raise, just not set any class
+        await factory.discover_provider("invalid")
+        assert factory._edge_provider_class is None
+
+    @pytest.mark.asyncio
+    async def test_create_provider_edge(self, mocker):
+        """Test creating edge provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+        mock_provider_class = mocker.MagicMock()
+        mock_provider_instance = mocker.AsyncMock()
+        mock_provider_class.return_value = mock_provider_instance
+        factory._edge_provider_class = mock_provider_class
+
+        provider = await factory.create_provider("edge")
+        assert provider == mock_provider_instance
+        mock_provider_class.assert_called_once_with(name="edge", config=None)
+        mock_provider_instance.initialize.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_create_provider_with_config(self, mocker):
+        """Test creating provider with config."""
+        from voicegenhub.providers.factory import ProviderFactory
+
+        factory = ProviderFactory()
+        mock_provider_class = mocker.MagicMock()
+        mock_provider_instance = mocker.AsyncMock()
+        mock_provider_class.return_value = mock_provider_instance
+        factory._edge_provider_class = mock_provider_class
+
+        config = {"api_key": "test"}
+        await factory.create_provider("edge", config)
+        mock_provider_class.assert_called_once_with(name="edge", config=config)
+
+    @pytest.mark.asyncio
+    async def test_create_provider_not_available(self):
+        """Test creating provider that is not available."""
+        from voicegenhub.providers.factory import ProviderFactory
+        from voicegenhub.providers.base import TTSError
+
+        factory = ProviderFactory()
+
+        with pytest.raises(TTSError, match="Edge TTS provider not available"):
+            await factory.create_provider("edge")
+
+    @pytest.mark.asyncio
+    async def test_create_provider_invalid(self):
+        """Test creating invalid provider."""
+        from voicegenhub.providers.factory import ProviderFactory
+        from voicegenhub.providers.base import TTSError
+
+        factory = ProviderFactory()
+
+        with pytest.raises(TTSError, match="Unsupported provider"):
+            await factory.create_provider("invalid")
+
 
 class TestVoiceIDValidation:
     """Unit tests for voice ID format validation."""

@@ -40,6 +40,11 @@ class KokoroTTSProvider(TTSProvider):
         self._voices_cache: Optional[List[Voice]] = None
         self._initialization_failed = False
 
+        # Set cache directory in __init__ to ensure it's always available
+        import os
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        self._local_cache_dir = os.path.join(project_root, 'cache', 'kokoro')
+
     @property
     def provider_id(self) -> str:
         """Unique identifier for this provider."""
@@ -56,8 +61,6 @@ class KokoroTTSProvider(TTSProvider):
         import os
         import warnings
 
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-        self._local_cache_dir = os.path.join(project_root, 'cache', 'kokoro')
         os.environ['HF_HUB_CACHE'] = self._local_cache_dir
         os.environ['TRANSFORMERS_CACHE'] = self._local_cache_dir
         logger.info(f"Configured Kokoro cache: {self._local_cache_dir}")

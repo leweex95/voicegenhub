@@ -28,6 +28,8 @@ def configure_logging(
     # Suppress third-party library warnings
     warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
     warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
+    warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
+    warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*", category=FutureWarning)
 
     log_level = getattr(logging, level.upper(), logging.INFO)
 

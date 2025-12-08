@@ -7,6 +7,8 @@ from click.testing import CliRunner
 
 from voicegenhub.cli import cli
 
+DEFAULT_SYNTH_ARGS = ["--voice", "en-US-AriaNeural", "--language", "en"]
+
 
 class TestCLI:
     """Test CLI commands."""
@@ -63,20 +65,35 @@ class TestCLI:
         )
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, google, piper, melotts, kokoro" in result.output
+        assert "edge, kokoro" in result.output
 
     def test_cli_rejects_unsupported_provider_voices(self, runner):
         """Test CLI rejects unsupported provider in voices command."""
         result = runner.invoke(cli, ["voices", "--provider", "coqui"])
         assert result.exit_code == 1
         assert "Unsupported provider 'coqui'" in result.output
-        assert "edge, google, piper, melotts, kokoro" in result.output
+        assert "edge, kokoro" in result.output
 
-    def test_cli_accepts_supported_providers_synthesize(self, runner, tmp_path):
-        """Test CLI accepts supported providers in synthesize command."""
-        for provider in ["edge", "google", "piper", "melotts", "kokoro"]:
-            result = runner.invoke(cli, ["synthesize", "hello", "--provider", provider, "--output", str(tmp_path / "dummy.wav")])
-            # Should fail due to provider issues, not validation
+    @patch("voicegenhub.cli.VoiceGenHub")
+    def test_cli_accepts_supported_providers_synthesize(self, mock_tts_class, runner, tmp_path):
+        """Test CLI accepts supported providers in synthesize command without hitting real providers."""
+        mock_tts = AsyncMock()
+        mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
+        mock_tts_class.return_value = mock_tts
+
+        for provider in ["edge", "kokoro"]:
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "hello",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--provider",
+                    provider,
+                    "--output",
+                    str(tmp_path / "dummy.wav"),
+                ],
+            )
             assert "Unsupported provider" not in result.output
 
     @patch("voicegenhub.cli.VoiceGenHub")
@@ -86,7 +103,18 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", "--provider", "edge", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--provider",
+                "edge",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0
         mock_tts_class.assert_called_once_with(provider="edge")
 
@@ -106,7 +134,18 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", "--format", "mp3", "--output", str(tmp_path / "test.mp3")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--format",
+                "mp3",
+                "--output",
+                str(tmp_path / "test.mp3"),
+            ],
+        )
         assert result.exit_code == 0
         # Check that AudioFormat.MP3 was passed
         call_args = mock_tts.generate.call_args
@@ -119,9 +158,20 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, [
-            "synthesize", "test", "--rate", "1.5", "--pitch", "0.8", "--output", str(tmp_path / "test.wav")
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--rate",
+                "1.5",
+                "--pitch",
+                "0.8",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0
         call_args = mock_tts.generate.call_args
         assert call_args[1]["speed"] == 1.5
@@ -135,9 +185,31 @@ class TestCLI:
         mock_tts_class.return_value = mock_tts
 
         # Valid boundaries
-        result = runner.invoke(cli, ["synthesize", "test", "--rate", "0.5", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--rate",
+                "0.5",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0
-        result = runner.invoke(cli, ["synthesize", "test", "--rate", "2.0", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--rate",
+                "2.0",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0
 
     @patch("voicegenhub.cli.VoiceGenHub")
@@ -148,9 +220,31 @@ class TestCLI:
         mock_tts_class.return_value = mock_tts
 
         # Valid boundaries
-        result = runner.invoke(cli, ["synthesize", "test", "--pitch", "0.5", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--pitch",
+                "0.5",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0
-        result = runner.invoke(cli, ["synthesize", "test", "--pitch", "2.0", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--pitch",
+                "2.0",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0
 
     @patch("voicegenhub.cli.VoiceGenHub")
@@ -180,7 +274,7 @@ class TestCLI:
         mock_tts.generate.side_effect = Exception("Test error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test"])
+        result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS])
         assert result.exit_code == 1
         assert "Error: Test error" in result.output
 
@@ -191,7 +285,7 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", "--format", "wav"])
+        result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--format", "wav"])
         assert result.exit_code == 0
         # Check that file was attempted to be written (mock doesn't actually write)
         # Since we can't check file existence easily with mocks, just ensure no crash
@@ -204,7 +298,10 @@ class TestCLI:
         mock_tts_class.return_value = mock_tts
 
         output_file = tmp_path / "custom.wav"
-        result = runner.invoke(cli, ["synthesize", "test", "--output", str(output_file)])
+        result = runner.invoke(
+            cli,
+            ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(output_file)],
+        )
         assert result.exit_code == 0
 
     @patch("voicegenhub.cli.VoiceGenHub")
@@ -216,7 +313,18 @@ class TestCLI:
 
         with patch("subprocess.run") as mock_run:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, ["synthesize", "test", "--output", str(output_file), "--pitch-shift", "-2"])
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--output",
+                    str(output_file),
+                    "--pitch-shift",
+                    "-2",
+                ],
+            )
             assert result.exit_code == 0
             mock_run.assert_called_once()
             # Check that FFmpeg was called with different input and output
@@ -232,7 +340,10 @@ class TestCLI:
 
         with patch("subprocess.run") as mock_run:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, ["synthesize", "test", "--output", str(output_file)])
+            result = runner.invoke(
+                cli,
+                ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(output_file)],
+            )
             assert result.exit_code == 0
             mock_run.assert_not_called()
 
@@ -245,10 +356,21 @@ class TestCLI:
 
         with patch("subprocess.run") as mock_run:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, [
-                "synthesize", "test", "--output", str(output_file),
-                "--pitch-shift", "-2", "--lowpass", "1200", "--normalize"
-            ])
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--output",
+                    str(output_file),
+                    "--pitch-shift",
+                    "-2",
+                    "--lowpass",
+                    "1200",
+                    "--normalize",
+                ],
+            )
             assert result.exit_code == 0
             mock_run.assert_called_once()
             cmd = mock_run.call_args[0][0]
@@ -270,10 +392,20 @@ class TestCLI:
 
         with patch("subprocess.run") as mock_run:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, [
-                "synthesize", "test", "--output", str(output_file),
-                "--noise", "0.1", "--lowpass", "1200"
-            ])
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--output",
+                    str(output_file),
+                    "--noise",
+                    "0.1",
+                    "--lowpass",
+                    "1200",
+                ],
+            )
             assert result.exit_code == 0
             mock_run.assert_called_once()
             cmd = mock_run.call_args[0][0]
@@ -292,7 +424,17 @@ class TestCLI:
 
         with patch("subprocess.run") as mock_run, patch("pathlib.Path.unlink") as mock_unlink:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, ["synthesize", "test", "--output", str(output_file), "--normalize"])
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--output",
+                    str(output_file),
+                    "--normalize",
+                ],
+            )
             assert result.exit_code == 0
             mock_run.assert_called_once()
             mock_unlink.assert_called_once()
@@ -308,7 +450,17 @@ class TestCLI:
         with patch("subprocess.run", side_effect=CalledProcessError(1, "ffmpeg", stderr=b"error")), \
              patch("pathlib.Path.unlink") as mock_unlink:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, ["synthesize", "test", "--output", str(output_file), "--normalize"])
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--output",
+                    str(output_file),
+                    "--normalize",
+                ],
+            )
             assert result.exit_code == 0  # CLI doesn't exit on post-processing failure
             mock_unlink.assert_not_called()
 
@@ -322,7 +474,17 @@ class TestCLI:
         with patch("subprocess.run", side_effect=FileNotFoundError), \
              patch("pathlib.Path.unlink") as mock_unlink:
             output_file = tmp_path / "test.wav"
-            result = runner.invoke(cli, ["synthesize", "test", "--output", str(output_file), "--normalize"])
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--output",
+                    str(output_file),
+                    "--normalize",
+                ],
+            )
             assert result.exit_code == 0
             mock_unlink.assert_not_called()
 
@@ -333,15 +495,19 @@ class TestCLI:
         mock_tts.generate.side_effect = RuntimeError("Unexpected error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test"])
+        result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS])
         assert result.exit_code == 1
         assert "Error: Unexpected error" in result.output
 
-    def test_cli_accepts_supported_providers_voices(self, runner):
-        """Test CLI accepts supported providers in voices command."""
-        for provider in ["edge", "google", "piper", "melotts", "kokoro"]:
+    @patch("voicegenhub.cli.VoiceGenHub")
+    def test_cli_accepts_supported_providers_voices(self, mock_tts_class, runner):
+        """Test voices command accepts supported providers without real network calls."""
+        mock_tts = AsyncMock()
+        mock_tts.get_voices.return_value = []
+        mock_tts_class.return_value = mock_tts
+
+        for provider in ["edge", "kokoro"]:
             result = runner.invoke(cli, ["voices", "--provider", provider])
-            # Should fail due to provider issues, not validation
             assert "Unsupported provider" not in result.output
 
     @patch("voicegenhub.cli.VoiceGenHub")
@@ -353,7 +519,17 @@ class TestCLI:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello world", "--voice", "en-US-AriaNeural", "--output", str(tmp_path / "speech.wav")]
+            cli,
+            [
+                "synthesize",
+                "hello world",
+                "--voice",
+                "en-US-AriaNeural",
+                "--language",
+                "en",
+                "--output",
+                str(tmp_path / "speech.wav"),
+            ],
         )
         assert result.exit_code == 0
 
@@ -390,6 +566,8 @@ class TestCLI:
                 "wav",
                 "--output",
                 str(tmp_path / "test.wav"),
+                "--language",
+                "en",
             ],
         )
         assert result.exit_code == 0
@@ -467,7 +645,7 @@ class TestCLI:
         mock_tts.generate.side_effect = Exception("Test error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "hello world"])
+        result = runner.invoke(cli, ["synthesize", "hello world", *DEFAULT_SYNTH_ARGS])
         assert result.exit_code == 1
         assert "Error: Test error" in result.output
 
@@ -604,7 +782,10 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            ["synthesize", "", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
+        )
         assert result.exit_code == 0
         mock_tts.generate.assert_called_once()
         # Should still call generate with empty text
@@ -617,7 +798,10 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
+        )
         assert result.exit_code == 1
         assert "Error:" in result.output
 
@@ -637,7 +821,10 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
+        )
         assert result.exit_code == 0
         mock_logger.info.assert_called_with(f"Audio saved to: {tmp_path / 'test.wav'}")
 
@@ -650,7 +837,18 @@ class TestCLI:
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", "--pitch-shift", "2", "--output", str(tmp_path / "test.wav")])
+        result = runner.invoke(
+            cli,
+            [
+                "synthesize",
+                "test",
+                *DEFAULT_SYNTH_ARGS,
+                "--pitch-shift",
+                "2",
+                "--output",
+                str(tmp_path / "test.wav"),
+            ],
+        )
         assert result.exit_code == 0  # CLI doesn't exit on FFmpeg failure
         mock_logger.warning.assert_called()
 
@@ -796,6 +994,7 @@ class TestCLIPostProcessingIntegration:
                 [
                     "synthesize",
                     "test text",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider",
                     "edge",
                     "--output",
@@ -824,6 +1023,7 @@ class TestCLIPostProcessingIntegration:
                 [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider",
                     "edge",
                     "--output",
@@ -852,6 +1052,7 @@ class TestCLIPostProcessingIntegration:
                 [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider",
                     "edge",
                     "--output",
@@ -885,6 +1086,7 @@ class TestCLIPostProcessingIntegration:
                 [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider",
                     "edge",
                     "--output",
@@ -928,6 +1130,7 @@ class TestCLIPostProcessingTempFileLogic:
                 result = runner.invoke(cli, [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider", "edge",
                     "--output", str(output_file),
                     "--pitch-shift", "-2",
@@ -969,6 +1172,7 @@ class TestCLIPostProcessingTempFileLogic:
                 result = runner.invoke(cli, [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider", "edge",
                     "--output", str(output_file),
                     "--lowpass", "1200",
@@ -1010,6 +1214,7 @@ class TestCLIPostProcessingTempFileLogic:
                 result = runner.invoke(cli, [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider", "edge",
                     "--output", str(output_file),
                     "--normalize",
@@ -1051,6 +1256,7 @@ class TestCLIPostProcessingTempFileLogic:
                 result = runner.invoke(cli, [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider", "edge",
                     "--output", str(output_file),
                     "--distortion", "10",
@@ -1092,6 +1298,7 @@ class TestCLIPostProcessingTempFileLogic:
                 result = runner.invoke(cli, [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider", "edge",
                     "--output", str(output_file),
                     "--reverb",
@@ -1133,6 +1340,7 @@ class TestCLIPostProcessingTempFileLogic:
                 result = runner.invoke(cli, [
                     "synthesize",
                     "test",
+                    *DEFAULT_SYNTH_ARGS,
                     "--provider", "edge",
                     "--output", str(output_file),
                     "--noise", "0.05",
@@ -1193,7 +1401,15 @@ class TestCLIVoiceNotFoundErrors:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello", "--voice", "en-US-NonExistentVoice"]
+            cli,
+            [
+                "synthesize",
+                "hello",
+                "--voice",
+                "en-US-NonExistentVoice",
+                "--language",
+                "en",
+            ],
         )
         assert result.exit_code == 1
         assert "Voice 'en-US-NonExistentVoice' not found" in result.output
@@ -1241,7 +1457,15 @@ class TestCLIVoiceNotFoundErrors:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello", "--voice", "SomeRandomVoice"]
+            cli,
+            [
+                "synthesize",
+                "hello",
+                "--voice",
+                "SomeRandomVoice",
+                "--language",
+                "en",
+            ],
         )
         assert result.exit_code == 1
         assert "Voice 'SomeRandomVoice' not found" in result.output
@@ -1264,7 +1488,15 @@ class TestCLIVoiceNotFoundErrors:
         mock_tts_class.return_value = mock_tts
 
         result = runner.invoke(
-            cli, ["synthesize", "hello", "--voice", "en-US-AriaNeural"]
+            cli,
+            [
+                "synthesize",
+                "hello",
+                "--voice",
+                "en-US-AriaNeural",
+                "--language",
+                "en",
+            ],
         )
         assert result.exit_code == 1
         assert "Voice 'en-US-AriaNeural' not found" in result.output

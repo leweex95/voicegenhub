@@ -268,7 +268,8 @@ class ElevenLabsTTSProvider(TTSProvider):
                     provider=self.provider_id,
                 )
 
-            # Parse voice ID - extract the actual voice ID (e.g., "EXAVITQu4vr4xnSDxMaL" from "elevenlabs-EXAVITQu4vr4xnSDxMaL")
+            # Parse voice ID - extract the actual voice ID
+            # (e.g., "EXAVITQu4vr4xnSDxMaL" from "elevenlabs-EXAVITQu4vr4xnSDxMaL")
             if not request.voice_id.startswith("elevenlabs-"):
                 raise VoiceNotFoundError(
                     f"Invalid ElevenLabs voice ID: {request.voice_id}",
