@@ -856,32 +856,32 @@ name = "chatterbox-tts"
 version = "0.1.4"
 description = "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.10,<3.15"
 groups = ["main"]
 files = []
 develop = false
 
 [package.dependencies]
-conformer = "0.3.2"
-diffusers = "0.29.0"
-gradio = "5.44.1"
-librosa = "0.11.0"
+conformer = ">=0.3.2"
+diffusers = ">=0.29.0"
+gradio = ">=5.44.1"
+librosa = ">=0.11.0"
 numpy = ">=1.26.0"
-pykakasi = "2.3.0"
-resemble-perth = "1.0.1"
+pykakasi = ">=2.3.0"
+resemble-perth = ">=1.0.1"
 russian-text-stresser = {git = "https://github.com/Vuizur/add-stress-to-epub.git", rev = "refs/pull/17/head"}
 s3tokenizer = "*"
-safetensors = "0.5.3"
+safetensors = ">=0.5.3"
 spacy-pkuseg = "*"
-torch = "2.6.0"
-torchaudio = "2.6.0"
-transformers = "4.46.3"
+torch = ">=2.6.0"
+torchaudio = ">=2.6.0"
+transformers = ">=4.46.3"
 
 [package.source]
 type = "git"
 url = "https://github.com/rsxdalv/chatterbox.git"
-reference = "a3b9c51129f397d0eabdc58711814be62c929227"
-resolved_reference = "a3b9c51129f397d0eabdc58711814be62c929227"
+reference = "004a0214c308f544f4276e74ccf516c96c271f5b"
+resolved_reference = "004a0214c308f544f4276e74ccf516c96c271f5b"
 
 [[package]]
 name = "click"
@@ -6694,4 +6694,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "139ca279363bc83e39a3a46fc1816ae95a42e458987c7a42dfd2e5d58b0e7013"
+content-hash = "fab001d115d928854676a1ae66b19f319edce5fbb06097605a1dcc798281953e"

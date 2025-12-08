@@ -11,7 +11,7 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11", "3.13"]
@@ -35,7 +35,7 @@ jobs:
 
     - name: Install all dependencies
       run: |
-        poetry install --with test,edge,kokoro
+        poetry install --with test
 
     - name: Run fast unit tests (no integration)
       run: |
