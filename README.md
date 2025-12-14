@@ -152,6 +152,14 @@ Here's how all providers compare in terms of speed and quality:
 - **ElevenLabs**: Highest quality but requires paid API and credit card
 - **For commercial purposes:** Use Bark (MIT), Chatterbox (MIT), or Kokoro (Apache 2.0)
 
+## Chatterbox Concurrency Analysis
+
+**Memory Safety**: Chatterbox uses a **shared model instance** (3.6GB) across all threads - **no duplication**. Safe to use 2-8 concurrent threads without OOM risk.
+
+**Performance**: ~2.8x speedup at 4 threads on CPU. Optimal thread count: **2-4 threads**.
+
+**[View Interactive Performance Analysis](assets/concurrency_plot.html)** - Shows speedup curves, memory usage, and timing breakdowns.
+
 ## Commercial Licensing
 
 ### ✅ Commercially Safe Models:
