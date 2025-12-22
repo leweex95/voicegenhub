@@ -37,7 +37,6 @@ def _process_single(
     pitch_shift: int,
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
-    turbo: bool = False,
     audio_prompt_path: Optional[str] = None,
 ):
     """Process a single text with effects support."""
@@ -56,7 +55,6 @@ def _process_single(
             pitch=pitch,
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
-            turbo=turbo,
             audio_prompt_path=audio_prompt_path,
         ))
 
@@ -149,7 +147,6 @@ def _process_batch(
     pitch_shift: int,
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
-    turbo: bool = False,
     audio_prompt_path: Optional[str] = None,
 ):
     """Process multiple texts concurrently with provider-specific limits.
@@ -238,7 +235,6 @@ def _process_batch(
                     pitch_shift=pitch_shift,
                     exaggeration=exaggeration,
                     cfg_weight=cfg_weight,
-                    turbo=turbo,
                     audio_prompt_path=audio_prompt_path,
                 )
             else:
@@ -342,11 +338,6 @@ def cli():
     help="Chatterbox: Classifier-free guidance weight (0.0-1.0, default 0.5)",
 )
 @click.option(
-    "--turbo",
-    is_flag=True,
-    help="Chatterbox: Use Multilingual model (23+ languages) instead of standard English-only model",
-)
-@click.option(
     "--audio-prompt",
     type=click.Path(exists=True),
     help="Chatterbox: Path to audio file for voice cloning",
@@ -354,7 +345,7 @@ def cli():
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     lowpass, normalize, distortion, noise, reverb, pitch_shift,
-    exaggeration, cfg_weight, turbo, audio_prompt
+    exaggeration, cfg_weight, audio_prompt
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
@@ -398,7 +389,6 @@ def synthesize(
             pitch_shift=pitch_shift,
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
-            turbo=turbo,
             audio_prompt_path=audio_prompt,
         )
     else:
@@ -420,7 +410,6 @@ def synthesize(
             pitch_shift=pitch_shift,
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
-            turbo=turbo,
             audio_prompt_path=audio_prompt,
         )
 

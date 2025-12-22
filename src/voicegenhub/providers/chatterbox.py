@@ -306,9 +306,9 @@ class ChatterboxProvider(TTSProvider):
                     # Use no_grad and disable graph capture
                     torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
-                # Select model based on turbo flag
-                turbo = kwargs.get("turbo", False)
-                if turbo and self._multilingual_model is not None:
+                # Select model based on language
+                # If language is not English, use multilingual model if available
+                if language.lower() != "en" and self._multilingual_model is not None:
                     model = self._multilingual_model
                     language_id = language.lower()
                     logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
@@ -481,7 +481,6 @@ class ChatterboxProvider(TTSProvider):
                 language=language,
                 exaggeration=exaggeration,
                 cfg_weight=cfg_weight,
-                turbo=request.turbo,
                 audio_prompt_path=audio_prompt_path,
             )
 

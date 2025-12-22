@@ -71,7 +71,6 @@ class TTSRequest(BaseModel):
     pitch: float = 1.0
     volume: float = 1.0
     ssml: bool = False
-    turbo: bool = False
     extra_params: Dict[str, Any] = {}
 
     model_config = ConfigDict(use_enum_values=True)

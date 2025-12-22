@@ -23,24 +23,12 @@ poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice 
 ```
 
 **Chatterbox features:**
-- **Three model types**: Standard (English-only), Turbo (multilingual), and Multilingual (same as Turbo)
+- **Automatic model selection**: Uses English-only model for English, and Multilingual model (23+ languages) for other languages
 - Emotion/intensity control with `exaggeration` parameter (0.0-1.0)
 - Zero-shot voice cloning from audio samples
 - MIT License - fully commercial compatible
 - State-of-the-art quality (competitive with ElevenLabs)
 - Built-in Perth watermarking for responsible AI
-
-**Model Selection:**
-- **Standard model** (default): English-only, 500M parameters, supports CFG & exaggeration tuning
-  ```bash
-  poetry run voicegenhub synthesize "Hello world!" --provider chatterbox --output hello.wav
-  ```
-- **Turbo/Multilingual model**: 23+ languages, 500M parameters, supports zero-shot cloning
-  ```bash
-  poetry run voicegenhub synthesize "Hello world!" --provider chatterbox --turbo --output hello.wav
-  ```
-
-**Note:** The `--turbo` flag currently uses the ChatterboxMultilingualTTS model (23+ languages) rather than the separate Chatterbox-Turbo model (350M English-only with paralinguistic tags) mentioned in the official documentation, as the Turbo model is not available in the current package version.
 
 **Chatterbox parameters:**
 - `--exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional.
@@ -53,12 +41,6 @@ Chatterbox supports 23 languages. Use the `--language` flag to specify the targe
 ```bash
 poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --language es --output spanish.wav
 ```
-
-**Important Notes:**
-- **No code-switching**: Currently, only one language per synthesis call is supported. Mixed languages in a single text (like "Hello друзья") are not supported.
-- For mixed-language text, you have two options:
-  1. Choose the dominant language: `--language en` or `--language ru`
-  2. Split into separate synthesis calls and concatenate the audio files
 
 **Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
 
