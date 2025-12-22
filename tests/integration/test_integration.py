@@ -28,7 +28,7 @@ async def kokoro_provider():
 @pytest.fixture(scope="session")
 async def chatterbox_provider():
     """Session-scoped fixture for Chatterbox provider to load once."""
-    pytest.importorskip("chatterbox_tts")
+    pytest.importorskip("chatterbox")
     from voicegenhub.providers.chatterbox import ChatterboxProvider
     provider = ChatterboxProvider()
     await provider.initialize()
@@ -225,7 +225,7 @@ class TestChatterboxIntegration:
     @pytest.mark.asyncio
     async def test_chatterbox_voice_list(self):
         """Integration: Test Chatterbox voice listing."""
-        pytest.importorskip("chatterbox_tts")
+        pytest.importorskip("chatterbox")
         from voicegenhub.providers.chatterbox import ChatterboxProvider
 
         provider = ChatterboxProvider()
@@ -239,7 +239,7 @@ class TestChatterboxIntegration:
     @pytest.mark.asyncio
     async def test_chatterbox_multilingual(self):
         """Integration: Test Chatterbox supports multiple languages."""
-        pytest.importorskip("chatterbox_tts")
+        pytest.importorskip("chatterbox")
         from voicegenhub.providers.chatterbox import ChatterboxProvider
 
         provider = ChatterboxProvider()
@@ -256,7 +256,7 @@ class TestChatterboxIntegration:
     @pytest.mark.xfail(reason="Chatterbox model files may not be available")
     async def test_chatterbox_synthesis(self):
         """Integration: Test Chatterbox synthesis (may fail if model unavailable)."""
-        pytest.importorskip("chatterbox_tts")
+        pytest.importorskip("chatterbox")
         from voicegenhub.providers.chatterbox import ChatterboxProvider
         from voicegenhub.providers.base import TTSRequest, AudioFormat
 
@@ -281,7 +281,7 @@ class TestChatterboxIntegration:
     @pytest.mark.xfail(reason="Chatterbox model files may not be available")
     async def test_chatterbox_multilingual_synthesis(self):
         """Integration: Test Chatterbox multilingual synthesis."""
-        pytest.importorskip("chatterbox_tts")
+        pytest.importorskip("chatterbox")
         from voicegenhub.providers.chatterbox import ChatterboxProvider
         from voicegenhub.providers.base import TTSRequest, AudioFormat
 

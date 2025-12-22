@@ -63,6 +63,16 @@ def _patch_cuda_on_cpu():
             torch.cuda.CUDAGraph = CPUCUDAGraphCompat
             logger.info("CUDA graph compatibility patched for CPU mode")
 
+            # Patch torch.load to handle CUDA-saved models on CPU
+            original_load = torch.load
+
+            def patched_load(*args, **kwargs):
+                if 'map_location' not in kwargs:
+                    kwargs['map_location'] = 'cpu'
+                return original_load(*args, **kwargs)
+            torch.load = patched_load
+            logger.info("torch.load patched for CPU mode")
+
             # Patch other CUDA-related stream classes
             try:
                 class CPUStreamCompat:
@@ -200,24 +210,39 @@ class ChatterboxProvider(TTSProvider):
 
             # Import here after env vars are set
             from chatterbox.tts import ChatterboxTTS
+            try:
+                from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+            except ImportError:
+                ChatterboxMultilingualTTS = None
 
             # Detect device
             self.device = self._detect_device()
             logger.info(f"Using device: {self.device}")
 
+            import torch
+            torch_device = torch.device(self.device)
+
             # Set torch map location for loading models onto correct device
             if self.device == "cpu":
-                import torch
                 torch.set_default_device("cpu")
 
-            # Load English model only (multilingual has device mapping issues)
+            # Load English model
             logger.info("Loading English Chatterbox model...")
             self._model = ChatterboxTTS.from_pretrained(device=self.device)
             logger.info("English model loaded successfully")
 
-            # Multilingual model disabled on CPU - use English only or handle manually
-            self._multilingual_model = None
-            logger.info("Multilingual support disabled on CPU (use voice cloning instead)")
+            # Try to load Multilingual model
+            if ChatterboxMultilingualTTS:
+                try:
+                    logger.info("Loading Multilingual Chatterbox model...")
+                    self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
+                    logger.info("Multilingual model loaded successfully")
+                except Exception as e:
+                    logger.warning(f"Failed to load Multilingual model: {e}. Falling back to English only.")
+                    self._multilingual_model = None
+            else:
+                self._multilingual_model = None
+                logger.info("Multilingual support not found in chatterbox package")
 
             logger.info("Chatterbox provider initialized successfully")
 
@@ -281,8 +306,23 @@ class ChatterboxProvider(TTSProvider):
                     # Use no_grad and disable graph capture
                     torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
-                # Select model based on language
-                if language.lower() == "en" or self._multilingual_model is None:
+                # Select model based on turbo flag
+                turbo = kwargs.get("turbo", False)
+                if turbo and self._multilingual_model is not None:
+                    model = self._multilingual_model
+                    language_id = language.lower()
+                    logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
+
+                    with torch.no_grad(), warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        wav = model.generate(
+                            text,
+                            language_id=language_id,
+                            exaggeration=exaggeration,
+                            cfg_weight=cfg_weight,
+                            audio_prompt_path=audio_prompt_path
+                        )
+                else:
                     model = self._model
                     logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
@@ -294,34 +334,6 @@ class ChatterboxProvider(TTSProvider):
                             cfg_weight=cfg_weight,
                             audio_prompt_path=audio_prompt_path
                         )
-                else:
-                    if self._multilingual_model is None:
-                        logger.warning("Multilingual support not available on CPU, falling back to English")
-                        model = self._model
-                        with torch.no_grad(), warnings.catch_warnings():
-                            warnings.simplefilter("ignore")
-                            t3_params = {"generate_token_backend": "eager"} if self.device == "cpu" else {}
-                            wav = model.generate(
-                                text,
-                                exaggeration=exaggeration,
-                                cfg_weight=cfg_weight,
-                                audio_prompt_path=audio_prompt_path,
-                                t3_params=t3_params
-                            )
-                    else:
-                        model = self._multilingual_model
-                        language_id = language.lower()
-                        logger.info(f"Using Multilingual model for {language_id}")
-
-                        with torch.no_grad(), warnings.catch_warnings():
-                            warnings.simplefilter("ignore")
-                            wav = model.generate(
-                                text,
-                                language_id=language_id,
-                                exaggeration=exaggeration,
-                                cfg_weight=cfg_weight,
-                                audio_prompt_path=audio_prompt_path
-                            )
 
                 # Convert to bytes
                 sample_rate = model.sr
@@ -400,7 +412,7 @@ class ChatterboxProvider(TTSProvider):
     async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
         """Get available Chatterbox voices."""
         if not self._voices_cache:
-            # Chatterbox uses default voice for all languages
+            # Add default voice
             self._voices_cache = [
                 Voice(
                     id="chatterbox-default",
@@ -414,6 +426,24 @@ class ChatterboxProvider(TTSProvider):
                     description="Chatterbox default multilingual voice with emotion control",
                 )
             ]
+
+            # Add default voice for each supported language to indicate multilingual support
+            for lang in self.get_supported_languages():
+                if lang == "en":
+                    continue
+                self._voices_cache.append(
+                    Voice(
+                        id=f"chatterbox-{lang}",
+                        name=f"Chatterbox {lang.upper()}",
+                        language=lang,
+                        locale=lang,
+                        gender=VoiceGender.NEUTRAL,
+                        voice_type=VoiceType.NEURAL,
+                        provider="chatterbox",
+                        sample_rate=24000,
+                        description=f"Chatterbox {lang.upper()} multilingual voice",
+                    )
+                )
 
         if language:
             return [v for v in self._voices_cache if v.language.startswith(language)]
@@ -438,8 +468,11 @@ class ChatterboxProvider(TTSProvider):
         try:
             # Extract parameters from request
             language = request.language or "en"
-            exaggeration = 0.5  # Default exaggeration
-            cfg_weight = 0.5    # Default classifier-free guidance weight
+
+            # Get parameters from extra_params or defaults
+            exaggeration = request.extra_params.get("exaggeration", 0.5)
+            cfg_weight = request.extra_params.get("cfg_weight", 0.5)
+            audio_prompt_path = request.extra_params.get("audio_prompt_path")
 
             # Call _synthesize
             audio_bytes, sample_rate = await self._synthesize(
@@ -448,10 +481,11 @@ class ChatterboxProvider(TTSProvider):
                 language=language,
                 exaggeration=exaggeration,
                 cfg_weight=cfg_weight,
+                turbo=request.turbo,
+                audio_prompt_path=audio_prompt_path,
             )
 
-            # Calculate duration (WAV files have header, so we estimate from PCM data)
-            # WAV header is typically 44 bytes, then PCM data follows
+            # Calculate duration
             estimated_pcm_samples = len(audio_bytes) // 2  # 16-bit samples
             duration = estimated_pcm_samples / sample_rate
 

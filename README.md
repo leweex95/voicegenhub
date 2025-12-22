@@ -10,21 +10,11 @@ Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supp
 
 - **Microsoft Edge TTS** (free, cloud-based)
 - **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
-- **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control) ⭐ Recommended for commercial use
+- **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
 - **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
 - **ElevenLabs TTS** (commercial, high-quality voices)
 
 ## Usage
-
-### ElevenLabs
-
-```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider elevenlabs --voice elevenlabs-EXAVITQu4vr4xnSDxMaL --output hello.mp3
-```
-
-Set your API key in `config/elevenlabs-api-key.json` (the key should be stored as the value for `"ELEVENLABS_API_KEY"` in the JSON file).
-
-**ElevenLabs supported voices:** Check the list of supported voices [here](https://elevenlabs.io/docs/voices).
 
 ### Chatterbox TTS
 
@@ -33,24 +23,42 @@ poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice 
 ```
 
 **Chatterbox features:**
-- 23 languages supported (multilingual zero-shot TTS)
+- **Three model types**: Standard (English-only), Turbo (multilingual), and Multilingual (same as Turbo)
 - Emotion/intensity control with `exaggeration` parameter (0.0-1.0)
 - Zero-shot voice cloning from audio samples
 - MIT License - fully commercial compatible
 - State-of-the-art quality (competitive with ElevenLabs)
 - Built-in Perth watermarking for responsible AI
 
-**Chatterbox parameters:**
-- `exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional
-- `cfg_weight`: Classifier-free guidance weight (0.0-1.0, default 0.5). Lower values = slower, more deliberate pacing
-- `audio_prompt_path`: Path to reference audio for voice cloning (optional)
-- `temperature`, `max_new_tokens`, `max_cache_len`, `repetition_penalty`, `min_p`, `top_p`: Advanced generation parameters
+**Model Selection:**
+- **Standard model** (default): English-only, 500M parameters, supports CFG & exaggeration tuning
+  ```bash
+  poetry run voicegenhub synthesize "Hello world!" --provider chatterbox --output hello.wav
+  ```
+- **Turbo/Multilingual model**: 23+ languages, 500M parameters, supports zero-shot cloning
+  ```bash
+  poetry run voicegenhub synthesize "Hello world!" --provider chatterbox --turbo --output hello.wav
+  ```
 
-**Example with emotion control:**
+**Note:** The `--turbo` flag currently uses the ChatterboxMultilingualTTS model (23+ languages) rather than the separate Chatterbox-Turbo model (350M English-only with paralinguistic tags) mentioned in the official documentation, as the Turbo model is not available in the current package version.
+
+**Chatterbox parameters:**
+- `--exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional.
+- `--cfg-weight`: Classifier-free guidance weight (0.0-1.0, default 0.5). Controls the influence of the text prompt.
+- `--audio-prompt`: Path to reference audio for voice cloning (optional).
+- `temperature`, `max_new_tokens`, `repetition_penalty`, `min_p`, `top_p`: Advanced generation parameters (available in Python API).
+
+**Multilingual Support:**
+Chatterbox supports 23 languages. Use the `--language` flag to specify the target language:
 ```bash
-poetry run voicegenhub synthesize "This is amazing!" --provider chatterbox --voice chatterbox-default --output emotional.wav
-# Add exaggeration parameter in Python API for intensity control
+poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --language es --output spanish.wav
 ```
+
+**Important Notes:**
+- **No code-switching**: Currently, only one language per synthesis call is supported. Mixed languages in a single text (like "Hello друзья") are not supported.
+- For mixed-language text, you have two options:
+  1. Choose the dominant language: `--language en` or `--language ru`
+  2. Split into separate synthesis calls and concatenate the audio files
 
 **Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
 
@@ -84,14 +92,24 @@ poetry run voicegenhub synthesize "Hello, world!" --provider kokoro --voice koko
 
 **Kokoro supported voices:** Check the list of supported voices [here](https://github.com/nazdridoy/kokoro-tts?tab=readme-ov-file#supported-voices).
 
+### ElevenLabs
+
+```bash
+poetry run voicegenhub synthesize "Hello, world!" --provider elevenlabs --voice elevenlabs-EXAVITQu4vr4xnSDxMaL --output hello.mp3
+```
+
+Set your API key in `config/elevenlabs-api-key.json` (the key should be stored as the value for `"ELEVENLABS_API_KEY"` in the JSON file).
+
+**ElevenLabs supported voices:** Check the list of supported voices [here](https://elevenlabs.io/docs/voices).
+
 ## Print all available voices per provider
 
 ```bash
+poetry run voicegenhub voices --language en --provider chatterbox
+poetry run voicegenhub voices --language en --provider bark
 poetry run voicegenhub voices --language en --provider edge
 poetry run voicegenhub voices --language en --provider kokoro
 poetry run voicegenhub voices --language en --provider elevenlabs
-poetry run voicegenhub voices --language en --provider chatterbox
-poetry run voicegenhub voices --language en --provider bark
 ```
 
 ## Batch Processing with Concurrency Control

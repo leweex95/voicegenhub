@@ -180,6 +180,8 @@ class VoiceGenHub:
             speed=speed,
             pitch=pitch,
             ssml=is_ssml,
+            turbo=kwargs.get("turbo", False),
+            extra_params=kwargs,
         )
 
         # Verify voice is available

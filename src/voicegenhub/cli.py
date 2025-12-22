@@ -35,6 +35,10 @@ def _process_single(
     noise: float,
     reverb: bool,
     pitch_shift: int,
+    exaggeration: float = 0.5,
+    cfg_weight: float = 0.5,
+    turbo: bool = False,
+    audio_prompt_path: Optional[str] = None,
 ):
     """Process a single text with effects support."""
     try:
@@ -50,6 +54,10 @@ def _process_single(
             audio_format=AudioFormat(audio_format),
             speed=speed,
             pitch=pitch,
+            exaggeration=exaggeration,
+            cfg_weight=cfg_weight,
+            turbo=turbo,
+            audio_prompt_path=audio_prompt_path,
         ))
 
         output_path = Path(output) if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
@@ -139,6 +147,10 @@ def _process_batch(
     noise: float,
     reverb: bool,
     pitch_shift: int,
+    exaggeration: float = 0.5,
+    cfg_weight: float = 0.5,
+    turbo: bool = False,
+    audio_prompt_path: Optional[str] = None,
 ):
     """Process multiple texts concurrently with provider-specific limits.
 
@@ -200,6 +212,9 @@ def _process_batch(
                     audio_format=AudioFormat(audio_format),
                     speed=speed,
                     pitch=pitch,
+                    exaggeration=exaggeration,
+                    cfg_weight=cfg_weight,
+                    audio_prompt_path=audio_prompt_path,
                 )
 
             response = asyncio.run(generate())
@@ -221,6 +236,10 @@ def _process_batch(
                     noise=noise,
                     reverb=reverb,
                     pitch_shift=pitch_shift,
+                    exaggeration=exaggeration,
+                    cfg_weight=cfg_weight,
+                    turbo=turbo,
+                    audio_prompt_path=audio_prompt_path,
                 )
             else:
                 # Save output directly
@@ -310,9 +329,32 @@ def cli():
     type=int,
     help="Pitch shift in semitones (negative = lower/darker)",
 )
+@click.option(
+    "--exaggeration",
+    type=float,
+    default=0.5,
+    help="Chatterbox: Emotion intensity (0.0-1.0, default 0.5)",
+)
+@click.option(
+    "--cfg-weight",
+    type=float,
+    default=0.5,
+    help="Chatterbox: Classifier-free guidance weight (0.0-1.0, default 0.5)",
+)
+@click.option(
+    "--turbo",
+    is_flag=True,
+    help="Chatterbox: Use Multilingual model (23+ languages) instead of standard English-only model",
+)
+@click.option(
+    "--audio-prompt",
+    type=click.Path(exists=True),
+    help="Chatterbox: Path to audio file for voice cloning",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
-    lowpass, normalize, distortion, noise, reverb, pitch_shift
+    lowpass, normalize, distortion, noise, reverb, pitch_shift,
+    exaggeration, cfg_weight, turbo, audio_prompt
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
@@ -324,15 +366,6 @@ def synthesize(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
             err=True,
         )
-        sys.exit(1)
-
-    # Validate required parameters - fail fast on missing inputs
-    if not language:
-        click.echo("Error: --language (-l) is required", err=True)
-        sys.exit(1)
-
-    if not voice:
-        click.echo("Error: --voice (-v) is required", err=True)
         sys.exit(1)
 
     # Collect all texts
@@ -363,6 +396,10 @@ def synthesize(
             noise=noise,
             reverb=reverb,
             pitch_shift=pitch_shift,
+            exaggeration=exaggeration,
+            cfg_weight=cfg_weight,
+            turbo=turbo,
+            audio_prompt_path=audio_prompt,
         )
     else:
         # Single text processing (original behavior)
@@ -381,6 +418,10 @@ def synthesize(
             noise=noise,
             reverb=reverb,
             pitch_shift=pitch_shift,
+            exaggeration=exaggeration,
+            cfg_weight=cfg_weight,
+            turbo=turbo,
+            audio_prompt_path=audio_prompt,
         )
 
 
