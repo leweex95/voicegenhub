@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "0.6.9"
+version = "1.0.0"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
