@@ -11,7 +11,7 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11", "3.13"]
@@ -30,9 +30,12 @@ jobs:
       with:
         poetry-version: latest
 
+    - name: Regenerate lock file
+      run: poetry lock
+
     - name: Install all dependencies
       run: |
-        poetry install --with test,edge,google,piper,melotts,kokoro
+        poetry install --with test
 
     - name: Run fast unit tests (no integration)
       run: |

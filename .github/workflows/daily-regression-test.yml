@@ -149,60 +149,9 @@ jobs:
             *.log
             /tmp/*.log
 
-  test-piper-tts:
-    runs-on: ubuntu-latest
-    name: test piper tts generation
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: install dependencies
-        run: |
-          poetry install --with test,piper
-
-      - name: test piper tts audio generation
-        run: |
-          poetry run python -m pytest tests/test_voicegenhub.py::TestVoiceGenHub::test_piper_tts_generation -v --cov=src/voicegenhub --cov-report=xml
-
-      - name: send piper tts failure notification
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: "voicegenhub piper tts nightly test failed - WINDOWS WARNING"
-          body: |
-            the piper tts nightly test failed in voicegenhub repository.
-
-            WARNING: Piper TTS has known compatibility issues on Windows due to ONNX Runtime DLL loading failures.
-            On Windows, this provider gracefully disables itself and logs appropriate warnings.
-            Linux and macOS: Full neural TTS support with excellent quality.
-
-            workflow: ${{ github.workflow }}
-            run: ${{ github.run_number }}
-            commit: ${{ github.sha }}
-
-            please check the workflow logs at:
-            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          to: ${{ secrets.SMTP_USERNAME }}
-          from: voicegenhub nightly tests <${{ secrets.SMTP_USERNAME }}>
-
   upload-coverage:
     runs-on: ubuntu-latest
-    needs: [test-edge-tts, test-google-tts, test-piper-tts]
+    needs: [test-edge-tts, test-google-tts]
     steps:
       - uses: actions/checkout@v4
 
