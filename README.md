@@ -34,6 +34,7 @@ poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice 
 - `--exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional.
 - `--cfg-weight`: Classifier-free guidance weight (0.0-1.0, default 0.5). Controls the influence of the text prompt.
 - `--audio-prompt`: Path to reference audio for voice cloning (optional).
+- `--turbo`: Use the faster Turbo model (350M parameters, English only). Significantly reduces generation time.
 - `temperature`, `max_new_tokens`, `repetition_penalty`, `min_p`, `top_p`: Advanced generation parameters (available in Python API).
 
 **Multilingual Support:**
@@ -115,6 +116,37 @@ poetry run voicegenhub synthesize "Text 1" "Text 2" --provider bark --max-concur
 - Automatic resource management prevents system overload
 - Progress tracking for each job
 - Failed jobs don't stop the batch
+
+## Voice Cloning with Kokoro and Chatterbox
+
+VoiceGenHub supports zero-shot voice cloning by combining Kokoro's lightweight voices with Chatterbox's advanced cloning capabilities. This allows you to create custom voices that sound like Kokoro but with Chatterbox's superior quality and emotion control.
+
+### Step-by-Step Guide
+
+1. **Generate a Kokoro voice sample** (modify as desired or keep undistorted):
+   ```bash
+   # Undistorted voice
+   poetry run voicegenhub synthesize "Sample text for cloning." --provider kokoro --voice kokoro-am_michael --output reference.wav --format wav
+
+   # Or with effects (e.g., horror/distortion)
+   poetry run voicegenhub synthesize "Sample text for cloning." --provider kokoro --voice kokoro-am_adam --output reference.wav --format wav --pitch-shift -2 --distortion 0.02 --lowpass 2000 --normalize
+   ```
+
+2. **Clone the voice with Chatterbox**:
+   ```bash
+   poetry run voicegenhub synthesize "Your longer text here." --provider chatterbox --voice chatterbox-default --output cloned_voice.wav --audio-prompt reference.wav
+   ```
+
+3. **Optional: Adjust emotion and style**:
+   ```bash
+   poetry run voicegenhub synthesize "Your text." --provider chatterbox --voice chatterbox-default --output cloned_voice.wav --audio-prompt reference.wav --exaggeration 0.8 --cfg-weight 0.7
+   ```
+
+**Tips:**
+- Use short, clear reference audio (5-10 seconds) for best cloning results
+- Combine multiple Kokoro samples with FFmpeg for richer voice profiles
+- Experiment with Kokoro effects to create unique voice characteristics before cloning
+- Chatterbox supports multilingual cloning from any language reference audio
 
 ## Concurrency and Memory Management
 

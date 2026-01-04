@@ -38,6 +38,7 @@ def _process_single(
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
     audio_prompt_path: Optional[str] = None,
+    turbo: bool = False,
 ):
     """Process a single text with effects support."""
     try:
@@ -56,6 +57,7 @@ def _process_single(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt_path,
+            turbo=turbo,
         ))
 
         output_path = Path(output) if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
@@ -148,6 +150,7 @@ def _process_batch(
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
     audio_prompt_path: Optional[str] = None,
+    turbo: bool = False,
 ):
     """Process multiple texts concurrently with provider-specific limits.
 
@@ -342,10 +345,15 @@ def cli():
     type=click.Path(exists=True),
     help="Chatterbox: Path to audio file for voice cloning",
 )
+@click.option(
+    "--turbo",
+    is_flag=True,
+    help="Chatterbox: Use the faster Turbo model (English only)",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     lowpass, normalize, distortion, noise, reverb, pitch_shift,
-    exaggeration, cfg_weight, audio_prompt
+    exaggeration, cfg_weight, audio_prompt, turbo
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
@@ -390,6 +398,7 @@ def synthesize(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt,
+            turbo=turbo,
         )
     else:
         # Single text processing (original behavior)
@@ -411,6 +420,7 @@ def synthesize(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt,
+            turbo=turbo,
         )
 
 

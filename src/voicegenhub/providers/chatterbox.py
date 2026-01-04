@@ -132,6 +132,59 @@ def _patch_cuda_on_cpu():
             except Exception:
                 pass
 
+            # Patch S3Tokenizer to avoid Double/Float mismatch on CPU
+            try:
+                from chatterbox.models.s3tokenizer.s3tokenizer import S3Tokenizer
+                original_log_mel = S3Tokenizer.log_mel_spectrogram
+
+                def patched_log_mel(self, wav):
+                    # Ensure wav is float32 for compatibility with S3Tokenizer
+                    import torch
+                    if wav.dtype == torch.float64:
+                        wav = wav.to(torch.float32)
+
+                    # Ensure mel filters match the input type
+                    if hasattr(self, '_mel_filters'):
+                        self._mel_filters = self._mel_filters.to(wav.dtype)
+                    return original_log_mel(self, wav)
+
+                S3Tokenizer.log_mel_spectrogram = patched_log_mel
+                logger.info("S3Tokenizer patched for CPU float32 compatibility")
+            except Exception as e:
+                logger.debug(f"Could not patch S3Tokenizer: {e}")
+
+            # Patch ChatterboxTurboTTS to ensure float32 audio for cloning
+            try:
+                from chatterbox.tts_turbo import ChatterboxTurboTTS
+                import torch
+
+                original_prepare = ChatterboxTurboTTS.prepare_conditionals
+
+                def patched_prepare(self, audio_prompt_path, **kwargs):
+                    # This is a bit tricky because we need to ensure the loaded wav is float32
+                    # We can't easily intercept the load inside prepare_conditionals without patching torchaudio.load
+                    # but we can patch the method and then ensure the model's internal tensors are float32
+                    return original_prepare(self, audio_prompt_path, **kwargs)
+
+                # Actually, patching the VoiceEncoder might be more effective
+                from chatterbox.models.voice_encoder.voice_encoder import VoiceEncoder
+                original_embeds_from_wavs = VoiceEncoder.embeds_from_wavs
+
+                def patched_embeds_from_wavs(self, wavs, *args, **kwargs):
+                    import numpy as np
+                    processed_wavs = []
+                    for wav in wavs:
+                        if isinstance(wav, np.ndarray) and wav.dtype == np.float64:
+                            processed_wavs.append(wav.astype(np.float32))
+                        else:
+                            processed_wavs.append(wav)
+                    return original_embeds_from_wavs(self, processed_wavs, *args, **kwargs)
+
+                VoiceEncoder.embeds_from_wavs = patched_embeds_from_wavs
+                logger.info("VoiceEncoder patched for CPU float32 compatibility")
+            except Exception as e:
+                logger.debug(f"Could not patch VoiceEncoder: {e}")
+
     except Exception as e:
         logger.debug(f"Could not patch CUDA compatibility: {e}")
 
@@ -152,6 +205,7 @@ class ChatterboxProvider(TTSProvider):
         super().__init__(name, config)
         self._model = None
         self._multilingual_model = None
+        self._turbo_model = None
         self.device = "cpu"
         self._voices_cache = []
 
@@ -215,6 +269,11 @@ class ChatterboxProvider(TTSProvider):
             except ImportError:
                 ChatterboxMultilingualTTS = None
 
+            try:
+                from chatterbox.tts_turbo import ChatterboxTurboTTS
+            except ImportError:
+                ChatterboxTurboTTS = None
+
             # Detect device
             self.device = self._detect_device()
             logger.info(f"Using device: {self.device}")
@@ -230,6 +289,18 @@ class ChatterboxProvider(TTSProvider):
             logger.info("Loading English Chatterbox model...")
             self._model = ChatterboxTTS.from_pretrained(device=self.device)
             logger.info("English model loaded successfully")
+
+            # Load Turbo model if available
+            if ChatterboxTurboTTS:
+                try:
+                    logger.info("Loading Chatterbox Turbo model...")
+                    self._turbo_model = ChatterboxTurboTTS.from_pretrained(device=self.device)
+                    logger.info("Chatterbox Turbo model loaded successfully")
+                except Exception as e:
+                    logger.warning(f"Failed to load Turbo model: {e}")
+                    self._turbo_model = None
+            else:
+                self._turbo_model = None
 
             # Try to load Multilingual model
             if ChatterboxMultilingualTTS:
@@ -294,6 +365,7 @@ class ChatterboxProvider(TTSProvider):
                 exaggeration = kwargs.get("exaggeration", 0.5)
                 cfg_weight = kwargs.get("cfg_weight", 0.5)
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
+                use_turbo = kwargs.get("turbo", False)
 
                 logger.info(f"Generating {language} audio with text: {text[:50]}...")
 
@@ -306,9 +378,19 @@ class ChatterboxProvider(TTSProvider):
                     # Use no_grad and disable graph capture
                     torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
-                # Select model based on language
+                # Select model based on language and turbo flag
+                if use_turbo and self._turbo_model is not None:
+                    model = self._turbo_model
+                    logger.info("Using Chatterbox Turbo model")
+
+                    with torch.no_grad(), warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        wav = model.generate(
+                            text,
+                            audio_prompt_path=audio_prompt_path
+                        )
                 # If language is not English, use multilingual model if available
-                if language.lower() != "en" and self._multilingual_model is not None:
+                elif language.lower() != "en" and self._multilingual_model is not None:
                     model = self._multilingual_model
                     language_id = language.lower()
                     logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
@@ -473,6 +555,7 @@ class ChatterboxProvider(TTSProvider):
             exaggeration = request.extra_params.get("exaggeration", 0.5)
             cfg_weight = request.extra_params.get("cfg_weight", 0.5)
             audio_prompt_path = request.extra_params.get("audio_prompt_path")
+            use_turbo = request.extra_params.get("turbo", False)
 
             # Call _synthesize
             audio_bytes, sample_rate = await self._synthesize(
@@ -482,6 +565,7 @@ class ChatterboxProvider(TTSProvider):
                 exaggeration=exaggeration,
                 cfg_weight=cfg_weight,
                 audio_prompt_path=audio_prompt_path,
+                turbo=use_turbo,
             )
 
             # Calculate duration
