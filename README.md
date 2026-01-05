@@ -49,6 +49,10 @@ poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español."
 
 **Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
 
+**Chatterbox Installation Requirements:**
+- **FFmpeg**: Required for voice cloning features. On Windows, install the "full-shared" build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and ensure FFmpeg's `bin` directory is in your system PATH.
+- Without FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will fail with a helpful error message.
+
 ### Bark
 
 ```bash

@@ -193,6 +193,38 @@ def _patch_cuda_on_cpu():
         logger.debug(f"Could not patch CUDA compatibility: {e}")
 
 
+def _check_torchcodec_dependencies():
+    """Check if TorchCodec can be loaded and provide helpful errors."""
+    try:
+        import torchcodec
+        # Try to access a basic function to ensure it loads properly
+        torchcodec  # Reference to avoid F401
+        return True
+    except ImportError as e:
+        if "libtorchcodec" in str(e).lower():
+            import platform
+            system = platform.system().lower()
+            if system == "windows":
+                raise RuntimeError(
+                    "TorchCodec failed to load on Windows. This is required for voice cloning with Chatterbox.\n\n"
+                    "Likely causes and solutions:\n"
+                    "1. FFmpeg is not installed or not the 'full-shared' build.\n"
+                    "   Download from: https://ffmpeg.org/download.html#build-windows\n"
+                    "   Make sure to get the 'full-shared' version that includes DLLs.\n\n"
+                    "2. FFmpeg is installed but DLLs are not in PATH.\n"
+                    "   Add FFmpeg's bin directory to your system PATH, or copy DLLs to your Python environment.\n\n"
+                    "3. PyTorch version incompatibility.\n"
+                    "   Check: https://github.com/pytorch/torchcodec#installing-torchcodec\n\n"
+                    "After installing FFmpeg, restart your Python session."
+                ) from e
+            else:
+                raise RuntimeError(
+                    f"TorchCodec failed to load on {system}. This is required for voice cloning with Chatterbox.\n"
+                    "Please ensure FFmpeg is properly installed and accessible."
+                ) from e
+        raise
+
+
 class ChatterboxProvider(TTSProvider):
     """Chatterbox TTS Provider - Resemble AI's production-grade multilingual TTS.
 
@@ -232,6 +264,17 @@ class ChatterboxProvider(TTSProvider):
         """Initialize the Chatterbox TTS provider."""
         try:
             logger.info("Initializing Chatterbox TTS provider...")
+
+            # Check TorchCodec dependencies early
+            try:
+                _check_torchcodec_dependencies()
+                logger.info("TorchCodec dependencies verified")
+            except RuntimeError as e:
+                logger.warning(f"TorchCodec check failed: {e}")
+                # Don't fail initialization, but warn that voice cloning won't work
+                self._torchcodec_available = False
+            else:
+                self._torchcodec_available = True
 
             # Disable CUDA graph capture for CPU inference
             os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -274,7 +317,6 @@ class ChatterboxProvider(TTSProvider):
             model_type: One of 'default', 'turbo', 'multilingual'
         """
         import torch
-        import warnings
 
         # Suppress deprecated pkg_resources warning from perth watermarking
         warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
@@ -360,6 +402,14 @@ class ChatterboxProvider(TTSProvider):
                 exaggeration = kwargs.get("exaggeration")
                 cfg_weight = kwargs.get("cfg_weight")
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
+
+                # Check if voice cloning is requested but TorchCodec is not available
+                if audio_prompt_path and not getattr(self, '_torchcodec_available', True):
+                    raise TTSError(
+                        "Voice cloning requires TorchCodec, but it failed to load during initialization.\n"
+                        "Please ensure FFmpeg is properly installed (full-shared build on Windows).\n"
+                        "See: https://ffmpeg.org/download.html#build-windows"
+                    )
                 temp_audio_path = None  # For cleanup
 
                 # Process audio prompt for channel normalization
@@ -373,19 +423,10 @@ class ChatterboxProvider(TTSProvider):
                     audio_tensor, sample_rate = torchaudio.load(audio_prompt_path)
                     logger.info(f"Loaded reference audio: shape {audio_tensor.shape}, sample_rate {sample_rate}")
 
-                    # Normalize to stereo (2 channels) as expected by Chatterbox
-                    if audio_tensor.shape[0] == 1:
-                        # Convert mono to stereo by duplicating channel
-                        audio_tensor = audio_tensor.repeat(2, 1)
-                        logger.info("Converted mono reference audio to stereo")
-                    elif audio_tensor.shape[0] > 2:
-                        # If more than 2 channels, take first 2
-                        audio_tensor = audio_tensor[:2]
-                        logger.info("Reduced reference audio to first 2 channels")
-
-                    # Validate channel count
-                    if audio_tensor.shape[0] != 2:
-                        raise ValueError(f"Reference audio must have 2 channels after processing, got {audio_tensor.shape[0]}")
+                    # Force mono (1 channel) as expected by Chatterbox
+                    if audio_tensor.shape[0] > 1:
+                        audio_tensor = audio_tensor.mean(dim=0, keepdim=True)
+                        logger.info("Converted stereo reference audio to mono")
 
                     # Save normalized audio to temporary file
                     with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
