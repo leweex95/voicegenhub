@@ -365,6 +365,40 @@ class ChatterboxProvider(TTSProvider):
                 exaggeration = kwargs.get("exaggeration")
                 cfg_weight = kwargs.get("cfg_weight")
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
+                temp_audio_path = None  # For cleanup
+
+                # Process audio prompt for channel normalization
+                temp_audio_path = None
+                if audio_prompt_path:
+                    import torchaudio
+                    import tempfile
+                    import os
+
+                    # Load the reference audio
+                    audio_tensor, sample_rate = torchaudio.load(audio_prompt_path)
+                    logger.info(f"Loaded reference audio: shape {audio_tensor.shape}, sample_rate {sample_rate}")
+
+                    # Normalize to stereo (2 channels) as expected by Chatterbox
+                    if audio_tensor.shape[0] == 1:
+                        # Convert mono to stereo by duplicating channel
+                        audio_tensor = audio_tensor.repeat(2, 1)
+                        logger.info("Converted mono reference audio to stereo")
+                    elif audio_tensor.shape[0] > 2:
+                        # If more than 2 channels, take first 2
+                        audio_tensor = audio_tensor[:2]
+                        logger.info("Reduced reference audio to first 2 channels")
+
+                    # Validate channel count
+                    if audio_tensor.shape[0] != 2:
+                        raise ValueError(f"Reference audio must have 2 channels after processing, got {audio_tensor.shape[0]}")
+
+                    # Save normalized audio to temporary file
+                    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+                        temp_audio_path = temp_file.name
+                        torchaudio.save(temp_audio_path, audio_tensor, sample_rate)
+                        logger.info(f"Saved normalized reference audio to {temp_audio_path}")
+
+                    audio_prompt_path = temp_audio_path
 
                 logger.info(f"Generating audio with voice {voice_id}: {text[:50]}...")
 
@@ -488,6 +522,14 @@ class ChatterboxProvider(TTSProvider):
             except Exception as e:
                 logger.error(f"Audio generation failed: {str(e)}")
                 raise TTSError(f"Chatterbox synthesis failed: {str(e)}")
+            finally:
+                # Clean up temporary audio file
+                if 'temp_audio_path' in locals() and temp_audio_path and os.path.exists(temp_audio_path):
+                    try:
+                        os.unlink(temp_audio_path)
+                        logger.debug(f"Cleaned up temporary audio file: {temp_audio_path}")
+                    except Exception as cleanup_e:
+                        logger.warning(f"Failed to clean up temporary audio file: {cleanup_e}")
 
         # Run the synchronous synthesis in a thread pool
         loop = asyncio.get_event_loop()
