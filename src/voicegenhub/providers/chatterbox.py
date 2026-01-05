@@ -362,11 +362,22 @@ class ChatterboxProvider(TTSProvider):
             import torch
 
             try:
-                exaggeration = kwargs.get("exaggeration", 0.5)
-                cfg_weight = kwargs.get("cfg_weight", 0.5)
+                exaggeration = kwargs.get("exaggeration")
+                cfg_weight = kwargs.get("cfg_weight")
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
 
                 logger.info(f"Generating audio with voice {voice_id}: {text[:50]}...")
+
+                # Determine model type from voice_id
+                if voice_id == "chatterbox-turbo":
+                    model_type = "Turbo (English-only)"
+                elif voice_id == "chatterbox-default":
+                    model_type = "Default (English-only)"
+                else:
+                    lang_code = voice_id.split("-")[1]
+                    model_type = f"Multilingual ({lang_code.upper()})"
+
+                logger.info(f"Chatterbox model selected: {model_type}")
 
                 # Validate parameters
                 exaggeration = max(0.0, min(1.0, exaggeration))
