@@ -143,6 +143,7 @@ def _patch_cuda_on_cpu():
                 def patched_log_mel(self, wav):
                     # Ensure wav is float32 for compatibility with S3Tokenizer
                     import torch
+
                     if wav.dtype == torch.float64:
                         wav = wav.to(torch.float32)
 
