@@ -17,6 +17,9 @@ from .base import (
     VoiceType,
 )
 
+# Set attention implementation to eager before any imports to prevent SDPA warnings
+os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+
 # Suppress warnings from dependencies to keep output clean
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*deprecated", category=FutureWarning)
@@ -222,7 +225,7 @@ class ChatterboxProvider(TTSProvider):
     @property
     def display_name(self) -> str:
         """Return display name for provider."""
-        return "Chatterbox TTS (MIT Licensed)"
+        return "Chatterbox TTS"
 
     async def initialize(self):
         """Initialize the Chatterbox TTS provider."""
@@ -251,7 +254,6 @@ class ChatterboxProvider(TTSProvider):
             os.environ['TOKENIZERS_PARALLELISM'] = 'false'
             os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = '1'
             os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
-            os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
             # Suppress deprecated pkg_resources warning from perth watermarking
             warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
@@ -338,15 +340,13 @@ class ChatterboxProvider(TTSProvider):
         self,
         text: str,
         voice_id: str = "chatterbox-default",
-        language: str = "en",
         **kwargs
     ) -> tuple[bytes, int]:
         """Synthesize speech using Chatterbox.
 
         Args:
             text: Text to synthesize
-            voice_id: Voice ID (format: "chatterbox-<language>" or "chatterbox-default")
-            language: Language code (en, es, fr, zh, etc.)
+            voice_id: Voice ID (chatterbox-default, chatterbox-turbo, or chatterbox-<lang>)
 
         Keyword Args:
             exaggeration: Emotion intensity (0.0-1.0, default 0.5)
@@ -365,9 +365,8 @@ class ChatterboxProvider(TTSProvider):
                 exaggeration = kwargs.get("exaggeration", 0.5)
                 cfg_weight = kwargs.get("cfg_weight", 0.5)
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
-                use_turbo = kwargs.get("turbo", False)
 
-                logger.info(f"Generating {language} audio with text: {text[:50]}...")
+                logger.info(f"Generating audio with voice {voice_id}: {text[:50]}...")
 
                 # Validate parameters
                 exaggeration = max(0.0, min(1.0, exaggeration))
@@ -378,8 +377,10 @@ class ChatterboxProvider(TTSProvider):
                     # Use no_grad and disable graph capture
                     torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
-                # Select model based on language and turbo flag
-                if use_turbo and self._turbo_model is not None:
+                # Select model based on voice_id
+                if voice_id == "chatterbox-turbo":
+                    if self._turbo_model is None:
+                        raise TTSError("Chatterbox Turbo model not available")
                     model = self._turbo_model
                     logger.info("Using Chatterbox Turbo model")
 
@@ -389,22 +390,7 @@ class ChatterboxProvider(TTSProvider):
                             text,
                             audio_prompt_path=audio_prompt_path
                         )
-                # If language is not English, use multilingual model if available
-                elif language.lower() != "en" and self._multilingual_model is not None:
-                    model = self._multilingual_model
-                    language_id = language.lower()
-                    logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
-
-                    with torch.no_grad(), warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        wav = model.generate(
-                            text,
-                            language_id=language_id,
-                            exaggeration=exaggeration,
-                            cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path
-                        )
-                else:
+                elif voice_id == "chatterbox-default":
                     model = self._model
                     logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
@@ -412,6 +398,23 @@ class ChatterboxProvider(TTSProvider):
                         warnings.simplefilter("ignore")
                         wav = model.generate(
                             text,
+                            exaggeration=exaggeration,
+                            cfg_weight=cfg_weight,
+                            audio_prompt_path=audio_prompt_path
+                        )
+                else:
+                    # Multilingual model
+                    if self._multilingual_model is None:
+                        raise TTSError("Chatterbox Multilingual model not available")
+                    model = self._multilingual_model
+                    language_id = voice_id.split("-")[1]
+                    logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
+
+                    with torch.no_grad(), warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        wav = model.generate(
+                            text,
+                            language_id=language_id,
                             exaggeration=exaggeration,
                             cfg_weight=cfg_weight,
                             audio_prompt_path=audio_prompt_path
@@ -505,7 +508,18 @@ class ChatterboxProvider(TTSProvider):
                     voice_type=VoiceType.NEURAL,
                     provider="chatterbox",
                     sample_rate=24000,
-                    description="Chatterbox default multilingual voice with emotion control",
+                    description="Chatterbox standard English voice with emotion control",
+                ),
+                Voice(
+                    id="chatterbox-turbo",
+                    name="Chatterbox Turbo",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.NEUTRAL,
+                    voice_type=VoiceType.NEURAL,
+                    provider="chatterbox",
+                    sample_rate=24000,
+                    description="Chatterbox turbo English voice for faster generation",
                 )
             ]
 
@@ -548,24 +562,18 @@ class ChatterboxProvider(TTSProvider):
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Chatterbox."""
         try:
-            # Extract parameters from request
-            language = request.language or "en"
-
             # Get parameters from extra_params or defaults
             exaggeration = request.extra_params.get("exaggeration", 0.5)
             cfg_weight = request.extra_params.get("cfg_weight", 0.5)
             audio_prompt_path = request.extra_params.get("audio_prompt_path")
-            use_turbo = request.extra_params.get("turbo", False)
 
             # Call _synthesize
             audio_bytes, sample_rate = await self._synthesize(
                 request.text,
                 voice_id=request.voice_id,
-                language=language,
                 exaggeration=exaggeration,
                 cfg_weight=cfg_weight,
                 audio_prompt_path=audio_prompt_path,
-                turbo=use_turbo,
             )
 
             # Calculate duration
@@ -577,7 +585,7 @@ class ChatterboxProvider(TTSProvider):
                 format=request.audio_format or "wav",
                 sample_rate=sample_rate,
                 duration=duration,
-                voice_used=request.voice_id or "chatterbox-default",
+                voice_used=request.voice_id,
             )
         except Exception as e:
             raise TTSError(f"Chatterbox synthesis error: {str(e)}")

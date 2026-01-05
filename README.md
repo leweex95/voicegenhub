@@ -23,24 +23,28 @@ poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice 
 ```
 
 **Chatterbox features:**
-- **Automatic model selection**: Uses English-only model for English, and Multilingual model (23+ languages) for other languages
+- **Model selection via voice**: Choose between standard, turbo, or multilingual models using the `--voice` flag
 - Emotion/intensity control with `exaggeration` parameter (0.0-1.0)
 - Zero-shot voice cloning from audio samples
 - MIT License - fully commercial compatible
 - State-of-the-art quality (competitive with ElevenLabs)
 - Built-in Perth watermarking for responsible AI
 
+**Chatterbox voices:**
+- `chatterbox-default`: Standard English model with emotion control
+- `chatterbox-turbo`: Turbo English model (faster generation, English only)
+- `chatterbox-<lang>`: Multilingual model for specific languages (e.g., `chatterbox-es` for Spanish)
+
 **Chatterbox parameters:**
 - `--exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional.
 - `--cfg-weight`: Classifier-free guidance weight (0.0-1.0, default 0.5). Controls the influence of the text prompt.
 - `--audio-prompt`: Path to reference audio for voice cloning (optional).
-- `--turbo`: Use the faster Turbo model (350M parameters, English only). Significantly reduces generation time.
 - `temperature`, `max_new_tokens`, `repetition_penalty`, `min_p`, `top_p`: Advanced generation parameters (available in Python API).
 
 **Multilingual Support:**
-Chatterbox supports 23 languages. Use the `--language` flag to specify the target language:
+Chatterbox supports 23 languages. Use the appropriate voice for the target language:
 ```bash
-poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --language es --output spanish.wav
+poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --voice chatterbox-es --output spanish.wav
 ```
 
 **Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
