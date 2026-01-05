@@ -20,6 +20,10 @@ __version__ = "0.1.0"
 __author__ = "leweex95"
 __email__ = "csibi.levente14@gmail.com"
 
+import os
+# Set attention implementation to eager before any imports to prevent SDPA warnings
+os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+
 # Import core classes when available
 try:
     from .config.settings import Settings  # noqa: F401

@@ -826,7 +826,7 @@ class TestCLI:
             ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
         )
         assert result.exit_code == 0
-        mock_logger.info.assert_called_with(f"Audio saved to: {tmp_path / 'test.wav'}")
+        mock_logger.info.assert_called_with(f"SUCCESS: Audio saved to: {tmp_path / 'test.wav'}")
 
     @patch("voicegenhub.cli.VoiceGenHub")
     @patch("voicegenhub.cli.logger")

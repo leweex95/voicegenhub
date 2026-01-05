@@ -71,7 +71,7 @@ def _process_single(
             temp_path = output_path
             with open(temp_path, "wb") as f:
                 f.write(response.audio_data)
-            click.echo(f"Audio saved to: {output_path}")
+            click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
 
         # Apply post-processing effects if requested
         if effects_requested:
@@ -114,15 +114,15 @@ def _process_single(
                 subprocess.run(cmd, capture_output=True, check=True)
                 if temp_path != output_path and temp_path.exists():
                     temp_path.unlink()  # Remove temp file
-                click.echo(f"Audio saved to: {output_path}")
+                click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
             except subprocess.CalledProcessError as e:
                 logger.warning(f"Post-processing failed: {e.stderr.decode()}")
-                logger.info(f"Original audio saved to: {temp_path}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}")
             except FileNotFoundError:
                 logger.warning("FFmpeg not found. Install FFmpeg for post-processing.")
-                logger.info(f"Original audio saved to: {temp_path}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}")
         else:
-            logger.info(f"Audio saved to: {output_path}")
+            logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}")
 
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
@@ -242,7 +242,7 @@ def _process_batch(
                 with open(output_file, "wb") as f:
                     f.write(response.audio_data)
             with lock:
-                click.echo(f"Audio saved to: {output_file}")
+                click.echo(f"SUCCESS: Audio saved to: {output_file.absolute()}")
             return True
 
         except Exception as e:

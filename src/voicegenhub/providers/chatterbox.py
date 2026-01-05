@@ -255,73 +255,67 @@ class ChatterboxProvider(TTSProvider):
             os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = '1'
             os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 
-            # Suppress deprecated pkg_resources warning from perth watermarking
-            warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
-
-            # Additional warning suppressions for transformers
-            warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
-            warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
-            warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
-            warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
-
-            # Import here after env vars are set
-            from chatterbox.tts import ChatterboxTTS
-            try:
-                from chatterbox.mtl_tts import ChatterboxMultilingualTTS
-            except ImportError:
-                ChatterboxMultilingualTTS = None
-
-            try:
-                from chatterbox.tts_turbo import ChatterboxTurboTTS
-            except ImportError:
-                ChatterboxTurboTTS = None
-
             # Detect device
             self.device = self._detect_device()
             logger.info(f"Using device: {self.device}")
 
-            import torch
-            torch_device = torch.device(self.device)
-
-            # Set torch map location for loading models onto correct device
-            if self.device == "cpu":
-                torch.set_default_device("cpu")
-
-            # Load English model
-            logger.info("Loading English Chatterbox model...")
-            self._model = ChatterboxTTS.from_pretrained(device=self.device)
-            logger.info("English model loaded successfully")
-
-            # Load Turbo model if available
-            if ChatterboxTurboTTS:
-                try:
-                    logger.info("Loading Chatterbox Turbo model...")
-                    self._turbo_model = ChatterboxTurboTTS.from_pretrained(device=self.device)
-                    logger.info("Chatterbox Turbo model loaded successfully")
-                except Exception as e:
-                    logger.warning(f"Failed to load Turbo model: {e}")
-                    self._turbo_model = None
-            else:
-                self._turbo_model = None
-
-            # Try to load Multilingual model
-            if ChatterboxMultilingualTTS:
-                try:
-                    logger.info("Loading Multilingual Chatterbox model...")
-                    self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
-                    logger.info("Multilingual model loaded successfully")
-                except Exception as e:
-                    logger.warning(f"Failed to load Multilingual model: {e}. Falling back to English only.")
-                    self._multilingual_model = None
-            else:
-                self._multilingual_model = None
-                logger.info("Multilingual support not found in chatterbox package")
-
+            self._initialized = True
             logger.info("Chatterbox provider initialized successfully")
 
         except Exception as e:
             logger.error(f"Failed to initialize Chatterbox: {str(e)}")
             raise TTSError(f"Chatterbox initialization failed: {str(e)}")
+
+    def _load_model(self, model_type: str):
+        """Lazy-load a specific Chatterbox model.
+
+        Args:
+            model_type: One of 'default', 'turbo', 'multilingual'
+        """
+        import torch
+        import warnings
+
+        # Suppress deprecated pkg_resources warning from perth watermarking
+        warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
+
+        # Additional warning suppressions for transformers
+        warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
+        warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
+        warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
+        warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
+
+        if model_type == "default" and self._model is None:
+            from chatterbox.tts import ChatterboxTTS
+            logger.info("Loading English Chatterbox model...")
+            self._model = ChatterboxTTS.from_pretrained(device=self.device)
+            logger.info("English model loaded successfully")
+
+        elif model_type == "turbo" and self._turbo_model is None:
+            try:
+                from chatterbox.tts_turbo import ChatterboxTurboTTS
+                logger.info("Loading Chatterbox Turbo model...")
+                self._turbo_model = ChatterboxTurboTTS.from_pretrained(device=self.device)
+                logger.info("Chatterbox Turbo model loaded successfully")
+            except ImportError:
+                logger.warning("Chatterbox Turbo support not found in package")
+                self._turbo_model = None
+            except Exception as e:
+                logger.warning(f"Failed to load Turbo model: {e}")
+                self._turbo_model = None
+
+        elif model_type == "multilingual" and self._multilingual_model is None:
+            try:
+                from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+                torch_device = torch.device(self.device)
+                logger.info("Loading Multilingual Chatterbox model...")
+                self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
+                logger.info("Multilingual model loaded successfully")
+            except ImportError:
+                logger.warning("Multilingual support not found in chatterbox package")
+                self._multilingual_model = None
+            except Exception as e:
+                logger.warning(f"Failed to load Multilingual model: {e}")
+                self._multilingual_model = None
 
     def is_voice_id_valid(self, voice_id: str, language: Optional[str] = None) -> bool:
         """Validate voice ID format."""
@@ -424,6 +418,7 @@ class ChatterboxProvider(TTSProvider):
 
                 # Select model based on voice_id
                 if voice_id == "chatterbox-turbo":
+                    self._load_model("turbo")
                     if self._turbo_model is None:
                         raise TTSError("Chatterbox Turbo model not available")
                     model = self._turbo_model
@@ -436,6 +431,9 @@ class ChatterboxProvider(TTSProvider):
                             audio_prompt_path=audio_prompt_path
                         )
                 elif voice_id == "chatterbox-default":
+                    self._load_model("default")
+                    if self._model is None:
+                        raise TTSError("Chatterbox English model not available")
                     model = self._model
                     logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
@@ -449,6 +447,7 @@ class ChatterboxProvider(TTSProvider):
                         )
                 else:
                     # Multilingual model
+                    self._load_model("multilingual")
                     if self._multilingual_model is None:
                         raise TTSError("Chatterbox Multilingual model not available")
                     model = self._multilingual_model
