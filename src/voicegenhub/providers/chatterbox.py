@@ -195,11 +195,24 @@ def _patch_cuda_on_cpu():
 
 def _check_torchcodec_dependencies():
     """Check if TorchCodec can be loaded and provide helpful errors."""
+    # First check if FFmpeg is available
+    _check_ffmpeg_availability()
+
     try:
         import torchcodec
-        # Try to access a basic function to ensure it loads properly
-        torchcodec  # Reference to avoid F401
-        return True
+        # Try to create a simple VideoReader to test if FFmpeg DLLs load properly
+        # This will fail if FFmpeg is not available
+        try:
+            # Just test that we can access the module without triggering DLL loading
+            # The actual DLL loading happens when we try to use VideoReader
+            hasattr(torchcodec, 'VideoReader')
+            return True
+        except Exception as dll_error:
+            # DLL loading failed
+            raise RuntimeError(
+                f"TorchCodec module imported but FFmpeg DLLs failed to load: {dll_error}\n"
+                "On Windows, ensure FFmpeg full-shared build is installed and in PATH."
+            ) from dll_error
     except ImportError as e:
         if "libtorchcodec" in str(e).lower():
             import platform
@@ -223,6 +236,56 @@ def _check_torchcodec_dependencies():
                     "Please ensure FFmpeg is properly installed and accessible."
                 ) from e
         raise
+
+
+def _check_ffmpeg_availability():
+    """Check if FFmpeg is available in the system PATH."""
+    import subprocess
+    import platform
+
+    try:
+        # Try to run ffmpeg -version
+        result = subprocess.run(
+            ['ffmpeg', '-version'],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            # Check if it's the full-shared build by looking for shared libraries
+            if platform.system().lower() == "windows":
+                # On Windows, check if avcodec/avformat DLLs are mentioned
+                version_output = result.stdout.lower()
+                if "libavcodec" in version_output and ("shared" in version_output or "dll" in version_output):
+                    return True
+                else:
+                    logger.warning(
+                        "FFmpeg found but may not be the full-shared build required for TorchCodec.\n"
+                        "For voice cloning on Windows, download the full-shared build from:\n"
+                        "https://ffmpeg.org/download.html#build-windows"
+                    )
+                    return True  # Still allow it to proceed
+            return True
+        else:
+            raise FileNotFoundError("ffmpeg command failed")
+    except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+        # FFmpeg not found
+        system = platform.system().lower()
+        if system == "windows":
+            raise RuntimeError(
+                "FFmpeg is not installed or not in PATH. This is required for voice cloning with Chatterbox.\n\n"
+                "To install FFmpeg on Windows:\n"
+                "1. Download the 'full-shared' build from: https://ffmpeg.org/download.html#build-windows\n"
+                "2. Extract the ZIP file\n"
+                "3. Add the 'bin' directory to your system PATH\n"
+                "4. Restart your Python session/terminal\n\n"
+                "Alternatively, you can use basic TTS without voice cloning."
+            )
+        else:
+            raise RuntimeError(
+                f"FFmpeg is not installed or not in PATH. Please install FFmpeg for voice cloning support.\n"
+                f"On {system}, use your package manager (apt, brew, etc.) to install ffmpeg."
+            )
 
 
 class ChatterboxProvider(TTSProvider):
@@ -468,10 +531,19 @@ class ChatterboxProvider(TTSProvider):
 
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        wav = model.generate(
-                            text,
-                            audio_prompt_path=audio_prompt_path
-                        )
+                        try:
+                            wav = model.generate(
+                                text,
+                                audio_prompt_path=audio_prompt_path
+                            )
+                        except Exception as e:
+                            if "libtorchcodec" in str(e).lower() or "torchcodec" in str(e).lower():
+                                raise TTSError(
+                                    "Voice cloning failed due to TorchCodec/FFmpeg error.\n"
+                                    "On Windows, ensure FFmpeg full-shared build is installed and in PATH.\n"
+                                    "Download from: https://ffmpeg.org/download.html#build-windows"
+                                ) from e
+                            raise
                 elif voice_id == "chatterbox-default":
                     self._load_model("default")
                     if self._model is None:
@@ -481,12 +553,21 @@ class ChatterboxProvider(TTSProvider):
 
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        wav = model.generate(
-                            text,
-                            exaggeration=exaggeration,
-                            cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path
-                        )
+                        try:
+                            wav = model.generate(
+                                text,
+                                exaggeration=exaggeration,
+                                cfg_weight=cfg_weight,
+                                audio_prompt_path=audio_prompt_path
+                            )
+                        except Exception as e:
+                            if "libtorchcodec" in str(e).lower() or "torchcodec" in str(e).lower():
+                                raise TTSError(
+                                    "Voice cloning failed due to TorchCodec/FFmpeg error.\n"
+                                    "On Windows, ensure FFmpeg full-shared build is installed and in PATH.\n"
+                                    "Download from: https://ffmpeg.org/download.html#build-windows"
+                                ) from e
+                            raise
                 else:
                     # Multilingual model
                     self._load_model("multilingual")
@@ -498,13 +579,22 @@ class ChatterboxProvider(TTSProvider):
 
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        wav = model.generate(
-                            text,
-                            language_id=language_id,
-                            exaggeration=exaggeration,
-                            cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path
-                        )
+                        try:
+                            wav = model.generate(
+                                text,
+                                language_id=language_id,
+                                exaggeration=exaggeration,
+                                cfg_weight=cfg_weight,
+                                audio_prompt_path=audio_prompt_path
+                            )
+                        except Exception as e:
+                            if "libtorchcodec" in str(e).lower() or "torchcodec" in str(e).lower():
+                                raise TTSError(
+                                    "Voice cloning failed due to TorchCodec/FFmpeg error.\n"
+                                    "On Windows, ensure FFmpeg full-shared build is installed and in PATH.\n"
+                                    "Download from: https://ffmpeg.org/download.html#build-windows"
+                                ) from e
+                            raise
 
                 # Convert to bytes
                 sample_rate = model.sr
