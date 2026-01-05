@@ -6,13 +6,40 @@
 
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supports multiple free and commercial TTS providers.
 
-## Optional Dependencies
+## Installation
+
+```bash
+pip install voicegenhub
+# or
+poetry add voicegenhub
+```
+
+### Optional Dependencies
 
 - **Microsoft Edge TTS** (free, cloud-based)
 - **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
 - **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
 - **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
 - **ElevenLabs TTS** (commercial, high-quality voices)
+
+### Voice Cloning Support
+
+For voice cloning features with Chatterbox TTS:
+
+```bash
+pip install voicegenhub[voice-cloning]
+# or
+poetry install -E voice-cloning
+```
+
+**Voice cloning requirements:**
+- TorchCodec (automatically installed with `voice-cloning` extra)
+- FFmpeg (manual installation required)
+- PyTorch ≤ 2.4.x (for TorchCodec compatibility)
+
+**On Windows:** Download the "full-shared" FFmpeg build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and add the `bin` directory to your system PATH.
+
+**Note:** If TorchCodec is incompatible with your PyTorch version or FFmpeg is not available, VoiceGenHub will automatically fall back to standard TTS without voice cloning.
 
 ## Usage
 
@@ -50,8 +77,10 @@ poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español."
 **Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
 
 **Chatterbox Installation Requirements:**
-- **FFmpeg**: Required for voice cloning features. On Windows, install the "full-shared" build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and ensure FFmpeg's `bin` directory is in your system PATH.
-- Without FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will fail with a helpful error message.
+- **TorchCodec** (optional): Required for voice cloning features. Install with `pip install torchcodec` or `poetry install -E voice-cloning`.
+- **FFmpeg**: Required when TorchCodec is installed for voice cloning. On Windows, install the "full-shared" build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and ensure FFmpeg's `bin` directory is in your system PATH.
+- **PyTorch Compatibility**: TorchCodec 0.9.1 requires PyTorch ≤ 2.4.x. If you have a newer PyTorch version, voice cloning will be automatically disabled with a fallback to standard TTS.
+- Without TorchCodec/FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will gracefully fall back to standard TTS without cloning.
 
 ### Bark
 

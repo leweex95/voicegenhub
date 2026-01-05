@@ -193,101 +193,6 @@ def _patch_cuda_on_cpu():
         logger.debug(f"Could not patch CUDA compatibility: {e}")
 
 
-def _check_torchcodec_dependencies():
-    """Check if TorchCodec can be loaded and provide helpful errors."""
-    # First check if FFmpeg is available
-    _check_ffmpeg_availability()
-
-    try:
-        import torchcodec
-        # Try to create a simple VideoReader to test if FFmpeg DLLs load properly
-        # This will fail if FFmpeg is not available
-        try:
-            # Just test that we can access the module without triggering DLL loading
-            # The actual DLL loading happens when we try to use VideoReader
-            hasattr(torchcodec, 'VideoReader')
-            return True
-        except Exception as dll_error:
-            # DLL loading failed
-            raise RuntimeError(
-                f"TorchCodec module imported but FFmpeg DLLs failed to load: {dll_error}\n"
-                "On Windows, ensure FFmpeg full-shared build is installed and in PATH."
-            ) from dll_error
-    except ImportError as e:
-        if "libtorchcodec" in str(e).lower():
-            import platform
-            system = platform.system().lower()
-            if system == "windows":
-                raise RuntimeError(
-                    "TorchCodec failed to load on Windows. This is required for voice cloning with Chatterbox.\n\n"
-                    "Likely causes and solutions:\n"
-                    "1. FFmpeg is not installed or not the 'full-shared' build.\n"
-                    "   Download from: https://ffmpeg.org/download.html#build-windows\n"
-                    "   Make sure to get the 'full-shared' version that includes DLLs.\n\n"
-                    "2. FFmpeg is installed but DLLs are not in PATH.\n"
-                    "   Add FFmpeg's bin directory to your system PATH, or copy DLLs to your Python environment.\n\n"
-                    "3. PyTorch version incompatibility.\n"
-                    "   Check: https://github.com/pytorch/torchcodec#installing-torchcodec\n\n"
-                    "After installing FFmpeg, restart your Python session."
-                ) from e
-            else:
-                raise RuntimeError(
-                    f"TorchCodec failed to load on {system}. This is required for voice cloning with Chatterbox.\n"
-                    "Please ensure FFmpeg is properly installed and accessible."
-                ) from e
-        raise
-
-
-def _check_ffmpeg_availability():
-    """Check if FFmpeg is available in the system PATH."""
-    import subprocess
-    import platform
-
-    try:
-        # Try to run ffmpeg -version
-        result = subprocess.run(
-            ['ffmpeg', '-version'],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            # Check if it's the full-shared build by looking for shared libraries
-            if platform.system().lower() == "windows":
-                # On Windows, check if avcodec/avformat DLLs are mentioned
-                version_output = result.stdout.lower()
-                if "libavcodec" in version_output and ("shared" in version_output or "dll" in version_output):
-                    return True
-                else:
-                    logger.warning(
-                        "FFmpeg found but may not be the full-shared build required for TorchCodec.\n"
-                        "For voice cloning on Windows, download the full-shared build from:\n"
-                        "https://ffmpeg.org/download.html#build-windows"
-                    )
-                    return True  # Still allow it to proceed
-            return True
-        else:
-            raise FileNotFoundError("ffmpeg command failed")
-    except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
-        # FFmpeg not found
-        system = platform.system().lower()
-        if system == "windows":
-            raise RuntimeError(
-                "FFmpeg is not installed or not in PATH. This is required for voice cloning with Chatterbox.\n\n"
-                "To install FFmpeg on Windows:\n"
-                "1. Download the 'full-shared' build from: https://ffmpeg.org/download.html#build-windows\n"
-                "2. Extract the ZIP file\n"
-                "3. Add the 'bin' directory to your system PATH\n"
-                "4. Restart your Python session/terminal\n\n"
-                "Alternatively, you can use basic TTS without voice cloning."
-            )
-        else:
-            raise RuntimeError(
-                f"FFmpeg is not installed or not in PATH. Please install FFmpeg for voice cloning support.\n"
-                f"On {system}, use your package manager (apt, brew, etc.) to install ffmpeg."
-            )
-
-
 class ChatterboxProvider(TTSProvider):
     """Chatterbox TTS Provider - Resemble AI's production-grade multilingual TTS.
 
@@ -328,16 +233,9 @@ class ChatterboxProvider(TTSProvider):
         try:
             logger.info("Initializing Chatterbox TTS provider...")
 
-            # Check TorchCodec dependencies early
-            try:
-                _check_torchcodec_dependencies()
-                logger.info("TorchCodec dependencies verified")
-            except RuntimeError as e:
-                logger.warning(f"TorchCodec check failed: {e}")
-                # Don't fail initialization, but warn that voice cloning won't work
-                self._torchcodec_available = False
-            else:
-                self._torchcodec_available = True
+            # Enable voice cloning - Chatterbox uses librosa/torchaudio which are available
+            self._voice_cloning_available = True
+            logger.info("Chatterbox provider initialized with voice cloning support")
 
             # Disable CUDA graph capture for CPU inference
             os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -466,13 +364,13 @@ class ChatterboxProvider(TTSProvider):
                 cfg_weight = kwargs.get("cfg_weight")
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
 
-                # Check if voice cloning is requested but TorchCodec is not available
-                if audio_prompt_path and not getattr(self, '_torchcodec_available', True):
-                    raise TTSError(
-                        "Voice cloning requires TorchCodec, but it failed to load during initialization.\n"
-                        "Please ensure FFmpeg is properly installed (full-shared build on Windows).\n"
-                        "See: https://ffmpeg.org/download.html#build-windows"
+                # Check if voice cloning is requested
+                if audio_prompt_path and not getattr(self, "_voice_cloning_available", False):
+                    logger.warning(
+                        "Voice cloning requested but not available. "
+                        "Falling back to standard TTS without voice cloning."
                     )
+                    audio_prompt_path = None  # Disable voice cloning
                 temp_audio_path = None  # For cleanup
 
                 # Process audio prompt for channel normalization
@@ -538,12 +436,12 @@ class ChatterboxProvider(TTSProvider):
                             )
                         except Exception as e:
                             if "libtorchcodec" in str(e).lower() or "torchcodec" in str(e).lower():
-                                raise TTSError(
-                                    "Voice cloning failed due to TorchCodec/FFmpeg error.\n"
-                                    "On Windows, ensure FFmpeg full-shared build is installed and in PATH.\n"
-                                    "Download from: https://ffmpeg.org/download.html#build-windows"
-                                ) from e
-                            raise
+                                logger.warning(f"Voice cloning failed due to TorchCodec error: {e}")
+                                logger.info("Falling back to standard TTS without voice cloning")
+                                # Retry without voice cloning
+                                wav = model.generate(text)
+                            else:
+                                raise
                 elif voice_id == "chatterbox-default":
                     self._load_model("default")
                     if self._model is None:
@@ -562,12 +460,16 @@ class ChatterboxProvider(TTSProvider):
                             )
                         except Exception as e:
                             if "libtorchcodec" in str(e).lower() or "torchcodec" in str(e).lower():
-                                raise TTSError(
-                                    "Voice cloning failed due to TorchCodec/FFmpeg error.\n"
-                                    "On Windows, ensure FFmpeg full-shared build is installed and in PATH.\n"
-                                    "Download from: https://ffmpeg.org/download.html#build-windows"
-                                ) from e
-                            raise
+                                logger.warning(f"Voice cloning failed due to TorchCodec error: {e}")
+                                logger.info("Falling back to standard TTS without voice cloning")
+                                # Retry without voice cloning
+                                wav = model.generate(
+                                    text,
+                                    exaggeration=exaggeration,
+                                    cfg_weight=cfg_weight
+                                )
+                            else:
+                                raise
                 else:
                     # Multilingual model
                     self._load_model("multilingual")
@@ -589,12 +491,17 @@ class ChatterboxProvider(TTSProvider):
                             )
                         except Exception as e:
                             if "libtorchcodec" in str(e).lower() or "torchcodec" in str(e).lower():
-                                raise TTSError(
-                                    "Voice cloning failed due to TorchCodec/FFmpeg error.\n"
-                                    "On Windows, ensure FFmpeg full-shared build is installed and in PATH.\n"
-                                    "Download from: https://ffmpeg.org/download.html#build-windows"
-                                ) from e
-                            raise
+                                logger.warning(f"Voice cloning failed due to TorchCodec error: {e}")
+                                logger.info("Falling back to standard TTS without voice cloning")
+                                # Retry without voice cloning
+                                wav = model.generate(
+                                    text,
+                                    language_id=language_id,
+                                    exaggeration=exaggeration,
+                                    cfg_weight=cfg_weight
+                                )
+                            else:
+                                raise
 
                 # Convert to bytes
                 sample_rate = model.sr

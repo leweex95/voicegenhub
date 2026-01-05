@@ -6000,9 +6000,10 @@ torch = "2.6.0"
 name = "torchcodec"
 version = "0.9.1"
 description = "A video decoder for PyTorch"
-optional = false
+optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"voice-cloning\""
 files = [
     {file = "torchcodec-0.9.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:72738d7870edbcd6982207609efe314352e0bf90f4e3895a549e23a49ee0673c"},
     {file = "torchcodec-0.9.1-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:53dfecabc843e4d78b77453732129bd8572dd9d022ab81a94f5305cd5e920ded"},
@@ -6719,7 +6720,10 @@ enabler = ["pytest-enabler (>=2.2)"]
 test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more_itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
 type = ["pytest-mypy"]
 
+[extras]
+voice-cloning = ["torchcodec"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "aae6bfe8f1e62ac3da74c81bc5b4e7459f7da4490b8fdfe97716d51f971561c0"
+content-hash = "b926156ac8e1a2c06a794e6632a3eadfa5debc9b4ca60f61d9f5e4e26116055e"
