@@ -6,13 +6,40 @@
 
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supports multiple free and commercial TTS providers.
 
-## Optional Dependencies
+## Installation
+
+```bash
+pip install voicegenhub
+# or
+poetry add voicegenhub
+```
+
+### Optional Dependencies
 
 - **Microsoft Edge TTS** (free, cloud-based)
 - **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
 - **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
 - **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
 - **ElevenLabs TTS** (commercial, high-quality voices)
+
+### Voice Cloning Support
+
+For voice cloning features with Chatterbox TTS:
+
+```bash
+pip install voicegenhub[voice-cloning]
+# or
+poetry install -E voice-cloning
+```
+
+**Voice cloning requirements:**
+- TorchCodec (automatically installed with `voice-cloning` extra)
+- FFmpeg (manual installation required)
+- PyTorch ≤ 2.4.x (for TorchCodec compatibility)
+
+**On Windows:** Download the "full-shared" FFmpeg build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and add the `bin` directory to your system PATH.
+
+**Note:** If TorchCodec is incompatible with your PyTorch version or FFmpeg is not available, VoiceGenHub will automatically fall back to standard TTS without voice cloning.
 
 ## Usage
 
@@ -23,12 +50,17 @@ poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice 
 ```
 
 **Chatterbox features:**
-- **Automatic model selection**: Uses English-only model for English, and Multilingual model (23+ languages) for other languages
+- **Model selection via voice**: Choose between standard, turbo, or multilingual models using the `--voice` flag
 - Emotion/intensity control with `exaggeration` parameter (0.0-1.0)
 - Zero-shot voice cloning from audio samples
 - MIT License - fully commercial compatible
 - State-of-the-art quality (competitive with ElevenLabs)
 - Built-in Perth watermarking for responsible AI
+
+**Chatterbox voices:**
+- `chatterbox-default`: Standard English model with emotion control
+- `chatterbox-turbo`: Turbo English model (faster generation, English only)
+- `chatterbox-<lang>`: Multilingual model for specific languages (e.g., `chatterbox-es` for Spanish)
 
 **Chatterbox parameters:**
 - `--exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional.
@@ -37,12 +69,18 @@ poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice 
 - `temperature`, `max_new_tokens`, `repetition_penalty`, `min_p`, `top_p`: Advanced generation parameters (available in Python API).
 
 **Multilingual Support:**
-Chatterbox supports 23 languages. Use the `--language` flag to specify the target language:
+Chatterbox supports 23 languages. Use the appropriate voice for the target language:
 ```bash
-poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --language es --output spanish.wav
+poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --voice chatterbox-es --output spanish.wav
 ```
 
 **Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
+
+**Chatterbox Installation Requirements:**
+- **TorchCodec** (optional): Required for voice cloning features. Install with `pip install torchcodec` or `poetry install -E voice-cloning`.
+- **FFmpeg**: Required when TorchCodec is installed for voice cloning. On Windows, install the "full-shared" build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and ensure FFmpeg's `bin` directory is in your system PATH.
+- **PyTorch Compatibility**: TorchCodec 0.9.1 requires PyTorch ≤ 2.4.x. If you have a newer PyTorch version, voice cloning will be automatically disabled with a fallback to standard TTS.
+- Without TorchCodec/FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will gracefully fall back to standard TTS without cloning.
 
 ### Bark
 
@@ -115,6 +153,37 @@ poetry run voicegenhub synthesize "Text 1" "Text 2" --provider bark --max-concur
 - Automatic resource management prevents system overload
 - Progress tracking for each job
 - Failed jobs don't stop the batch
+
+## Voice Cloning with Kokoro and Chatterbox
+
+VoiceGenHub supports zero-shot voice cloning by combining Kokoro's lightweight voices with Chatterbox's advanced cloning capabilities. This allows you to create custom voices that sound like Kokoro but with Chatterbox's superior quality and emotion control.
+
+### Step-by-Step Guide
+
+1. **Generate a Kokoro voice sample** (modify as desired or keep undistorted):
+   ```bash
+   # Undistorted voice
+   poetry run voicegenhub synthesize "Sample text for cloning." --provider kokoro --voice kokoro-am_michael --output reference.wav --format wav
+
+   # Or with effects (e.g., horror/distortion)
+   poetry run voicegenhub synthesize "Sample text for cloning." --provider kokoro --voice kokoro-am_adam --output reference.wav --format wav --pitch-shift -2 --distortion 0.02 --lowpass 2000 --normalize
+   ```
+
+2. **Clone the voice with Chatterbox**:
+   ```bash
+   poetry run voicegenhub synthesize "Your longer text here." --provider chatterbox --voice chatterbox-default --output cloned_voice.wav --audio-prompt reference.wav
+   ```
+
+3. **Optional: Adjust emotion and style**:
+   ```bash
+   poetry run voicegenhub synthesize "Your text." --provider chatterbox --voice chatterbox-default --output cloned_voice.wav --audio-prompt reference.wav --exaggeration 0.8 --cfg-weight 0.7
+   ```
+
+**Tips:**
+- Use short, clear reference audio (5-10 seconds) for best cloning results
+- Combine multiple Kokoro samples with FFmpeg for richer voice profiles
+- Experiment with Kokoro effects to create unique voice characteristics before cloning
+- Chatterbox supports multilingual cloning from any language reference audio
 
 ## Concurrency and Memory Management
 

@@ -58,9 +58,8 @@ def _process_single(
             audio_prompt_path=audio_prompt_path,
         ))
 
-        output_path = Path(output) if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
-        if not output:
-            click.echo(f"Output saved to: {output_path}")
+        output_path = Path(output).resolve() if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
+        click.echo(f"Output will be saved to: {output_path}")
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
 
         if effects_requested:
@@ -72,6 +71,7 @@ def _process_single(
             temp_path = output_path
             with open(temp_path, "wb") as f:
                 f.write(response.audio_data)
+            click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
 
         # Apply post-processing effects if requested
         if effects_requested:
@@ -114,15 +114,15 @@ def _process_single(
                 subprocess.run(cmd, capture_output=True, check=True)
                 if temp_path != output_path and temp_path.exists():
                     temp_path.unlink()  # Remove temp file
-                logger.info(f"Audio with effects saved to: {output_path}")
+                click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
             except subprocess.CalledProcessError as e:
                 logger.warning(f"Post-processing failed: {e.stderr.decode()}")
-                logger.info(f"Original audio saved to: {temp_path}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}")
             except FileNotFoundError:
                 logger.warning("FFmpeg not found. Install FFmpeg for post-processing.")
-                logger.info(f"Original audio saved to: {temp_path}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}")
         else:
-            logger.info(f"Audio saved to: {output_path}")
+            logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}")
 
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
@@ -194,7 +194,7 @@ def _process_batch(
 
     def process_item(index: int, text: str):
         """Process a single text item."""
-        output_file = Path(f"{output_base}_{index + 1:02d}.{audio_format}")
+        output_file = Path(f"{output_base}_{index + 1:02d}.{audio_format}").resolve()
 
         with lock:
             click.echo(f"Processing item {index + 1}/{len(texts)}: {text[:50]}...")
@@ -242,7 +242,7 @@ def _process_batch(
                 with open(output_file, "wb") as f:
                     f.write(response.audio_data)
             with lock:
-                click.echo(f"[SUCCESS] Saved to {output_file}")
+                click.echo(f"SUCCESS: Audio saved to: {output_file.absolute()}")
             return True
 
         except Exception as e:

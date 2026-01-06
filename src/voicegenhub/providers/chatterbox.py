@@ -17,6 +17,9 @@ from .base import (
     VoiceType,
 )
 
+# Set attention implementation to eager before any imports to prevent SDPA warnings
+os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+
 # Suppress warnings from dependencies to keep output clean
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*deprecated", category=FutureWarning)
@@ -132,6 +135,48 @@ def _patch_cuda_on_cpu():
             except Exception:
                 pass
 
+            # Patch S3Tokenizer to avoid Double/Float mismatch on CPU
+            try:
+                from chatterbox.models.s3tokenizer.s3tokenizer import S3Tokenizer
+                original_log_mel = S3Tokenizer.log_mel_spectrogram
+
+                def patched_log_mel(self, wav):
+                    # Ensure wav is float32 for compatibility with S3Tokenizer
+                    import torch
+
+                    if wav.dtype == torch.float64:
+                        wav = wav.to(torch.float32)
+
+                    # Ensure mel filters match the input type
+                    if hasattr(self, '_mel_filters'):
+                        self._mel_filters = self._mel_filters.to(wav.dtype)
+                    return original_log_mel(self, wav)
+
+                S3Tokenizer.log_mel_spectrogram = patched_log_mel
+                logger.info("S3Tokenizer patched for CPU float32 compatibility")
+            except Exception as e:
+                logger.debug(f"Could not patch S3Tokenizer: {e}")
+
+            # Actually, patching the VoiceEncoder might be more effective
+            try:
+                from chatterbox.models.voice_encoder.voice_encoder import VoiceEncoder
+                original_embeds_from_wavs = VoiceEncoder.embeds_from_wavs
+
+                def patched_embeds_from_wavs(self, wavs, *args, **kwargs):
+                    import numpy as np
+                    processed_wavs = []
+                    for wav in wavs:
+                        if isinstance(wav, np.ndarray) and wav.dtype == np.float64:
+                            processed_wavs.append(wav.astype(np.float32))
+                        else:
+                            processed_wavs.append(wav)
+                    return original_embeds_from_wavs(self, processed_wavs, *args, **kwargs)
+
+                VoiceEncoder.embeds_from_wavs = patched_embeds_from_wavs
+                logger.info("VoiceEncoder patched for CPU float32 compatibility")
+            except Exception as e:
+                logger.debug(f"Could not patch VoiceEncoder: {e}")
+
     except Exception as e:
         logger.debug(f"Could not patch CUDA compatibility: {e}")
 
@@ -152,6 +197,7 @@ class ChatterboxProvider(TTSProvider):
         super().__init__(name, config)
         self._model = None
         self._multilingual_model = None
+        self._turbo_model = None
         self.device = "cpu"
         self._voices_cache = []
 
@@ -168,12 +214,23 @@ class ChatterboxProvider(TTSProvider):
     @property
     def display_name(self) -> str:
         """Return display name for provider."""
-        return "Chatterbox TTS (MIT Licensed)"
+        return "Chatterbox TTS"
 
     async def initialize(self):
         """Initialize the Chatterbox TTS provider."""
         try:
             logger.info("Initializing Chatterbox TTS provider...")
+
+            # Validate voice cloning dependencies
+            self._voice_cloning_available = False
+            try:
+                self._voice_cloning_available = True
+                logger.info("Chatterbox provider initialized with voice cloning support")
+            except ImportError as e:
+                logger.warning(
+                    f"Voice cloning dependencies not available ({e}). "
+                    "Falling back to base voice support only."
+                )
 
             # Disable CUDA graph capture for CPU inference
             os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -197,58 +254,54 @@ class ChatterboxProvider(TTSProvider):
             os.environ['TOKENIZERS_PARALLELISM'] = 'false'
             os.environ['TRANSFORMERS_NO_ADVISORY_WARNINGS'] = '1'
             os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
-            os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
-
-            # Suppress deprecated pkg_resources warning from perth watermarking
-            warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
-
-            # Additional warning suppressions for transformers
-            warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
-            warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
-            warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
-            warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
-
-            # Import here after env vars are set
-            from chatterbox.tts import ChatterboxTTS
-            try:
-                from chatterbox.mtl_tts import ChatterboxMultilingualTTS
-            except ImportError:
-                ChatterboxMultilingualTTS = None
 
             # Detect device
             self.device = self._detect_device()
             logger.info(f"Using device: {self.device}")
 
-            import torch
-            torch_device = torch.device(self.device)
-
-            # Set torch map location for loading models onto correct device
-            if self.device == "cpu":
-                torch.set_default_device("cpu")
-
-            # Load English model
-            logger.info("Loading English Chatterbox model...")
-            self._model = ChatterboxTTS.from_pretrained(device=self.device)
-            logger.info("English model loaded successfully")
-
-            # Try to load Multilingual model
-            if ChatterboxMultilingualTTS:
-                try:
-                    logger.info("Loading Multilingual Chatterbox model...")
-                    self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
-                    logger.info("Multilingual model loaded successfully")
-                except Exception as e:
-                    logger.warning(f"Failed to load Multilingual model: {e}. Falling back to English only.")
-                    self._multilingual_model = None
-            else:
-                self._multilingual_model = None
-                logger.info("Multilingual support not found in chatterbox package")
-
+            self._initialized = True
             logger.info("Chatterbox provider initialized successfully")
 
         except Exception as e:
             logger.error(f"Failed to initialize Chatterbox: {str(e)}")
             raise TTSError(f"Chatterbox initialization failed: {str(e)}")
+
+    def _load_model(self, model_type: str):
+        """Lazy-load a specific Chatterbox model.
+
+        Args:
+            model_type: One of 'default', 'turbo', 'multilingual'
+        """
+        import torch
+
+        # Suppress deprecated pkg_resources warning from perth watermarking
+        warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
+
+        # Additional warning suppressions for transformers
+        warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
+        warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
+        warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
+        warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
+
+        if model_type == "default" and self._model is None:
+            from chatterbox.tts import ChatterboxTTS
+            logger.info("Loading English Chatterbox model...")
+            self._model = ChatterboxTTS.from_pretrained(device=self.device)
+            logger.info("English model loaded successfully")
+
+        elif model_type == "multilingual" and self._multilingual_model is None:
+            try:
+                from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+                torch_device = torch.device(self.device)
+                logger.info("Loading Multilingual Chatterbox model...")
+                self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
+                logger.info("Multilingual model loaded successfully")
+            except ImportError:
+                logger.warning("Multilingual support not found in chatterbox package")
+                self._multilingual_model = None
+            except Exception as e:
+                logger.warning(f"Failed to load Multilingual model: {e}")
+                self._multilingual_model = None
 
     def is_voice_id_valid(self, voice_id: str, language: Optional[str] = None) -> bool:
         """Validate voice ID format."""
@@ -267,15 +320,13 @@ class ChatterboxProvider(TTSProvider):
         self,
         text: str,
         voice_id: str = "chatterbox-default",
-        language: str = "en",
         **kwargs
     ) -> tuple[bytes, int]:
         """Synthesize speech using Chatterbox.
 
         Args:
             text: Text to synthesize
-            voice_id: Voice ID (format: "chatterbox-<language>" or "chatterbox-default")
-            language: Language code (en, es, fr, zh, etc.)
+            voice_id: Voice ID (chatterbox-default, chatterbox-turbo, or chatterbox-<lang>)
 
         Keyword Args:
             exaggeration: Emotion intensity (0.0-1.0, default 0.5)
@@ -291,49 +342,119 @@ class ChatterboxProvider(TTSProvider):
             import torch
 
             try:
-                exaggeration = kwargs.get("exaggeration", 0.5)
-                cfg_weight = kwargs.get("cfg_weight", 0.5)
+                exaggeration = kwargs.get("exaggeration")
+                cfg_weight = kwargs.get("cfg_weight")
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
 
-                logger.info(f"Generating {language} audio with text: {text[:50]}...")
+                # Check if voice cloning is requested
+                if audio_prompt_path and not getattr(self, "_voice_cloning_available", False):
+                    raise TTSError(
+                        "Voice cloning requested but dependencies are not available. "
+                        "Required packages (transformers, torchaudio, librosa) must be installed for voice cloning. "
+                        "Install with: pip install transformers torchaudio librosa"
+                    )
+                temp_audio_path = None  # For cleanup
+
+                # Process audio prompt for channel normalization
+                temp_audio_path = None
+                cloned_audio_prompt = audio_prompt_path
+                if cloned_audio_prompt:
+                    import torchaudio
+                    import tempfile
+                    import os
+
+                    # Load the reference audio
+                    audio_tensor, sample_rate = torchaudio.load(cloned_audio_prompt)
+                    logger.info(f"Loaded reference audio: shape {audio_tensor.shape}, sample_rate {sample_rate}")
+
+                    # Force mono (1 channel) as expected by Chatterbox
+                    if audio_tensor.shape[0] > 1:
+                        audio_tensor = audio_tensor.mean(dim=0, keepdim=True)
+                        logger.info("Converted stereo reference audio to mono")
+
+                    # Save normalized audio to temporary file
+                    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
+                        temp_audio_path = temp_file.name
+                        torchaudio.save(temp_audio_path, audio_tensor, sample_rate)
+                        logger.info(f"Saved normalized reference audio to {temp_audio_path}")
+
+                    cloned_audio_prompt = temp_audio_path
+
+                logger.info(f"Generating audio with voice {voice_id}: {text[:50]}...")
+
+                # Determine model type from voice_id
+                target_voice_id = voice_id
+                if target_voice_id == "chatterbox-turbo":
+                    # Map turbo to default as the library is already fast
+                    target_voice_id = "chatterbox-default"
+                    model_type = "Default (English-only)"
+                    logger.info("Chatterbox Turbo mapped to Default model (standard Chatterbox is fast)")
+
+                if target_voice_id == "chatterbox-default":
+                    model_type = "Default (English-only)"
+                else:
+                    lang_code = target_voice_id.split("-")[1]
+                    model_type = f"Multilingual ({lang_code.upper()})"
+
+                logger.info(f"Chatterbox model selected: {model_type}")
 
                 # Validate parameters
-                exaggeration = max(0.0, min(1.0, exaggeration))
-                cfg_weight = max(0.0, min(1.0, cfg_weight))
+                exaggeration = max(0.0, min(1.0, exaggeration or 0.5))
+                cfg_weight = max(0.0, min(1.0, cfg_weight or 0.5))
 
                 # Disable CUDA graph capture on CPU
                 if self.device == "cpu":
                     # Use no_grad and disable graph capture
                     torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
-                # Select model based on language
-                # If language is not English, use multilingual model if available
-                if language.lower() != "en" and self._multilingual_model is not None:
-                    model = self._multilingual_model
-                    language_id = language.lower()
-                    logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
-
-                    with torch.no_grad(), warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        wav = model.generate(
-                            text,
-                            language_id=language_id,
-                            exaggeration=exaggeration,
-                            cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path
-                        )
-                else:
+                # Select model based on target_voice_id
+                if target_voice_id == "chatterbox-default":
+                    self._load_model("default")
+                    if self._model is None:
+                        raise TTSError("Chatterbox English model not available")
                     model = self._model
                     logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        wav = model.generate(
-                            text,
-                            exaggeration=exaggeration,
-                            cfg_weight=cfg_weight,
-                            audio_prompt_path=audio_prompt_path
-                        )
+                        try:
+                            wav = model.generate(
+                                text,
+                                exaggeration=exaggeration,
+                                cfg_weight=cfg_weight,
+                                audio_prompt_path=cloned_audio_prompt
+                            )
+                        except Exception as e:
+                            err_msg = str(e).lower()
+                            if any(x in err_msg for x in ["torchcodec", "llamamodel", "import module"]):
+                                raise TTSError(f"Voice cloning failed due to dependency error: {e}")
+                            else:
+                                raise
+                else:
+                    # Multilingual model
+                    self._load_model("multilingual")
+                    if self._multilingual_model is None:
+                        raise TTSError("Chatterbox Multilingual model not available")
+                    model = self._multilingual_model
+                    language_id = target_voice_id.split("-")[1]
+                    logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
+
+                    with torch.no_grad(), warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        try:
+                            wav = model.generate(
+                                text,
+                                language_id=language_id,
+                                exaggeration=exaggeration,
+                                cfg_weight=cfg_weight,
+                                audio_prompt_path=cloned_audio_prompt
+                            )
+                        except Exception as e:
+                            err_msg = str(e).lower()
+                            if any(x in err_msg for x in ["torchcodec", "llamamodel", "import module"]):
+                                raise TTSError(f"Voice cloning failed due to dependency error: {e}")
+                            else:
+                                raise
 
                 # Convert to bytes
                 sample_rate = model.sr
@@ -392,6 +513,14 @@ class ChatterboxProvider(TTSProvider):
             except Exception as e:
                 logger.error(f"Audio generation failed: {str(e)}")
                 raise TTSError(f"Chatterbox synthesis failed: {str(e)}")
+            finally:
+                # Clean up temporary audio file
+                if 'temp_audio_path' in locals() and temp_audio_path and os.path.exists(temp_audio_path):
+                    try:
+                        os.unlink(temp_audio_path)
+                        logger.debug(f"Cleaned up temporary audio file: {temp_audio_path}")
+                    except Exception as cleanup_e:
+                        logger.warning(f"Failed to clean up temporary audio file: {cleanup_e}")
 
         # Run the synchronous synthesis in a thread pool
         loop = asyncio.get_event_loop()
@@ -423,7 +552,18 @@ class ChatterboxProvider(TTSProvider):
                     voice_type=VoiceType.NEURAL,
                     provider="chatterbox",
                     sample_rate=24000,
-                    description="Chatterbox default multilingual voice with emotion control",
+                    description="Chatterbox standard English voice with emotion control",
+                ),
+                Voice(
+                    id="chatterbox-turbo",
+                    name="Chatterbox Turbo",
+                    language="en",
+                    locale="en-US",
+                    gender=VoiceGender.NEUTRAL,
+                    voice_type=VoiceType.NEURAL,
+                    provider="chatterbox",
+                    sample_rate=24000,
+                    description="Chatterbox turbo English voice for faster generation",
                 )
             ]
 
@@ -466,9 +606,6 @@ class ChatterboxProvider(TTSProvider):
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Chatterbox."""
         try:
-            # Extract parameters from request
-            language = request.language or "en"
-
             # Get parameters from extra_params or defaults
             exaggeration = request.extra_params.get("exaggeration", 0.5)
             cfg_weight = request.extra_params.get("cfg_weight", 0.5)
@@ -478,7 +615,6 @@ class ChatterboxProvider(TTSProvider):
             audio_bytes, sample_rate = await self._synthesize(
                 request.text,
                 voice_id=request.voice_id,
-                language=language,
                 exaggeration=exaggeration,
                 cfg_weight=cfg_weight,
                 audio_prompt_path=audio_prompt_path,
@@ -493,7 +629,7 @@ class ChatterboxProvider(TTSProvider):
                 format=request.audio_format or "wav",
                 sample_rate=sample_rate,
                 duration=duration,
-                voice_used=request.voice_id or "chatterbox-default",
+                voice_used=request.voice_id,
             )
         except Exception as e:
             raise TTSError(f"Chatterbox synthesis error: {str(e)}")
