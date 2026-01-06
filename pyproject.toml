@@ -18,6 +18,9 @@ kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152
 soundfile = "*"
 misaki = {git = "https://github.com/hexgrad/misaki.git", rev = "fba1236595f2d2bf21d414ba6e57d25256afada3"}
 chatterbox-tts = {git = "https://github.com/rsxdalv/chatterbox.git", rev = "004a0214c308f544f4276e74ccf516c96c271f5b"}
+transformers = ">=4.46.3"
+torchaudio = ">=2.6.0"
+librosa = ">=0.11.0"
 torchcodec = {version = "^0.9.1", optional = true}
 
 [tool.poetry.extras]
