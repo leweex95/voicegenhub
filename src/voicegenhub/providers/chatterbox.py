@@ -334,7 +334,7 @@ class ChatterboxProvider(TTSProvider):
         original_info = logging.info
 
         def patched_info(message, *args, **kwargs):
-            if any(x in str(message) for x in ["LlamaModel is using LlamaSdpaAttention", "loaded PerthNet"]):
+            if any(x in str(message) for x in ["LlamaModel is using LlamaSdpaAttention", "loaded PerthNet", "input frame rate"]):
                 return
             return original_info(message, *args, **kwargs)
         logging.info = patched_info
