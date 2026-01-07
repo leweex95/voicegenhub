@@ -4,6 +4,7 @@ import logging
 import os
 import struct
 import subprocess
+import sys
 import tempfile
 import warnings
 from io import BytesIO
@@ -25,7 +26,12 @@ from .base import (
 # Set attention implementation to eager before any imports to prevent SDPA warnings
 os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
-# Suppress warnings from dependencies to keep output clean
+# Suppress all transformers/torch warnings related to attention implementation
+warnings.filterwarnings("ignore", category=UserWarning, message=r".*sdpa.*attention.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=r".*scaled_dot_product_attention.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=r".*LlamaModel is using LlamaSdpaAttention.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=r".*output_attentions.*")
+warnings.filterwarnings("ignore", category=FutureWarning, message=r".*past_key_values.*")
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 warnings.filterwarnings("ignore", message=r".*Reference mel length is not equal to 2 \* reference token length.*")
 
@@ -299,24 +305,27 @@ class ChatterboxProvider(TTSProvider):
         Args:
             model_type: One of 'default', 'turbo', 'multilingual'
         """
+        import io
         import torch
 
         # Suppress deprecated pkg_resources warning from perth watermarking
         warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 
-        # Additional warning suppressions for transformers
+        # Additional warning suppressions for transformers and chatterbox
         warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
         warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
         warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
         warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
         warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*")
         warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*")
+        warnings.filterwarnings("ignore", message=r".*does not support.*output_attentions.*", category=UserWarning)
+        warnings.filterwarnings("ignore", message=r".*sdpa.*attention.*", category=UserWarning)
 
         # Patch showwarning to suppress the warnings
         original_showwarning = warnings.showwarning
 
         def patched_showwarning(message, category, filename, lineno, file=None, line=None):
-            if "LlamaModel is using LlamaSdpaAttention" in str(message) or "We detected that you are passing" in str(message):
+            if any(x in str(message) for x in ["LlamaModel is using LlamaSdpaAttention", "We detected that you are passing", "sdpa", "scaled_dot_product_attention", "output_attentions"]):
                 return
             return original_showwarning(message, category, filename, lineno, file, line)
         warnings.showwarning = patched_showwarning
@@ -325,7 +334,7 @@ class ChatterboxProvider(TTSProvider):
         original_info = logging.info
 
         def patched_info(message, *args, **kwargs):
-            if "LlamaModel is using LlamaSdpaAttention" in str(message):
+            if any(x in str(message) for x in ["LlamaModel is using LlamaSdpaAttention", "loaded PerthNet"]):
                 return
             return original_info(message, *args, **kwargs)
         logging.info = patched_info
@@ -334,30 +343,57 @@ class ChatterboxProvider(TTSProvider):
         original_warn = warnings.warn
 
         def patched_warn(message, category=None, stacklevel=1, source=None):
-            if "We detected that you are passing" in str(message):
+            if any(x in str(message) for x in ["We detected that you are passing", "sdpa", "scaled_dot_product_attention", "output_attentions"]):
                 return
             return original_warn(message, category, stacklevel, source)
         warnings.warn = patched_warn
 
-        if model_type == "default" and self._model is None:
-            from chatterbox.tts import ChatterboxTTS
-            logger.info("Loading English Chatterbox model...")
-            self._model = ChatterboxTTS.from_pretrained(device=self.device)
-            logger.info("English model loaded successfully")
+        # Suppress stdout/stderr during model loading to hide PerthNet and other console messages
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
 
-        elif model_type == "multilingual" and self._multilingual_model is None:
-            try:
-                from chatterbox.mtl_tts import ChatterboxMultilingualTTS
-                torch_device = torch.device(self.device)
-                logger.info("Loading Multilingual Chatterbox model...")
-                self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
-                logger.info("Multilingual model loaded successfully")
-            except ImportError:
-                logger.warning("Multilingual support not found in chatterbox package")
-                self._multilingual_model = None
-            except Exception as e:
-                logger.warning(f"Failed to load Multilingual model: {e}")
-                self._multilingual_model = None
+        try:
+            if model_type == "default" and self._model is None:
+                from chatterbox.tts import ChatterboxTTS
+                logger.info("Loading English Chatterbox model...")
+
+                # Redirect stdout/stderr to suppress PerthNet and other console output
+                sys.stdout = io.StringIO()
+                sys.stderr = io.StringIO()
+                try:
+                    self._model = ChatterboxTTS.from_pretrained(device=self.device)
+                finally:
+                    sys.stdout = original_stdout
+                    sys.stderr = original_stderr
+
+                logger.info("English model loaded successfully")
+
+            elif model_type == "multilingual" and self._multilingual_model is None:
+                try:
+                    from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+                    torch_device = torch.device(self.device)
+                    logger.info("Loading Multilingual Chatterbox model...")
+
+                    # Redirect stdout/stderr to suppress output
+                    sys.stdout = io.StringIO()
+                    sys.stderr = io.StringIO()
+                    try:
+                        self._multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=torch_device)
+                    finally:
+                        sys.stdout = original_stdout
+                        sys.stderr = original_stderr
+
+                    logger.info("Multilingual model loaded successfully")
+                except ImportError:
+                    logger.warning("Multilingual support not found in chatterbox package")
+                    self._multilingual_model = None
+                except Exception as e:
+                    logger.warning(f"Failed to load Multilingual model: {e}")
+                    self._multilingual_model = None
+        finally:
+            # Ensure stdout/stderr are restored
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
 
     def is_voice_id_valid(self, voice_id: str, language: Optional[str] = None) -> bool:
         """Validate voice ID format."""
@@ -395,6 +431,8 @@ class ChatterboxProvider(TTSProvider):
         import asyncio
 
         def _sync_synthesize():
+            import io
+            import contextlib
             import torch
 
             try:
@@ -466,21 +504,30 @@ class ChatterboxProvider(TTSProvider):
                     model = self._model
                     logger.info(f"Using {model_type} model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
+                    # Suppress transformers warnings by disabling their loggers
+                    transformers_logger = logging.getLogger("transformers")
+                    original_level = transformers_logger.level
+                    transformers_logger.setLevel(logging.ERROR)
+
+                    # Suppress all output during generation
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        try:
-                            wav = model.generate(
-                                text,
-                                exaggeration=exaggeration,
-                                cfg_weight=cfg_weight,
-                                audio_prompt_path=cloned_audio_prompt
-                            )
-                        except Exception as e:
-                            err_msg = str(e).lower()
-                            if any(x in err_msg for x in ["torchcodec", "llamamodel", "import module"]):
-                                raise TTSError(f"Voice cloning failed due to dependency error: {e}")
-                            else:
-                                raise
+                        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                            try:
+                                wav = model.generate(
+                                    text,
+                                    exaggeration=exaggeration,
+                                    cfg_weight=cfg_weight,
+                                    audio_prompt_path=cloned_audio_prompt
+                                )
+                            except Exception as e:
+                                err_msg = str(e).lower()
+                                if any(x in err_msg for x in ["torchcodec", "llamamodel", "import module"]):
+                                    raise TTSError(f"Voice cloning failed due to dependency error: {e}")
+                                else:
+                                    raise
+                            finally:
+                                transformers_logger.setLevel(original_level)
                 else:
                     # Multilingual model
                     self._load_model("multilingual")
@@ -490,22 +537,31 @@ class ChatterboxProvider(TTSProvider):
                     language_id = target_voice_id.split("-")[1]
                     logger.info(f"Using Multilingual model for {language_id} with exaggeration={exaggeration}")
 
+                    # Suppress transformers warnings by disabling their loggers
+                    transformers_logger = logging.getLogger("transformers")
+                    original_level = transformers_logger.level
+                    transformers_logger.setLevel(logging.ERROR)
+
+                    # Suppress all output during generation
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")
-                        try:
-                            wav = model.generate(
-                                text,
-                                language_id=language_id,
-                                exaggeration=exaggeration,
-                                cfg_weight=cfg_weight,
-                                audio_prompt_path=cloned_audio_prompt
-                            )
-                        except Exception as e:
-                            err_msg = str(e).lower()
-                            if any(x in err_msg for x in ["torchcodec", "llamamodel", "import module"]):
-                                raise TTSError(f"Voice cloning failed due to dependency error: {e}")
-                            else:
-                                raise
+                        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                            try:
+                                wav = model.generate(
+                                    text,
+                                    language_id=language_id,
+                                    exaggeration=exaggeration,
+                                    cfg_weight=cfg_weight,
+                                    audio_prompt_path=cloned_audio_prompt
+                                )
+                            except Exception as e:
+                                err_msg = str(e).lower()
+                                if any(x in err_msg for x in ["torchcodec", "llamamodel", "import module"]):
+                                    raise TTSError(f"Voice cloning failed due to dependency error: {e}")
+                                else:
+                                    raise
+                            finally:
+                                transformers_logger.setLevel(original_level)
 
                 # Convert to bytes
                 sample_rate = model.sr
