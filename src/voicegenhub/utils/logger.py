@@ -34,6 +34,11 @@ def configure_logging(
     warnings.filterwarnings("ignore", message=".*past_key_values.*", category=UserWarning)
     warnings.filterwarnings("ignore", message=".*scaled_dot_product_attention.*", category=UserWarning)
     warnings.filterwarnings("ignore", message=".*torch.backends.cuda.sdp_kernel.*", category=FutureWarning)
+    warnings.filterwarnings("ignore", message=r".*Reference mel length is not equal to 2 \* reference token length.*")
+    warnings.filterwarnings("ignore", message=".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
+    warnings.filterwarnings("ignore", message=".*past_key_values.*", category=UserWarning)
+    warnings.filterwarnings("ignore", message=".*scaled_dot_product_attention.*", category=UserWarning)
+    warnings.filterwarnings("ignore", message=".*torch.backends.cuda.sdp_kernel.*", category=FutureWarning)
 
     log_level = getattr(logging, level.upper(), logging.INFO)
 
@@ -46,6 +51,7 @@ def configure_logging(
     logging.getLogger("misaki").setLevel(logging.ERROR)
     logging.getLogger("edge_tts").setLevel(logging.ERROR)
     logging.getLogger("elevenlabs").setLevel(logging.ERROR)
+    logging.getLogger("s3gen").setLevel(logging.ERROR)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
