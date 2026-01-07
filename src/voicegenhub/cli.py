@@ -242,6 +242,8 @@ def _process_batch(
             else:
                 # Save output directly
                 response.save(output_file)
+                with lock:
+                    logger.info(f"SUCCESS: Audio saved to: {output_file.absolute()}", path=str(output_file.absolute()))
             return True
 
         except Exception as e:

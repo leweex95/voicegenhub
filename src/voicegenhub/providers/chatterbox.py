@@ -431,7 +431,7 @@ class ChatterboxProvider(TTSProvider):
                     with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
                         temp_audio_path = temp_file.name
                         torchaudio.save(temp_audio_path, audio_tensor, sample_rate)
-                        logger.info(f"Saved normalized reference audio to {temp_audio_path}")
+                        logger.debug(f"Saved normalized reference audio to {temp_audio_path}")
 
                     cloned_audio_prompt = temp_audio_path
 
