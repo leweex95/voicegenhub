@@ -1,5 +1,6 @@
 """Chatterbox TTS Provider - MIT Licensed, Multilingual, Emotion Control."""
 
+import logging
 import os
 import struct
 import subprocess
@@ -27,6 +28,32 @@ os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 # Suppress warnings from dependencies to keep output clean
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 warnings.filterwarnings("ignore", message=r".*Reference mel length is not equal to 2 \* reference token length.*")
+
+# Monkey-patch warnings.warn to suppress the mel length warning
+_original_warn = warnings.warn
+
+
+def _patched_warn(message, category=None, stacklevel=1, source=None):
+    if "Reference mel length is not equal to 2 * reference token length" in str(message):
+        return
+    return _original_warn(message, category, stacklevel, source)
+
+
+warnings.warn = _patched_warn
+
+
+# Monkey-patch logging.warning to suppress the mel length warning
+_original_warning = logging.warning
+
+
+def _patched_warning(message, *args, **kwargs):
+    if "Reference mel length is not equal to 2 * reference token length" in str(message):
+        return
+    return _original_warning(message, *args, **kwargs)
+
+
+logging.warning = _patched_warning
+
 
 logger = get_logger(__name__)
 
@@ -282,6 +309,35 @@ class ChatterboxProvider(TTSProvider):
         warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
         warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
         warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*", category=UserWarning)
+        warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*")
+        warnings.filterwarnings("ignore", message=r".*We detected that you are passing.*past_key_values.*")
+
+        # Patch showwarning to suppress the warnings
+        original_showwarning = warnings.showwarning
+
+        def patched_showwarning(message, category, filename, lineno, file=None, line=None):
+            if "LlamaModel is using LlamaSdpaAttention" in str(message) or "We detected that you are passing" in str(message):
+                return
+            return original_showwarning(message, category, filename, lineno, file, line)
+        warnings.showwarning = patched_showwarning
+
+        # Patch logging.info to suppress the LlamaModel warning
+        original_info = logging.info
+
+        def patched_info(message, *args, **kwargs):
+            if "LlamaModel is using LlamaSdpaAttention" in str(message):
+                return
+            return original_info(message, *args, **kwargs)
+        logging.info = patched_info
+
+        # Patch warnings.warn to suppress the past_key_values warning
+        original_warn = warnings.warn
+
+        def patched_warn(message, category=None, stacklevel=1, source=None):
+            if "We detected that you are passing" in str(message):
+                return
+            return original_warn(message, category, stacklevel, source)
+        warnings.warn = patched_warn
 
         if model_type == "default" and self._model is None:
             from chatterbox.tts import ChatterboxTTS
@@ -384,13 +440,9 @@ class ChatterboxProvider(TTSProvider):
                 # Determine model type from voice_id
                 target_voice_id = voice_id
                 if target_voice_id == "chatterbox-turbo":
-                    # Map turbo to default as the library is already fast
-                    target_voice_id = "chatterbox-default"
-                    model_type = "Default (English-only)"
-                    logger.info("Chatterbox Turbo mapped to Default model (standard Chatterbox is fast)")
-
-                if target_voice_id == "chatterbox-default":
-                    model_type = "Default (English-only)"
+                    model_type = "Turbo"
+                elif target_voice_id == "chatterbox-default":
+                    model_type = "Default"
                 else:
                     lang_code = target_voice_id.split("-")[1]
                     model_type = f"Multilingual ({lang_code.upper()})"
@@ -407,12 +459,12 @@ class ChatterboxProvider(TTSProvider):
                     torch.cuda.is_available = lambda: False  # Fake CUDA availability check
 
                 # Select model based on target_voice_id
-                if target_voice_id == "chatterbox-default":
+                if target_voice_id in ["chatterbox-default", "chatterbox-turbo"]:
                     self._load_model("default")
                     if self._model is None:
                         raise TTSError("Chatterbox English model not available")
                     model = self._model
-                    logger.info(f"Using English model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
+                    logger.info(f"Using {model_type} model with exaggeration={exaggeration}, cfg_weight={cfg_weight}")
 
                     with torch.no_grad(), warnings.catch_warnings():
                         warnings.simplefilter("ignore")

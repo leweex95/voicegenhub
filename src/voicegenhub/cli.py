@@ -2,6 +2,7 @@
 Simple Command Line Interface for VoiceGenHub.
 """
 
+import os
 import asyncio
 import json
 import sys
@@ -16,6 +17,9 @@ import click
 from .core.engine import VoiceGenHub
 from .providers.base import AudioFormat
 from .utils.logger import get_logger
+
+# Force eager attention implementation to prevent SDPA warnings
+os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
 logger = get_logger(__name__)
 
