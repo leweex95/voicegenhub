@@ -218,6 +218,7 @@ class BarkProvider(TTSProvider):
                     history_prompt=speaker_preset,
                     text_temp=0.7,
                     waveform_temp=0.8,
+                    silent=True,
                 )
 
                 return audio, SAMPLE_RATE

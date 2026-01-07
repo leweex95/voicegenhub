@@ -30,6 +30,10 @@ def configure_logging(
     warnings.filterwarnings("ignore", message=".*Defaulting repo_id.*")
     warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
     warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*", category=FutureWarning)
+    warnings.filterwarnings("ignore", message=".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
+    warnings.filterwarnings("ignore", message=".*past_key_values.*", category=UserWarning)
+    warnings.filterwarnings("ignore", message=".*scaled_dot_product_attention.*", category=UserWarning)
+    warnings.filterwarnings("ignore", message=".*torch.backends.cuda.sdp_kernel.*", category=FutureWarning)
 
     log_level = getattr(logging, level.upper(), logging.INFO)
 
@@ -37,10 +41,19 @@ def configure_logging(
     logging.getLogger("transformers").setLevel(logging.ERROR)
     logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
     logging.getLogger("transformers.utils.hub").setLevel(logging.ERROR)
+    logging.getLogger("chatterbox").setLevel(logging.ERROR)
+    logging.getLogger("kokoro").setLevel(logging.ERROR)
+    logging.getLogger("misaki").setLevel(logging.ERROR)
+    logging.getLogger("edge_tts").setLevel(logging.ERROR)
+    logging.getLogger("elevenlabs").setLevel(logging.ERROR)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     # Configure stdlib logging
     if format_type == "rich":
-        rich_handler = RichHandler(console=Console(stderr=True))
+        import sys
+        rich_handler = RichHandler(console=Console(file=sys.stderr, force_terminal=False))
         rich_handler.show_locals = show_locals
         handlers = [rich_handler]
     else:

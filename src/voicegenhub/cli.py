@@ -59,19 +59,17 @@ def _process_single(
         ))
 
         output_path = Path(output).resolve() if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
-        click.echo(f"Output will be saved to: {output_path}")
+        logger.info(f"Target output path: {output_path}", path=str(output_path))
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
 
         if effects_requested:
             # Always use a true temp file for effects
             with tempfile.NamedTemporaryFile(delete=False, suffix=f".{audio_format}") as tmp:
                 temp_path = Path(tmp.name)
-                tmp.write(response.audio_data)
+            response.save(temp_path, log=False)
         else:
             temp_path = output_path
-            with open(temp_path, "wb") as f:
-                f.write(response.audio_data)
-            click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
+            response.save(temp_path)
 
         # Apply post-processing effects if requested
         if effects_requested:
@@ -114,18 +112,18 @@ def _process_single(
                 subprocess.run(cmd, capture_output=True, check=True)
                 if temp_path != output_path and temp_path.exists():
                     temp_path.unlink()  # Remove temp file
-                click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
+                logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}", path=str(output_path.absolute()))
             except subprocess.CalledProcessError as e:
                 logger.warning(f"Post-processing failed: {e.stderr.decode()}")
-                logger.info(f"Original audio saved to: {temp_path.absolute()}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}", path=str(temp_path.absolute()))
             except FileNotFoundError:
                 logger.warning("FFmpeg not found. Install FFmpeg for post-processing.")
-                logger.info(f"Original audio saved to: {temp_path.absolute()}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}", path=str(temp_path.absolute()))
         else:
-            logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}")
+            logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}", path=str(output_path.absolute()))
 
     except Exception as e:
-        click.echo(f"Error: {e}", err=True)
+        logger.error(f"Error: {e}")
         sys.exit(1)
 
 
@@ -169,10 +167,10 @@ def _process_batch(
     limit = provider_limits.get(provider, 1)
     max_concurrent = max(1, limit)
 
-    click.echo(f"Processing {len(texts)} texts with {provider} (max {max_concurrent} concurrent jobs)")
+    logger.info(f"Processing batch of {len(texts)} texts", provider=provider, max_concurrent=max_concurrent)
 
     # Create shared provider instance (loaded once, reused across jobs)
-    click.echo(f"Initializing {provider} provider (this may take a moment for heavy models)...")
+    logger.info(f"Initializing {provider} provider...", provider=provider)
 
     async def init_provider():
         shared_tts = VoiceGenHub(provider=provider)
@@ -180,7 +178,7 @@ def _process_batch(
         return shared_tts
 
     shared_tts = asyncio.run(init_provider())
-    click.echo(f"{provider} provider ready for batch processing")
+    logger.info(f"Provider {provider} ready for batch processing")
 
     # Use threading for concurrent processing
     results = []
@@ -188,16 +186,16 @@ def _process_batch(
 
     if output_base is None:
         output_base = f"{tempfile.gettempdir()}/voicegenhub_batch"
-        click.echo(f"Batch output saved to: {tempfile.gettempdir()}")
+        logger.info(f"Batch output directory: {tempfile.gettempdir()}", base_path=tempfile.gettempdir())
     else:
-        click.echo(f"Batch output saved to: {Path('.').absolute()}")
+        logger.info(f"Batch output directory: {Path('.').absolute()}", base_path=str(Path('.').absolute()))
 
     def process_item(index: int, text: str):
         """Process a single text item."""
         output_file = Path(f"{output_base}_{index + 1:02d}.{audio_format}").resolve()
 
         with lock:
-            click.echo(f"Processing item {index + 1}/{len(texts)}: {text[:50]}...")
+            logger.info(f"Processing item {index + 1}/{len(texts)}", item_index=index + 1, total=len(texts), text_preview=text[:50])
 
         try:
             # Run async generation in thread
@@ -239,15 +237,12 @@ def _process_batch(
                 )
             else:
                 # Save output directly
-                with open(output_file, "wb") as f:
-                    f.write(response.audio_data)
-            with lock:
-                click.echo(f"SUCCESS: Audio saved to: {output_file.absolute()}")
+                response.save(output_file)
             return True
 
         except Exception as e:
             with lock:
-                click.echo(f"[FAILED] Item {index + 1}: {e}", err=True)
+                logger.error(f"Item {index + 1} failed: {e}", item_index=index + 1, error=str(e))
             return False
 
     # Run jobs with controlled concurrency
@@ -260,7 +255,7 @@ def _process_batch(
     successful = sum(1 for r in results if r is True)
     failed = len(results) - successful
 
-    click.echo(f"\nBatch complete: {successful} successful, {failed} failed")
+    logger.info("Batch processing complete", successful=successful, failed=failed, total=len(texts))
 
     if failed > 0:
         sys.exit(1)

@@ -1,7 +1,11 @@
 """Chatterbox TTS Provider - MIT Licensed, Multilingual, Emotion Control."""
 
 import os
+import struct
+import subprocess
+import tempfile
 import warnings
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -22,11 +26,7 @@ os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
 # Suppress warnings from dependencies to keep output clean
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
-warnings.filterwarnings("ignore", message=".*LoRACompatibleLinear.*deprecated", category=FutureWarning)
-warnings.filterwarnings("ignore", message=r".*torch\.backends\.cuda\.sdp_kernel.*deprecated", category=FutureWarning)
-warnings.filterwarnings("ignore", message=r".*LlamaModel is using LlamaSdpaAttention.*", category=UserWarning)
-warnings.filterwarnings("ignore", message=r".*past_key_values.*deprecated", category=FutureWarning)
-warnings.filterwarnings("ignore", message=r".*scaled_dot_product_attention.*", category=UserWarning)
+warnings.filterwarnings("ignore", message=r".*Reference mel length is not equal to 2 \* reference token length.*")
 
 logger = get_logger(__name__)
 
@@ -345,6 +345,7 @@ class ChatterboxProvider(TTSProvider):
                 exaggeration = kwargs.get("exaggeration")
                 cfg_weight = kwargs.get("cfg_weight")
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
+                speed = kwargs.get("speed", 1.0)
 
                 # Check if voice cloning is requested
                 if audio_prompt_path and not getattr(self, "_voice_cloning_available", False):
@@ -360,8 +361,6 @@ class ChatterboxProvider(TTSProvider):
                 cloned_audio_prompt = audio_prompt_path
                 if cloned_audio_prompt:
                     import torchaudio
-                    import tempfile
-                    import os
 
                     # Load the reference audio
                     audio_tensor, sample_rate = torchaudio.load(cloned_audio_prompt)
@@ -475,10 +474,7 @@ class ChatterboxProvider(TTSProvider):
                 wav_int16 = (wav * 32767).short().cpu().numpy() if wav.is_cuda else (wav * 32767).short().numpy()
 
                 # Create WAV file manually to avoid torchaudio issues on CPU
-                import struct
-                import io
-
-                buffer = io.BytesIO()
+                buffer = BytesIO()
 
                 # WAV header
                 n_channels = 1
@@ -501,12 +497,40 @@ class ChatterboxProvider(TTSProvider):
                 buffer.write(struct.pack('<H', block_align))
                 buffer.write(struct.pack('<H', 16))  # BitsPerSample
 
-                # data subchunk
                 buffer.write(b'data')
                 buffer.write(struct.pack('<I', n_samples * n_channels * 2))
                 buffer.write(wav_int16.tobytes())
 
                 audio_bytes = buffer.getvalue()
+
+                # Apply speed control if requested
+                if speed != 1.0:
+                    logger.debug("Applying speed adjustment", speed=speed, tool="ffmpeg", filter="atempo")
+
+                    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+                        temp_input = f.name
+                        f.write(audio_bytes)
+
+                    temp_output = temp_input + "_speed.wav"
+                    try:
+                        # Use atempo filter. For values < 0.5 or > 2.0, multiple atempo filters would be needed
+                        # but VoiceGenHub restricts speed between 0.5 and 2.0.
+                        subprocess.run(
+                            ["ffmpeg", "-y", "-i", temp_input, "-filter:a", f"atempo={speed}", temp_output],
+                            capture_output=True,
+                            check=True
+                        )
+                        with open(temp_output, "rb") as f:
+                            audio_bytes = f.read()
+                        logger.info(f"Successfully adjusted speed to {speed}x")
+                    except Exception as e:
+                        logger.warning(f"Failed to apply speed control via ffmpeg: {e}")
+                    finally:
+                        if os.path.exists(temp_input):
+                            os.unlink(temp_input)
+                        if os.path.exists(temp_output):
+                            os.unlink(temp_output)
+
                 logger.info(f"Successfully generated {len(audio_bytes)} bytes of audio")
                 return audio_bytes, sample_rate
 
@@ -596,7 +620,7 @@ class ChatterboxProvider(TTSProvider):
             supports_ssml=False,
             supports_emotions=True,  # Exaggeration/intensity control
             supports_styles=False,
-            supports_speed_control=False,
+            supports_speed_control=True,  # Enabled via ffmpeg post-processing
             supports_pitch_control=False,
             supports_voice_cloning=True,  # Zero-shot voice cloning with audio prompts
             supported_languages=self.get_supported_languages(),
@@ -615,6 +639,7 @@ class ChatterboxProvider(TTSProvider):
             audio_bytes, sample_rate = await self._synthesize(
                 request.text,
                 voice_id=request.voice_id,
+                speed=request.speed,
                 exaggeration=exaggeration,
                 cfg_weight=cfg_weight,
                 audio_prompt_path=audio_prompt_path,
