@@ -441,6 +441,14 @@ class ChatterboxProvider(TTSProvider):
                 audio_prompt_path = kwargs.get("audio_prompt_path", None)
                 speed = kwargs.get("speed", 1.0)
 
+                # Make a local copy of text to modify
+                processed_text = text
+
+                # Fix for all caps text causing abbreviation pronunciation
+                if processed_text.isupper():
+                    logger.warning("Input text was all caps, converted to sentence case to avoid abbreviation pronunciation.")
+                    processed_text = processed_text.capitalize()
+
                 # Check if voice cloning is requested
                 if audio_prompt_path and not getattr(self, "_voice_cloning_available", False):
                     raise TTSError(
@@ -473,7 +481,7 @@ class ChatterboxProvider(TTSProvider):
 
                     cloned_audio_prompt = temp_audio_path
 
-                logger.info(f"Generating audio with voice {voice_id}: {text[:50]}...")
+                logger.info(f"Generating audio with voice {voice_id}: {processed_text[:50]}...")
 
                 # Determine model type from voice_id
                 target_voice_id = voice_id
@@ -515,7 +523,7 @@ class ChatterboxProvider(TTSProvider):
                         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                             try:
                                 wav = model.generate(
-                                    text,
+                                    processed_text,
                                     exaggeration=exaggeration,
                                     cfg_weight=cfg_weight,
                                     audio_prompt_path=cloned_audio_prompt
@@ -548,7 +556,7 @@ class ChatterboxProvider(TTSProvider):
                         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                             try:
                                 wav = model.generate(
-                                    text,
+                                    processed_text,
                                     language_id=language_id,
                                     exaggeration=exaggeration,
                                     cfg_weight=cfg_weight,
