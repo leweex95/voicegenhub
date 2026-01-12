@@ -6726,4 +6726,4 @@ voice-cloning = ["torchcodec"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "b926156ac8e1a2c06a794e6632a3eadfa5debc9b4ca60f61d9f5e4e26116055e"
+content-hash = "1750066458517c82593056e630607847ff246f65ff2b6fa1427784abea17ed53"
