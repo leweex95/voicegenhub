@@ -40,81 +40,12 @@ def _ensure_windows_event_loop():
     which is used by edge-tts. This function switches to SelectorEventLoop.
     """
     if sys.platform == "win32":
-        # Force SelectorEventLoop on Windows for aiodns compatibility
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-        logger.debug("Set Windows SelectorEventLoop policy for aiodns compatibility")
-
-
-def _patch_edge_tts_for_401_errors():
-    """
-    Monkey-patch edge-tts to handle 401 errors in addition to 403 errors.
-
-    Microsoft's API now returns 401 Unauthorized instead of 403 Forbidden,
-    but edge-tts only handles 403. This patch adds 401 handling to both
-    list_voices() and Communicate.stream().
-    """
-    import ssl
-
-    import certifi
-    import edge_tts.communicate
-    import edge_tts.voices
-    from edge_tts.drm import DRM
-
-    # Store reference to the private __list_voices function
-    __list_voices = edge_tts.voices.__list_voices
-
-    # Patch list_voices to handle 401 errors
-    async def patched_list_voices(*, connector=None, proxy=None):
-        """
-        Patched version of list_voices that handles both 401 and 403 errors.
-        """
-        ssl_ctx = ssl.create_default_context(cafile=certifi.where())
-        async with aiohttp.ClientSession(
-            connector=connector, trust_env=True
-        ) as session:
-            try:
-                data = await __list_voices(session, ssl_ctx, proxy)
-            except aiohttp.ClientResponseError as e:
-                # Handle both 401 and 403 errors with clock skew correction
-                if e.status not in (401, 403):
-                    raise
-
-                DRM.handle_client_response_error(e)
-                data = await __list_voices(session, ssl_ctx, proxy)
-        return data
-
-    edge_tts.list_voices = patched_list_voices
-
-    # Patch Communicate.stream to handle 401 errors
-    async def patched_stream(self):
-        """
-        Patched version of Communicate.stream that handles both 401 and 403 errors.
-        """
-        if self.state.get("stream_was_called", False):
-            raise RuntimeError("stream can only be called once.")
-        self.state["stream_was_called"] = True
-
-        # Stream the audio and metadata from the service.
-        for self.state["partial_text"] in self.texts:
-            try:
-                async for message in self._Communicate__stream():
-                    yield message
-            except aiohttp.ClientResponseError as e:
-                # Handle both 401 and 403 errors with clock skew correction
-                if e.status not in (401, 403):
-                    raise
-
-                DRM.handle_client_response_error(e)
-                async for message in self._Communicate__stream():
-                    yield message
-
-    edge_tts.communicate.Communicate.stream = patched_stream
-
-    logger.info("Applied edge-tts 401 error handling patch")
-
-
-# Apply the patch when the module is loaded
-_patch_edge_tts_for_401_errors()
+        try:
+            # Force SelectorEventLoop on Windows for aiodns compatibility
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+            logger.debug("Set Windows SelectorEventLoop policy for aiodns compatibility")
+        except Exception as e:
+            logger.debug(f"Could not set Windows event loop policy: {e}")
 
 
 class EdgeTTSProvider(TTSProvider):
@@ -222,19 +153,9 @@ class EdgeTTSProvider(TTSProvider):
             clean_text = re.sub(r"<[^>]+>", "", ssml_text)
             clean_text = re.sub(r"\s+", " ", clean_text).strip()
             return clean_text, {}
-            raise TTSError(
-                f"Edge TTS initialization failed: {str(e)}",
-                error_code="PROVIDER_INIT_FAILED",
-                provider=self.provider_id,
-            )
 
     async def _fetch_voices_with_retry(self) -> List[Dict]:
-        """Fetch voices from Edge TTS API with retry logic.
-
-        Clock skew correction for 401/403 errors is handled by the monkey patch
-        applied to edge_tts.list_voices(). This method provides a retry loop with
-        exponential backoff for any failures.
-        """
+        """Fetch voices from Edge TTS API with retry logic."""
         if self._raw_voices_cache is not None:
             logger.debug(f"Using cached voices ({len(self._raw_voices_cache)} voices)")
             return self._raw_voices_cache
@@ -251,15 +172,30 @@ class EdgeTTSProvider(TTSProvider):
                 logger.info(f"Successfully fetched {len(voices)} voices from Edge TTS")
                 self._raw_voices_cache = voices
                 return voices
+            except aiohttp.ClientResponseError as e:
+                last_error = e
+                # Handle both 401 and 403 errors with clock skew correction
+                if e.status in (401, 403):
+                    try:
+                        from edge_tts.drm import DRM
+                        DRM.handle_client_response_error(e)
+                        logger.info("Applied clock skew correction for Edge TTS API")
+                    except Exception as skew_err:
+                        logger.warning(f"Clock skew correction failed: {skew_err}")
+
+                logger.warning(
+                    f"Failed to fetch voices (attempt {attempt + 1}/{self._max_retries}): {e}"
+                )
             except Exception as e:
                 last_error = e
                 logger.warning(
                     f"Failed to fetch voices (attempt {attempt + 1}/{self._max_retries}): {e}"
                 )
-                if attempt < self._max_retries - 1:
-                    delay = self._retry_delay * (2**attempt)
-                    logger.info(f"Retrying in {delay} seconds...")
-                    await asyncio.sleep(delay)
+
+            if attempt < self._max_retries - 1:
+                delay = self._retry_delay * (2**attempt)
+                logger.info(f"Retrying in {delay} seconds...")
+                await asyncio.sleep(delay)
 
         raise TTSError(
             f"Failed to fetch voices after {self._max_retries} attempts: {last_error}",
@@ -275,12 +211,7 @@ class EdgeTTSProvider(TTSProvider):
         volume_param: str,
         pitch_param: str,
     ) -> bytes:
-        """Synthesize audio with retry logic.
-
-        Clock skew correction for 401/403 errors is handled by the monkey patch
-        applied to edge_tts.Communicate.stream(). This method provides a retry loop with
-        exponential backoff for any failures.
-        """
+        """Synthesize audio with retry logic."""
         last_error = None
         for attempt in range(self._max_retries):
             try:
@@ -315,16 +246,31 @@ class EdgeTTSProvider(TTSProvider):
                 )
                 return audio_data
 
+            except aiohttp.ClientResponseError as e:
+                last_error = e
+                # Handle both 401 and 403 errors with clock skew correction
+                if e.status in (401, 403):
+                    try:
+                        from edge_tts.drm import DRM
+                        DRM.handle_client_response_error(e)
+                        logger.info("Applied clock skew correction for Edge TTS API")
+                    except Exception as skew_err:
+                        logger.warning(f"Clock skew correction failed: {skew_err}")
+
+                logger.warning(
+                    f"Synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}"
+                )
             except Exception as e:
                 last_error = e
                 logger.warning(
                     f"Synthesis failed (attempt {attempt + 1}/{self._max_retries}): {e}"
                 )
-                if attempt < self._max_retries - 1:
-                    # Exponential backoff
-                    delay = self._retry_delay * (2**attempt)
-                    logger.info(f"Retrying in {delay} seconds...")
-                    await asyncio.sleep(delay)
+
+            if attempt < self._max_retries - 1:
+                # Exponential backoff
+                delay = self._retry_delay * (2**attempt)
+                logger.info(f"Retrying in {delay} seconds...")
+                await asyncio.sleep(delay)
 
         # All retries failed
         raise TTSError(
@@ -429,22 +375,22 @@ class EdgeTTSProvider(TTSProvider):
 
                 # Use SSML prosody settings, but allow request parameters to override
                 rate_param = ssml_prosody.get(
-                    "rate", f"{int((request.speed - 1.0) * 100):+d}%"
+                    "rate", f"{round((request.speed - 1.0) * 100):+d}%"
                 )
                 volume_param = ssml_prosody.get(
-                    "volume", f"{int((request.volume - 1.0) * 100):+d}%"
+                    "volume", f"{round((request.volume - 1.0) * 100):+d}%"
                 )
                 pitch_param = ssml_prosody.get(
-                    "pitch", f"{int((request.pitch - 1.0) * 100):+d}Hz"
+                    "pitch", f"{round((request.pitch - 1.0) * 100):+d}Hz"
                 )
             else:
                 # Plain text
                 text = request.text.strip()
 
                 # Convert our speed/pitch/volume to edge-tts format
-                rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
-                volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
-                pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
+                rate_param = f"{round((request.speed - 1.0) * 100):+d}%"
+                volume_param = f"{round((request.volume - 1.0) * 100):+d}%"
+                pitch_param = f"{round((request.pitch - 1.0) * 100):+d}Hz"
 
             # Synthesize with retry logic
             inference_start = time.perf_counter()
@@ -455,7 +401,8 @@ class EdgeTTSProvider(TTSProvider):
             logger.debug(f"Edge TTS inference time: {inference_end - inference_start:.3f}s")
 
             # Convert format if needed
-            if request.audio_format != AudioFormat.MP3:
+            requested_format = request.audio_format if isinstance(request.audio_format, str) else request.audio_format.value
+            if requested_format != AudioFormat.MP3.value:
                 audio_data = await self._convert_audio_format(
                     audio_data, AudioFormat.MP3, request.audio_format
                 )
@@ -528,22 +475,22 @@ class EdgeTTSProvider(TTSProvider):
 
                 # Use SSML prosody settings, but allow request parameters to override
                 rate_param = ssml_prosody.get(
-                    "rate", f"{int((request.speed - 1.0) * 100):+d}%"
+                    "rate", f"{round((request.speed - 1.0) * 100):+d}%"
                 )
                 volume_param = ssml_prosody.get(
-                    "volume", f"{int((request.volume - 1.0) * 100):+d}%"
+                    "volume", f"{round((request.volume - 1.0) * 100):+d}%"
                 )
                 pitch_param = ssml_prosody.get(
-                    "pitch", f"{int((request.pitch - 1.0) * 100):+d}Hz"
+                    "pitch", f"{round((request.pitch - 1.0) * 100):+d}Hz"
                 )
             else:
                 # Plain text
                 text = request.text.strip()
 
                 # Convert our speed/pitch/volume to edge-tts format
-                rate_param = f"{int((request.speed - 1.0) * 100):+d}%"
-                volume_param = f"{int((request.volume - 1.0) * 100):+d}%"
-                pitch_param = f"{int((request.pitch - 1.0) * 100):+d}Hz"
+                rate_param = f"{round((request.speed - 1.0) * 100):+d}%"
+                volume_param = f"{round((request.volume - 1.0) * 100):+d}%"
+                pitch_param = f"{round((request.pitch - 1.0) * 100):+d}Hz"
 
             # For streaming, we use a simpler approach with retry on failure
             last_error = None
@@ -687,17 +634,17 @@ class EdgeTTSProvider(TTSProvider):
         self, audio_data: bytes, from_format: AudioFormat, to_format: AudioFormat
     ) -> bytes:
         """Convert audio between formats using pydub."""
-        if from_format == to_format:
+        # Ensure formats are strings for comparison
+        from_fmt = (
+            from_format.value if hasattr(from_format, "value") else str(from_format)
+        )
+        to_fmt = to_format.value if hasattr(to_format, "value") else str(to_format)
+
+        if from_fmt == to_fmt:
             return audio_data
 
         try:
             from pydub import AudioSegment
-
-            # Ensure formats are strings
-            from_fmt = (
-                from_format.value if hasattr(from_format, "value") else str(from_format)
-            )
-            to_fmt = to_format.value if hasattr(to_format, "value") else str(to_format)
 
             # Create temporary files with proper cleanup
             temp_in_path = None

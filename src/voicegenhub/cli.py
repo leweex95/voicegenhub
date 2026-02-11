@@ -62,7 +62,7 @@ def _process_single(
             audio_prompt_path=audio_prompt_path,
         ))
 
-        output_path = Path(output).resolve() if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
+        output_path = Path(output).resolve() if output else Path(".") / f"voicegenhub_output.{audio_format}"
         logger.info(f"Target output path: {output_path}", path=str(output_path))
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
 
@@ -189,10 +189,11 @@ def _process_batch(
     lock = threading.Lock()
 
     if output_base is None:
-        output_base = f"{tempfile.gettempdir()}/voicegenhub_batch"
-        logger.info(f"Batch output directory: {tempfile.gettempdir()}", base_path=tempfile.gettempdir())
+        output_base = "voicegenhub_batch"
+        logger.info("Batch output directory: Current directory", base_path=str(Path('.').absolute()))
     else:
-        logger.info(f"Batch output directory: {Path('.').absolute()}", base_path=str(Path('.').absolute()))
+        output_path_obj = Path(output_base).resolve()
+        logger.info(f"Batch output directory: {output_path_obj.parent}", base_path=str(output_path_obj.parent))
 
     def process_item(index: int, text: str):
         """Process a single text item."""
