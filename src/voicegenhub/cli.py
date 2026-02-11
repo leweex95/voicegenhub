@@ -344,10 +344,20 @@ def cli():
     type=click.Path(exists=True),
     help="Chatterbox: Path to audio file for voice cloning",
 )
+@click.option(
+    "--turbo",
+    is_flag=True,
+    help="Chatterbox: Use turbo model (English only, faster)",
+)
+@click.option(
+    "--multilingual",
+    is_flag=True,
+    help="Chatterbox: Use multilingual model",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     lowpass, normalize, distortion, noise, reverb, pitch_shift,
-    exaggeration, cfg_weight, audio_prompt
+    exaggeration, cfg_weight, audio_prompt, turbo, multilingual
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
@@ -360,6 +370,21 @@ def synthesize(
             err=True,
         )
         sys.exit(1)
+
+    # Chatterbox specific model flags validation
+    if provider == "chatterbox":
+        # Check mutual exclusivity
+        if sum([bool(turbo), bool(multilingual), bool(voice)]) > 1:
+            click.echo("Error: --turbo, --multilingual, and --voice are mutually exclusive for Chatterbox", err=True)
+            sys.exit(1)
+
+        if turbo:
+            voice = "chatterbox-turbo"
+        elif multilingual:
+            lang_code = language or "en"
+            voice = f"chatterbox-{lang_code}"
+    elif turbo or multilingual:
+        click.echo(f"Warning: --turbo and --multilingual are only supported by the 'chatterbox' provider, not '{provider}'")
 
     # Collect all texts
     all_texts = list(texts)
