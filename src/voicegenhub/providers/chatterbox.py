@@ -233,6 +233,7 @@ class ChatterboxProvider(TTSProvider):
         self._turbo_model = None
         self.device = "cpu"
         self._voices_cache = []
+        self.watermarker = None
 
     @property
     def provider_id(self) -> str:
@@ -253,6 +254,20 @@ class ChatterboxProvider(TTSProvider):
         """Initialize the Chatterbox TTS provider."""
         try:
             logger.info("Initializing Chatterbox TTS provider...")
+
+            # Safety check for Perth watermarker (often fails if setuptools/pkg_resources is missing)
+            try:
+                import perth
+                if getattr(perth, 'PerthImplicitWatermarker', None) is not None:
+                    self.watermarker = perth.PerthImplicitWatermarker()
+                else:
+                    logger.warning("PerthImplicitWatermarker not available (check setuptools). Using no-op watermarker.")
+                    self.watermarker = lambda *args, **kwargs: None
+                    # Patch the module to prevent internal crashes in chatterbox
+                    perth.PerthImplicitWatermarker = lambda *args, **kwargs: lambda *a, **kw: None
+            except ImportError:
+                logger.debug("Perth library not found. Using no-op watermarker.")
+                self.watermarker = lambda *args, **kwargs: None
 
             # Validate voice cloning dependencies
             self._voice_cloning_available = False
@@ -746,6 +761,15 @@ class ChatterboxProvider(TTSProvider):
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Chatterbox."""
         try:
+            # Validate language for English-only voices
+            if request.voice_id in ["chatterbox-default", "chatterbox-turbo"]:
+                target_lang = request.language or "en"
+                if not target_lang.lower().startswith("en"):
+                    raise TTSError(
+                        f"Voice '{request.voice_id}' only supports English. "
+                        f"For '{target_lang}', use a multilingual voice (e.g., 'chatterbox-{target_lang}')."
+                    )
+
             # Get parameters from extra_params or defaults
             exaggeration = request.extra_params.get("exaggeration", 0.5)
             cfg_weight = request.extra_params.get("cfg_weight", 0.5)

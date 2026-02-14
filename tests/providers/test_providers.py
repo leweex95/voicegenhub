@@ -397,3 +397,88 @@ class TestBaseProviderValidation:
 
         result = await mock_provider.health_check()
         assert result is False
+
+
+class TestChatterboxProvider:
+    """Test Chatterbox TTS provider."""
+
+    @pytest.fixture
+    def provider(self):
+        """Create ChatterboxProvider instance."""
+        from voicegenhub.providers.chatterbox import ChatterboxProvider
+        return ChatterboxProvider()
+
+    @pytest.mark.asyncio
+    async def test_initialize(self, provider):
+        """Test provider initialization."""
+        with patch("voicegenhub.providers.chatterbox._patch_cuda_on_cpu"):
+            await provider.initialize()
+            assert provider._initialized is True
+
+    @pytest.mark.asyncio
+    async def test_get_voices(self, provider):
+        """Test getting available voices."""
+        voices = await provider.get_voices()
+        assert len(voices) >= 2
+        assert voices[0].id == "chatterbox-default"
+        assert voices[1].id == "chatterbox-turbo"
+
+    @pytest.mark.asyncio
+    async def test_language_validation_fail(self, provider):
+        """Test that English-only voices fail with non-English language."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat
+
+        request = TTSRequest(
+            text="Hallo",
+            voice_id="chatterbox-default",
+            language="de",
+            audio_format=AudioFormat.WAV
+        )
+
+        with pytest.raises(TTSError, match="only supports English"):
+            await provider.synthesize(request)
+
+    @pytest.mark.asyncio
+    async def test_language_validation_pass_multilingual(self, provider, mocker):
+        """Test that multilingual voices pass with non-English language."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat
+
+        request = TTSRequest(
+            text="Hallo",
+            voice_id="chatterbox-de",
+            language="de",
+            audio_format=AudioFormat.WAV
+        )
+
+        # Mock _synthesize to avoid loading real models
+        mocker.patch.object(provider, "_synthesize", return_value=(b"audio", 24000))
+
+        # Should not raise TTSError for language validation
+        response = await provider.synthesize(request)
+        assert response.audio_data == b"audio"
+
+    @pytest.mark.asyncio
+    async def test_language_validation_pass_english(self, provider, mocker):
+        """Test that English-only voices pass with English language."""
+        from voicegenhub.providers.base import TTSRequest, AudioFormat
+
+        request_en = TTSRequest(
+            text="Hello",
+            voice_id="chatterbox-default",
+            language="en",
+            audio_format=AudioFormat.WAV
+        )
+
+        request_none = TTSRequest(
+            text="Hello",
+            voice_id="chatterbox-default",
+            language=None,
+            audio_format=AudioFormat.WAV
+        )
+
+        # Mock _synthesize
+        mocker.patch.object(provider, "_synthesize", return_value=(b"audio", 24000))
+
+        # Both should pass
+        await provider.synthesize(request_en)
+        await provider.synthesize(request_none)
