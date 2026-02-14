@@ -257,8 +257,10 @@ class QwenTTSProvider(TTSProvider):
                     try:
                         speakers = self._model.model.get_supported_speakers()
                         if speakers:
-                            speaker = speakers[0]
-                            logger.info(f"Using first available speaker: {speaker}")
+                            # Convert to list if itdict_keys or other iterable
+                            speaker_list = list(speakers) if not isinstance(speakers, list) else speakers
+                            speaker = speaker_list[0]
+                            logger.info("Using first available speaker: {}".format(speaker))
                         else:
                             raise TTSError(
                                 "No speakers available for CustomVoice mode",
