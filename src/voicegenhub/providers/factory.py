@@ -17,6 +17,7 @@ class ProviderFactory:
         self._elevenlabs_provider_class = None
         self._bark_provider_class = None
         self._chatterbox_provider_class = None
+        self._qwen_provider_class = None
 
     async def discover_provider(self, provider_id: str) -> None:
         """Discover and register a specific TTS provider."""
@@ -50,6 +51,12 @@ class ProviderFactory:
                 self._chatterbox_provider_class = ChatterboxProvider
             except ImportError:
                 pass
+        elif provider_id == "qwen":
+            try:
+                from .qwen import QwenTTSProvider
+                self._qwen_provider_class = QwenTTSProvider
+            except ImportError:
+                pass
 
     async def create_provider(
         self, provider_id: str, config: Optional[Dict[str, Any]] = None
@@ -58,7 +65,7 @@ class ProviderFactory:
         Create TTS provider instance.
 
         Args:
-            provider_id: Provider ID ("edge", "kokoro", "elevenlabs", "bark")
+            provider_id: Provider ID ("edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen")
             config: Optional configuration
 
         Returns:
@@ -113,10 +120,20 @@ class ProviderFactory:
             await provider.initialize()
             return provider
 
+        elif provider_id == "qwen":
+            if self._qwen_provider_class is None:
+                raise TTSError(
+                    "Qwen TTS provider not available. Install with: pip install qwen-tts"
+                )
+
+            provider = self._qwen_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
         else:
             raise TTSError(
                 f"Unsupported provider: '{provider_id}'. "
-                "Available: edge, kokoro, elevenlabs, bark, chatterbox"
+                "Available: edge, kokoro, elevenlabs, bark, chatterbox, qwen"
             )
 
 
