@@ -78,12 +78,6 @@ The `output_attentions` attribute is not supported when using the `attn_implemen
 
 This is an upstream issue in the chatterbox library itself and cannot be fixed at the provider level without modifying the chatterbox source code.
 
-### Hungarian Language
-- Hungarian is NOT supported by Chatterbox multilingual (supported: ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh)
-- Hungarian is NOT supported by Qwen 3 TTS
-
-Therefore, Spanish was used as the multilingual comparison language instead.
-
 ## Quality Comparison
 
 ### File Sizes

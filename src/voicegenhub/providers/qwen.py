@@ -65,10 +65,10 @@ class QwenTTSProvider(TTSProvider):
 
         # Configuration with defaults
         self.model_name_or_path = self.config.get(
-            "model_name_or_path", "Qwen/Qwen3-TTS-CustomVoice"
+            "model_name_or_path", "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
         )
         self.device = self.config.get("device", "auto")
-        self.dtype_str = self.config.get("dtype", "float32")
+        self.dtype_str = self.config.get("dtype", "bfloat16")
         self.attn_implementation = self.config.get("attn_implementation", "eager")
         self.generation_mode = self.config.get("generation_mode", "custom_voice")
 
@@ -212,6 +212,23 @@ class QwenTTSProvider(TTSProvider):
 
         return voices
 
+    def _get_native_speaker_for_language(self, language: str) -> str:
+        """Get native speaker for a given language."""
+        native_speakers = {
+            "english": "Ryan",  # Dynamic male voice, English native
+            "chinese": "Serena",  # Warm, gentle female, Chinese native
+            "japanese": "Ono_Anna",  # Playful female, Japanese native
+            "korean": "Sohee",  # Warm female, Korean native
+            # For other languages, use Ryan as default (supports all languages)
+            "french": "Ryan",
+            "german": "Ryan",
+            "italian": "Ryan",
+            "portuguese": "Ryan",
+            "russian": "Ryan",
+            "spanish": "Ryan",
+        }
+        return native_speakers.get(language.lower(), "Ryan")
+
     async def synthesize(self, request: TTSRequest) -> TTSResponse:
         """Synthesize speech using Qwen TTS."""
         await self.initialize()
@@ -252,27 +269,10 @@ class QwenTTSProvider(TTSProvider):
             if self.generation_mode == "custom_voice":
                 speaker = generate_kwargs.pop("speaker", self.default_speaker or request.voice_id)
 
-                # If speaker is still None or "default", get first available speaker
+                # If speaker is still None or "default", select native speaker for language
                 if not speaker or speaker == "default":
-                    try:
-                        speakers = self._model.model.get_supported_speakers()
-                        if speakers:
-                            # Convert to list if itdict_keys or other iterable
-                            speaker_list = list(speakers) if not isinstance(speakers, list) else speakers
-                            speaker = speaker_list[0]
-                            logger.info("Using first available speaker: {}".format(speaker))
-                        else:
-                            raise TTSError(
-                                "No speakers available for CustomVoice mode",
-                                error_code="NO_SPEAKERS",
-                                provider=self.provider_id,
-                            )
-                    except Exception as e:
-                        raise TTSError(
-                            f"Error getting speakers: {str(e)}",
-                            error_code="SPEAKER_ERROR",
-                            provider=self.provider_id,
-                        ) from e
+                    speaker = self._get_native_speaker_for_language(language)
+                    logger.info(f"Auto-selected native speaker '{speaker}' for language '{language}'")
 
                 instruct = generate_kwargs.pop("instruct", self.default_instruct)
 
