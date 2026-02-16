@@ -42,6 +42,9 @@ def _process_single(
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
     audio_prompt_path: Optional[str] = None,
+    instruct: Optional[str] = None,
+    ref_audio: Optional[str] = None,
+    ref_text: Optional[str] = None,
 ):
     """Process a single text with effects support."""
     try:
@@ -60,6 +63,9 @@ def _process_single(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt_path,
+            instruct=instruct,
+            ref_audio=ref_audio,
+            ref_text=ref_text,
         ))
 
         output_path = Path(output).resolve() if output else Path(".") / f"voicegenhub_output.{audio_format}"
@@ -150,6 +156,9 @@ def _process_batch(
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
     audio_prompt_path: Optional[str] = None,
+    instruct: Optional[str] = None,
+    ref_audio: Optional[str] = None,
+    ref_text: Optional[str] = None,
 ):
     """Process multiple texts concurrently with provider-specific limits.
 
@@ -165,6 +174,7 @@ def _process_batch(
         "elevenlabs": 1,  # Conservative: cloud API with rate limiting
         "bark": 2,  # Cautiously increased to 2 (tested and verified safe)
         "chatterbox": 1,  # Conservative: heavy model (3.7GB), avoid OOM in multiprocessing
+        "qwen": 1,  # New: heavy model (up to 1.7B), avoid OOM
     }
 
     # Determine max concurrent jobs (defaults to provider's conservative limit for safety)
@@ -215,6 +225,9 @@ def _process_batch(
                     exaggeration=exaggeration,
                     cfg_weight=cfg_weight,
                     audio_prompt_path=audio_prompt_path,
+                    instruct=instruct,
+                    ref_audio=ref_audio,
+                    ref_text=ref_text,
                 )
 
             response = asyncio.run(generate())
@@ -239,6 +252,9 @@ def _process_batch(
                     exaggeration=exaggeration,
                     cfg_weight=cfg_weight,
                     audio_prompt_path=audio_prompt_path,
+                    instruct=instruct,
+                    ref_audio=ref_audio,
+                    ref_text=ref_text,
                 )
             else:
                 # Save output directly
@@ -354,15 +370,31 @@ def cli():
     is_flag=True,
     help="Chatterbox: Use multilingual model",
 )
+@click.option(
+    "--instruct",
+    type=str,
+    help="Qwen 3 TTS: Emotion, style, or voice design instruction",
+)
+@click.option(
+    "--ref-audio",
+    type=click.Path(exists=True),
+    help="Qwen 3 TTS: Reference audio for voice cloning",
+)
+@click.option(
+    "--ref-text",
+    type=str,
+    help="Qwen 3 TTS: Reference text for voice cloning",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     lowpass, normalize, distortion, noise, reverb, pitch_shift,
-    exaggeration, cfg_weight, audio_prompt, turbo, multilingual
+    exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
+    instruct, ref_audio, ref_text
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
     supported_providers = [
-        "edge", "kokoro", "elevenlabs", "bark", "chatterbox"
+        "edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"
     ]
     if provider and provider not in supported_providers:
         click.echo(
@@ -417,6 +449,9 @@ def synthesize(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt,
+            instruct=instruct,
+            ref_audio=ref_audio,
+            ref_text=ref_text,
         )
     else:
         # Single text processing (original behavior)
@@ -438,6 +473,9 @@ def synthesize(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt,
+            instruct=instruct,
+            ref_audio=ref_audio,
+            ref_text=ref_text,
         )
 
 
