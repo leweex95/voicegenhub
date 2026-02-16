@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "1.1.3"
+version = "1.1.4"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
@@ -32,6 +32,9 @@ elevenlabs = "*"
 
 [tool.poetry.group.bark.dependencies]
 bark = "*"
+
+[tool.poetry.group.qwen.dependencies]
+qwen-tts = "^0.1.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"

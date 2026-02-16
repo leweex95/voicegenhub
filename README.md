@@ -20,6 +20,7 @@ poetry add voicegenhub
 - **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
 - **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
 - **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
+- **Qwen 3 TTS** (Apache 2.0 licensed, multilingual with voice design and cloning) - State-of-the-art quality
 - **ElevenLabs TTS** (commercial, high-quality voices)
 
 ### Voice Cloning Support
@@ -81,6 +82,172 @@ poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español."
 - **FFmpeg**: Required when TorchCodec is installed for voice cloning. On Windows, install the "full-shared" build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and ensure FFmpeg's `bin` directory is in your system PATH.
 - **PyTorch Compatibility**: TorchCodec 0.9.1 requires PyTorch ≤ 2.4.x. If you have a newer PyTorch version, voice cloning will be automatically disabled with a fallback to standard TTS.
 - Without TorchCodec/FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will gracefully fall back to standard TTS without cloning.
+
+### Qwen 3 TTS
+
+```bash
+poetry run voicegenhub synthesize "Hello, world!" --provider qwen --voice Ryan --output hello.wav
+```
+
+**Qwen 3 TTS features:**
+- **Three generation modes**: CustomVoice (predefined speakers), VoiceDesign (natural language voice description), VoiceClone (reference audio-based)
+- **10 languages**: Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish
+- **Native speakers**: Automatic selection of native speakers per language for natural, accent-free speech
+- **Voice control via natural language**: Use `instruct` parameter to control emotion, tone, speaking rate, and style
+- **Ultra-low latency**: Streaming generation with <100ms first-token latency
+- **Apache 2.0 License**: Fully commercial compatible
+- **State-of-the-art quality**: Competitive with ElevenLabs, developed by Alibaba's Qwen team
+
+#### Mode 1: CustomVoice (Predefined Speakers)
+
+Use predefined premium speakers with optional emotion/style control:
+
+```bash
+# Basic usage with auto-selected native speaker
+poetry run voicegenhub synthesize "Hello, this is a test." --provider qwen --language en --output output.wav
+
+# Explicit speaker selection
+poetry run voicegenhub synthesize "Hello, this is a test." --provider qwen --language en --voice Ryan --output output.wav
+
+# With emotion instruction
+poetry run voicegenhub synthesize "I'm so excited about this news!" --provider qwen --language en --voice Ryan --instruct "Speak with excitement and joy" --output happy.wav
+```
+
+**Available speakers and their native languages:**
+
+| Speaker | Description | Native Language | Best For |
+|---------|-------------|----------------|----------|
+| **Ryan** | Dynamic male voice with strong rhythmic drive | English | English content, presentations |
+| **Aiden** | Sunny American male voice with clear midrange | English | English content, narration |
+| **Vivian** | Bright, slightly edgy young female voice | Chinese | Mandarin content, audiobooks |
+| **Serena** | Warm, gentle young female voice | Chinese | Mandarin content, customer service |
+| **Uncle_Fu** | Seasoned male voice with low, mellow timbre | Chinese | Mandarin narration, mature content |
+| **Dylan** | Youthful Beijing male voice, natural timbre | Chinese (Beijing) | Beijing dialect content |
+| **Eric** | Lively Chengdu male voice, slightly husky | Chinese (Sichuan) | Sichuan dialect content |
+| **Ono_Anna** | Playful Japanese female, light and nimble | Japanese | Japanese content, anime |
+| **Sohee** | Warm Korean female with rich emotion | Korean | Korean content, storytelling |
+
+**Auto-speaker selection:** If no speaker is specified, Qwen 3 TTS automatically selects a native speaker based on the target language (e.g., Ryan for English, Serena for Chinese).
+
+**Emotion and style control:** Use the `--instruct` parameter with natural language to control voice characteristics:
+- `"Speak with excitement and joy"`
+- `"Very angry tone"`
+- `"Whisper gently"`
+- `"Speak slowly and calmly"`
+- `"Energetic and enthusiastic"`
+
+#### Mode 2: VoiceDesign (Natural Language Voice Description)
+
+Design custom voices using natural language instructions (requires `Qwen3-TTS-VoiceDesign` model):
+
+```python
+from voicegenhub.providers.factory import provider_factory
+from voicegenhub.providers.base import TTSRequest
+
+config = {
+    "model_name_or_path": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+    "generation_mode": "voice_design",
+}
+
+await provider_factory.discover_provider("qwen")
+provider = await provider_factory.create_provider("qwen", config=config)
+
+request = TTSRequest(
+    text="Welcome to our demonstration.",
+    language="en",
+    voice_id="default",
+    extra_params={
+        "instruct": "Male, 30 years old, confident and professional tone, deep voice with clear articulation"
+    }
+)
+response = await provider.synthesize(request)
+```
+
+**VoiceDesign instruction examples:**
+- `"Female, 25 years old, cheerful and energetic, slightly high-pitched with playful intonation"`
+- `"Male, 17 years old, gaining confidence, deeper breath support, vowels tighten when nervous"`
+- `"Elderly male, 70 years old, wise and gentle, slightly raspy with warm timbre"`
+
+#### Mode 3: VoiceClone (Reference Audio-Based)
+
+Clone voices from 3-second audio samples (requires `Qwen3-TTS-Base` model):
+
+```python
+from voicegenhub.providers.factory import provider_factory
+from voicegenhub.providers.base import TTSRequest
+
+config = {
+    "model_name_or_path": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+    "generation_mode": "voice_clone",
+}
+
+await provider_factory.discover_provider("qwen")
+provider = await provider_factory.create_provider("qwen", config=config)
+
+request = TTSRequest(
+    text="This is synthesized using the cloned voice.",
+    language="en",
+    voice_id="default",
+    extra_params={
+        "ref_audio": "path/to/reference.wav",  # Can be local path, URL, or numpy array
+        "ref_text": "Transcript of the reference audio",  # Required for best quality
+        "x_vector_only_mode": False  # Set True to skip ref_text (lower quality)
+    }
+)
+response = await provider.synthesize(request)
+```
+
+**Voice cloning tips:**
+- Use clear, noise-free reference audio (3-10 seconds)
+- Provide accurate transcript (`ref_text`) for best cloning quality
+- Supports multilingual cloning (clone any language, synthesize in any language)
+- Combine with VoiceDesign to create reusable custom voices
+
+#### Word Emphasis and Pause Control
+
+**Note:** Qwen 3 TTS does not support explicit word-level emphasis markup (like SSML tags) or pause control. Instead, the model intelligently interprets text and applies natural prosody based on:
+
+1. **Context understanding**: The model reads the entire sentence and applies appropriate emphasis to important words automatically
+2. **Natural language instructions**: Use the `instruct` parameter to guide overall tone and pacing:
+   - `"Speak slowly with emphasis on key words"`
+   - `"Pause dramatically between sentences"`
+   - `"Fast-paced and energetic delivery"`
+3. **Punctuation**: The model respects punctuation for natural pauses (commas, periods, ellipses, em-dashes)
+
+**Example:**
+```bash
+# The model will naturally emphasize "incredible results" due to context
+poetry run voicegenhub synthesize "We achieved incredible results!" --provider qwen --voice Ryan --instruct "Speak with excitement and emphasis" --output emphasized.wav
+```
+
+#### Model Selection
+
+Qwen 3 TTS offers multiple models optimized for different use cases:
+
+| Model | Size | Best For | Streaming | GPU Recommended |Supports |
+|-------|------|----------|-----------|-----------------|---------|
+| `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 600M | Default, fast generation, predefined speakers | ✅ | Optional | CustomVoice |
+| `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 1.7B | Higher quality, predefined speakers | ✅ | Yes | CustomVoice |
+| `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 1.7B | Custom voice design via natural language | ✅ | Yes | VoiceDesign |
+| `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 1.7B | Voice cloning from audio samples | ✅ | Yes | VoiceClone |
+| `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 600M | Voice cloning, faster generation | ✅ | Optional | VoiceClone |
+
+**Installation:**
+```bash
+pip install voicegenhub[qwen]
+# or
+poetry install --with qwen
+```
+
+**Qwen 3 TTS parameters (Python API):**
+- `model_name_or_path`: Model to use (see table above)
+- `device`: "cuda", "cpu", or "auto" (default: auto)
+- `dtype`: "float32", "float16", "bfloat16" (default: bfloat16)
+- `attn_implementation`: "eager", "sdpa", "flash_attention_2" (default: eager)
+- `generation_mode`: "custom_voice", "voice_design", "voice_clone"
+- `speaker`: Speaker name for CustomVoice mode
+- `instruct`: Emotion/style instruction (for CustomVoice) or voice description (for VoiceDesign)
+- `temperature`, `top_p`, `top_k`, `repetition_penalty`, `max_new_tokens`: Advanced sampling parameters
 
 ### Bark
 
@@ -234,6 +401,7 @@ Here's how all providers compare in terms of speed and quality:
 ### ✅ Commercially Safe Models:
 - **Bark** (MIT License) - Unrestricted commercial use, no attribution required ⭐
 - **Chatterbox** (MIT License) - Unrestricted commercial use, no attribution required
+- **Qwen 3 TTS** (Apache 2.0) - Commercial use allowed, attribution required
 - **Kokoro** (Apache 2.0) - Commercial use allowed, attribution required
 - **Edge TTS** (Microsoft) - Commercial use allowed
 - **ElevenLabs** (Paid API) - Commercial use with valid subscription
@@ -247,6 +415,7 @@ For transparency and compliance, here are direct links to the official license t
 - **ElevenLabs TTS**: [ElevenLabs Terms of Service](https://elevenlabs.io/terms)
 - **Bark TTS**: [MIT License](https://github.com/suno-ai/bark/blob/main/LICENSE)
 - **Chatterbox TTS**: [MIT License](https://github.com/rsxdalv/chatterbox/blob/main/LICENSE)
+- **Qwen 3 TTS**: [Apache License 2.0](https://github.com/QwenLM/Qwen3-TTS/blob/main/LICENSE)
 
 ## Optional Dependencies
 
@@ -261,6 +430,10 @@ pip install voicegenhub[bark]
 
 # Install Chatterbox TTS (MIT licensed, multilingual with emotion control)
 pip install chatterbox-tts
+
+# Install Qwen 3 TTS (Apache 2.0 licensed, state-of-the-art multilingual TTS)
+pip install voicegenhub[qwen]
+```
 
 ### Kokoro TTS Installation
 Kokoro TTS requires Python 3.11 or higher.
