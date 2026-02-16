@@ -385,11 +385,16 @@ def cli():
     type=str,
     help="Qwen 3 TTS: Reference text for voice cloning",
 )
+@click.option(
+    "--gpu",
+    is_flag=True,
+    help="Use Kaggle GPU for generation (qwen and chatterbox only)",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     lowpass, normalize, distortion, noise, reverb, pitch_shift,
     exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
-    instruct, ref_audio, ref_text
+    instruct, ref_audio, ref_text, gpu
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
@@ -402,6 +407,62 @@ def synthesize(
             err=True,
         )
         sys.exit(1)
+
+    # Handle GPU flag for Kaggle deployment
+    if gpu:
+        kaggle_supported_providers = ["qwen", "chatterbox"]
+        if provider not in kaggle_supported_providers:
+            click.echo(
+                f"Warning: Kaggle GPU deployment is only supported for {', '.join(kaggle_supported_providers)} providers. "
+                f"Provider '{provider}' will run locally.",
+                err=True
+            )
+            gpu = False  # Disable GPU flag for unsupported providers
+        else:
+            # Import Kaggle pipeline
+            from voicegenhub.kaggle.pipeline import run_kaggle_pipeline
+
+            # Collect all texts
+            all_texts = list(texts)
+
+            if not all_texts:
+                click.echo("Error: No text provided", err=True)
+                sys.exit(1)
+
+            # For GPU execution, process each text separately via Kaggle
+            if len(all_texts) > 1:
+                click.echo("Note: GPU mode processes texts sequentially via Kaggle", err=True)
+
+            for i, text in enumerate(all_texts):
+                try:
+                    # Determine output path
+                    if output:
+                        if len(all_texts) > 1:
+                            base = Path(output).stem
+                            ext = Path(output).suffix or f".{format}"
+                            output_path = Path(output).parent / f"{base}_{i+1}{ext}"
+                        else:
+                            output_path = Path(output)
+                    else:
+                        output_path = Path(f"voicegenhub_output_{i+1}.{format}") if len(all_texts) > 1 else Path(f"voicegenhub_output.{format}")
+
+                    click.echo(f"Deploying to Kaggle GPU: {text[:50]}..." if len(text) > 50 else f"Deploying to Kaggle GPU: {text}")
+
+                    # Run Kaggle pipeline
+                    result_path = run_kaggle_pipeline(
+                        text=text,
+                        provider=provider,
+                        voice=voice,
+                        output_path=output_path,
+                    )
+
+                    click.echo(f"✓ Audio generated via Kaggle GPU: {result_path}")
+
+                except Exception as e:
+                    click.echo(f"Error processing text {i+1}: {e}", err=True)
+                    sys.exit(1)
+
+            return  # Exit after GPU processing
 
     # Chatterbox specific model flags validation
     if provider == "chatterbox":

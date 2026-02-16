@@ -93,6 +93,8 @@ google-credentials.json
 secrets/
 .env.local
 .env.*.local
+.env_from_imggenhub
+kaggle.json
 
 # Copilot specifics
 copilot-instructions.md
