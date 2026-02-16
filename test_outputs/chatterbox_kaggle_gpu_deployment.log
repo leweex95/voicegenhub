@@ -1,0 +1,126 @@
+6.6s	1	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+6.6s	2	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+6.6s	3	0.00s - to python to disable frozen modules.
+6.6s	4	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+7.2s	5	0.00s - Debugger warning: It seems that frozen modules are being used, which may
+7.2s	6	0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+7.2s	7	0.00s - to python to disable frozen modules.
+7.2s	8	0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+22.2s	9	  Installing build dependencies ... [?25l[?25hdone
+22.5s	10	  Getting requirements to build wheel ... [?25l[?25hdone
+22.7s	11	  Preparing metadata (pyproject.toml) ... [?25l[?25hdone
+25.7s	12	[33m  WARNING: Did not find branch or tag 'refs/pull/17/head', assuming revision or ref.[0m[33m
+32.5s	13	[0m  Installing build dependencies ... [?25l[?25hdone
+32.6s	14	  Getting requirements to build wheel ... [?25l[?25hdone
+32.8s	15	  Preparing metadata (pyproject.toml) ... [?25l[?25hdone
+34.0s	16	[?25l     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/68.6 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K     [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m68.6/68.6 kB[0m [31m2.6 MB/s[0m eta [36m0:00:00[0m
+38.4s	17	[?25h  Preparing metadata (setup.py) ... [?25l[?25hdone
+39.6s	18	[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/2.4 MB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [91m━━━━━━━━━━━[0m[91m╸[0m[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.7/2.4 MB[0m [31m23.6 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m2.4/2.4 MB[0m [31m44.8 MB/s[0m eta [36m0:00:01[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2.4/2.4 MB[0m [31m32.2 MB/s[0m eta [36m0:00:00[0m
+39.9s	19	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/34.4 MB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [91m━━━━━━━[0m[90m╺[0m[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m6.3/34.4 MB[0m [31m192.7 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━[0m[91m╸[0m[90m━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m12.6/34.4 MB[0m [31m199.9 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m[90m━━━━━━━━━━━━━━━━━━[0m [32m18.5/34.4 MB[0m [31m168.8 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m[90m━━━━━━━━━━━[0m [32m24.7/34.4 MB[0m [31m172.2 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m[90m━━━━[0m [32m30.8/34.4 MB[0m [31m173.6 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m34.4/34.4 MB[0m [31m177.0 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m34.4/34.4 MB[0m [31m177.0 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m34.4/34.4 MB[0m [31m177.0 MB/s[0m eta [36m0:00:01[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m34.4/34.4 MB[0m [31m57.6 MB/s[0m eta [36m0:00:00[0m
+39.9s	20	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/226.4 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m226.4/226.4 kB[0m [31m18.2 MB/s[0m eta [36m0:00:00[0m
+40.0s	21	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/4.1 MB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m4.1/4.1 MB[0m [31m157.2 MB/s[0m eta [36m0:00:01[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m4.1/4.1 MB[0m [31m83.9 MB/s[0m eta [36m0:00:00[0m
+40.0s	22	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/444.8 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m444.8/444.8 kB[0m [31m32.2 MB/s[0m eta [36m0:00:00[0m
+40.1s	23	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/2.0 MB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m2.0/2.0 MB[0m [31m84.7 MB/s[0m eta [36m0:00:00[0m
+40.1s	24	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/55.5 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m55.5/55.5 kB[0m [31m4.1 MB/s[0m eta [36m0:00:00[0m
+40.2s	25	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/8.2 MB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━[0m[90m╺[0m[90m━━━━━━━━━━━━━━━━━━━[0m [32m4.2/8.2 MB[0m [31m142.0 MB/s[0m eta [36m0:00:01[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m8.2/8.2 MB[0m [31m141.4 MB/s[0m eta [36m0:00:01[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m8.2/8.2 MB[0m [31m85.6 MB/s[0m eta [36m0:00:00[0m
+40.3s	26	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/45.8 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m45.8/45.8 kB[0m [31m4.0 MB/s[0m eta [36m0:00:00[0m
+40.3s	27	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/226.4 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m226.4/226.4 kB[0m [31m17.0 MB/s[0m eta [36m0:00:00[0m
+40.4s	28	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/99.2 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m99.2/99.2 kB[0m [31m7.9 MB/s[0m eta [36m0:00:00[0m
+40.5s	29	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/6.0 MB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m6.0/6.0 MB[0m [31m274.6 MB/s[0m eta [36m0:00:01[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m6.0/6.0 MB[0m [31m126.8 MB/s[0m eta [36m0:00:00[0m
+40.5s	30	[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/469.0 kB[0m [31m?[0m eta [36m-:--:--[0m
+[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m469.0/469.0 kB[0m [31m35.1 MB/s[0m eta [36m0:00:00[0m
+41.0s	31	[?25h  Building wheel for chatterbox-tts (pyproject.toml) ... [?25l[?25hdone
+42.0s	32	  Building wheel for russian-text-stresser (pyproject.toml) ... [?25l[?25hdone
+43.5s	33	  Building wheel for docopt (setup.py) ... [?25l[?25hdone
+47.5s	34	[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+47.5s	35	google-adk 1.22.1 requires google-cloud-bigquery-storage>=2.0.0, which is not installed.
+47.5s	36	langchain-core 0.3.79 requires packaging<26.0.0,>=23.2.0, but you have packaging 26.0rc2 which is incompatible.
+47.5s	37	fastai 2.8.4 requires fastcore<1.9,>=1.8.0, but you have fastcore 1.11.3 which is incompatible.[0m[31m
+48.0s	38	[0mStarting Chatterbox TTS generation...
+48.0s	39	Text: Hello, this is a test.
+48.0s	40	Voice: chatterbox-default
+48.0s	41	Output: output.wav
+66.0s	42	2026-02-16 15:32:30.943346: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+66.0s	43	WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+66.0s	44	E0000 00:00:1771255951.128106      24 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+66.0s	45	E0000 00:00:1771255951.179376      24 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+66.0s	46	W0000 00:00:1771255951.604940      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.0s	47	W0000 00:00:1771255951.604982      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.0s	48	W0000 00:00:1771255951.604985      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.0s	49	W0000 00:00:1771255951.604987      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	50	2026-02-16 15:32:30.943346: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+66.2s	51	WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+66.2s	52	E0000 00:00:1771255951.128106      24 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+66.2s	53	E0000 00:00:1771255951.179376      24 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+66.2s	54	W0000 00:00:1771255951.604940      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	55	W0000 00:00:1771255951.604982      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	56	W0000 00:00:1771255951.604985      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	57	W0000 00:00:1771255951.604987      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	58
+66.2s	59	2026-02-16 15:32:30.943346: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+66.2s	60	WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+66.2s	61	E0000 00:00:1771255951.128106      24 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+66.2s	62	E0000 00:00:1771255951.179376      24 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+66.2s	63	W0000 00:00:1771255951.604940      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	64	W0000 00:00:1771255951.604982      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	65	W0000 00:00:1771255951.604985      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+66.2s	66	W0000 00:00:1771255951.604987      24 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+90.8s	67	Traceback (most recent call last):
+90.8s	68	  File "<string>", line 1, in <module>
+90.8s	69	  File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 131, in execute_notebook
+90.8s	70	    raise_for_execution_errors(nb, output_path)
+90.8s	71	  File "/usr/local/lib/python3.12/dist-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+90.8s	72	    raise error
+90.8s	73	papermill.exceptions.PapermillExecutionError:
+90.8s	74	---------------------------------------------------------------------------
+90.8s	75	Exception encountered at "In [6]":
+90.8s	76	---------------------------------------------------------------------------
+90.8s	77	ModuleNotFoundError                       Traceback (most recent call last)
+90.8s	78	/tmp/ipykernel_24/760936579.py in <cell line: 0>()
+90.8s	79	      1 # Load Chatterbox T3 model
+90.8s	80	----> 2 from chatterbox.models.t3.t3_model import T3Model
+90.8s	81	      3
+90.8s	82	      4 print("Loading Chatterbox T3 model...")
+90.8s	83	      5 model = T3Model(device="cuda")
+90.8s	84
+90.8s	85	ModuleNotFoundError: No module named 'chatterbox.models.t3.t3_model'
+90.8s	86
+92.9s	87	/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+92.9s	88	  cells[i][c] = re.sub('\\\\\|', '|', cell)
+93.0s	89	/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+93.0s	90	  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+93.7s	91	/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=["remove_papermill_header.RemovePapermillHeader"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.
+93.7s	92	  warn(
+93.7s	93	[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+94.0s	94	[NbConvertApp] Writing 16757 bytes to __notebook__.ipynb
+96.5s	95	/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=["nbconvert.preprocessors.ExtractOutputPreprocessor"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.
+96.5s	96	  warn(
+96.5s	97	[NbConvertApp] Converting notebook __notebook__.ipynb to html
+97.3s	98	[NbConvertApp] Writing 295579 bytes to __results__.html
