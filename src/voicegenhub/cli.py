@@ -459,7 +459,9 @@ def synthesize(
                     click.echo(f"✓ Audio generated via Kaggle GPU: {result_path}")
 
                 except Exception as e:
+                    import traceback
                     click.echo(f"Error processing text {i+1}: {e}", err=True)
+                    traceback.print_exc()
                     sys.exit(1)
 
             return  # Exit after GPU processing

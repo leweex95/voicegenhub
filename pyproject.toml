@@ -24,6 +24,7 @@ torchaudio = ">=2.6.0"
 librosa = ">=0.11.0"
 torchcodec = {version = "^0.9.1", optional = true}
 kaggle = "^1.6.0"
+kaggle-gpu-connector = {git = "https://github.com/leweex95/kaggle-gpu-connector", rev="feature/automated-logs"}
 
 [tool.poetry.extras]
 voice-cloning = ["torchcodec"]

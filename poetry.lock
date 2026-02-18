@@ -2219,6 +2219,27 @@ tqdm = "*"
 urllib3 = ">=1.15.1"
 
 [[package]]
+name = "kaggle-gpu-connector"
+version = "0.2.1"
+description = "Stand-alone connector for Kaggle GPU jobs and output management."
+optional = false
+python-versions = "^3.11"
+groups = ["main"]
+files = []
+develop = false
+
+[package.dependencies]
+kaggle = "^1.6"
+python-dotenv = "^1.0"
+pyyaml = "^6.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/leweex95/kaggle-gpu-connector"
+reference = "feature/automated-logs"
+resolved_reference = "69005a3e59ffc0593ffd5e6e483b0ca5dfcbea7e"
+
+[[package]]
 name = "kagglesdk"
 version = "0.1.15"
 description = "Bindings to access kaggle's external-facing APIs"
@@ -4564,6 +4585,21 @@ files = [
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "python-dotenv"
+version = "1.2.1"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "python_dotenv-1.2.1-py3-none-any.whl", hash = "sha256:b81ee9561e9ca4004139c6cbba3a238c32b03e4894671e181b671e8cb8425d61"},
+    {file = "python_dotenv-1.2.1.tar.gz", hash = "sha256:42667e897e16ab0d66954af0e60a9caa94f0fd4ecf3aaf6d2d260eec1aa36ad6"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-multipart"
@@ -6960,4 +6996,4 @@ voice-cloning = ["torchcodec"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "61d08f895ec5ab713ded40010b667bd0d9536cf13b0b6f776b3c57f1baa9c419"
+content-hash = "e9367d4639bc6b0437408b4fb00f326c1bf7298fc186ec0b7a4bd5c6ff1fc0bb"
