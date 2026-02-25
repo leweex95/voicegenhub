@@ -1,0 +1,91 @@
+[{"stream_name":"stderr","time":6.465816424,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.46588892,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.465894936,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.465899538,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.061415414,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.061447949,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.06145249,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.061455112,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.773725016,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.4/61.4 kB 5.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.927271089,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.0/44.0 kB 3.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.976515574,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.4/61.4 kB 5.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.97657512,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.0/44.0 kB 3.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":14.365197171,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.9/63.9 kB 4.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":14.567451397,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.9/63.9 kB 4.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.304112232,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.5/113.5 kB 9.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.418073368,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 103.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.506303775,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.5/113.5 kB 9.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.506331495,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 103.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.574433696,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 86.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.596169453,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 39.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.776377537,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 86.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":16.77642332,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 39.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":33.162250396,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.4/8.4 MB 31.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":33.364164004,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.4/8.4 MB 31.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stderr","time":79.42841178,"data":"2026-02-25 18:54:09.680556: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.428609104,"data":"WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n"}
+,{"stream_name":"stderr","time":79.428630478,"data":"E0000 00:00:1772045650.000905      23 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.428635058,"data":"E0000 00:00:1772045650.052818      23 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.428638808,"data":"W0000 00:00:1772045650.692242      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.428642335,"data":"W0000 00:00:1772045650.692291      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.428645726,"data":"W0000 00:00:1772045650.692294      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.428733057,"data":"W0000 00:00:1772045650.692297      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633527785,"data":"2026-02-25 18:54:09.680556: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.633570118,"data":"WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n"}
+,{"stream_name":"stderr","time":79.633578121,"data":"E0000 00:00:1772045650.000905      23 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.63358432,"data":"E0000 00:00:1772045650.052818      23 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.633589577,"data":"W0000 00:00:1772045650.692242      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.63359445,"data":"W0000 00:00:1772045650.692291      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633599539,"data":"W0000 00:00:1772045650.692294      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633616186,"data":"W0000 00:00:1772045650.692297      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633619156,"data":"\n"}
+,{"stream_name":"stderr","time":79.633621351,"data":"2026-02-25 18:54:09.680556: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.63362412,"data":"WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n"}
+,{"stream_name":"stderr","time":79.633626418,"data":"E0000 00:00:1772045650.000905      23 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.633628938,"data":"E0000 00:00:1772045650.052818      23 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"}
+,{"stream_name":"stderr","time":79.633632435,"data":"W0000 00:00:1772045650.692242      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633634944,"data":"W0000 00:00:1772045650.692291      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633637372,"data":"W0000 00:00:1772045650.692294      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":79.633639898,"data":"W0000 00:00:1772045650.692297      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":98.077741199,"data":"/bin/sh: 1: sox: not found\n"}
+,{"stream_name":"stderr","time":98.084522944,"data":"/bin/sh: 1: sox: not found\n"}
+,{"stream_name":"stderr","time":98.084561306,"data":"WARNING:sox:SoX could not be found!\n"}
+,{"stream_name":"stderr","time":98.084569906,"data":"\n"}
+,{"stream_name":"stderr","time":98.084573978,"data":"    If you do not have SoX, proceed here:\n"}
+,{"stream_name":"stderr","time":98.084577812,"data":"     - - - http://sox.sourceforge.net/ - - -\n"}
+,{"stream_name":"stderr","time":98.084581684,"data":"\n"}
+,{"stream_name":"stderr","time":98.084585536,"data":"    If you do (or think that you should) have SoX, double-check your\n"}
+,{"stream_name":"stderr","time":98.084589885,"data":"    path variables.\n"}
+,{"stream_name":"stderr","time":98.084593742,"data":"    \n"}
+,{"stream_name":"stderr","time":98.084597023,"data":"\n"}
+,{"stream_name":"stderr","time":98.084600338,"data":"/bin/sh: 1: sox: not found\n"}
+,{"stream_name":"stderr","time":98.084603859,"data":"WARNING:sox:SoX could not be found!\n"}
+,{"stream_name":"stderr","time":98.084607247,"data":"\n"}
+,{"stream_name":"stderr","time":98.084610416,"data":"    If you do not have SoX, proceed here:\n"}
+,{"stream_name":"stderr","time":98.084613818,"data":"     - - - http://sox.sourceforge.net/ - - -\n"}
+,{"stream_name":"stderr","time":98.084618784,"data":"\n"}
+,{"stream_name":"stderr","time":98.084622464,"data":"    If you do (or think that you should) have SoX, double-check your\n"}
+,{"stream_name":"stderr","time":98.084634034,"data":"    path variables.\n"}
+,{"stream_name":"stderr","time":98.084636545,"data":"    \n"}
+,{"stream_name":"stdout","time":99.940193512,"data":"CUDA available: True\n"}
+,{"stream_name":"stdout","time":99.94023427,"data":"GPU: Tesla P100-PCIE-16GB\n"}
+,{"stream_name":"stdout","time":99.940239859,"data":"Loading model: Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice\n"}
+,{"stream_name":"stdout","time":134.503678322,"data":"Generating speech...\n"}
+,{"stream_name":"stderr","time":134.59886615,"data":"Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.\n"}
+,{"stream_name":"stderr","time":134.598897308,"data":"\n"}
+,{"stream_name":"stderr","time":134.598903838,"data":"Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.\n"}
+,{"stream_name":"stdout","time":160.741624344,"data":"Audio saved to /kaggle/working/qwen3_tts.wav\n"}
+,{"stream_name":"stdout","time":160.741672884,"data":"Sample rate: 24000 Hz, Duration: 10.00s\n"}
+,{"stream_name":"stderr","time":165.862483141,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":165.86251786,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":166.010702784,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":166.010732274,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":166.570315686,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"remove_papermill_header.RemovePapermillHeader\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":166.570350872,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":166.596721549,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":166.933120221,"data":"[NbConvertApp] Writing 147162 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":169.293420137,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"nbconvert.preprocessors.ExtractOutputPreprocessor\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":169.293456667,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":169.314149193,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":170.145421049,"data":"[NbConvertApp] Writing 396049 bytes to __results__.html\n"}
+]

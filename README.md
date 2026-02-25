@@ -6,14 +6,6 @@
 
 Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supports multiple free and commercial TTS providers.
 
-## Installation
-
-```bash
-pip install voicegenhub
-# or
-poetry add voicegenhub
-```
-
 ### Optional Dependencies
 
 - **Microsoft Edge TTS** (free, cloud-based)
@@ -247,6 +239,127 @@ poetry install --with qwen
 - `speaker`: Speaker name for CustomVoice mode
 - `instruct`: Emotion/style instruction (for CustomVoice) or voice description (for VoiceDesign)
 - `temperature`, `top_p`, `top_k`, `repetition_penalty`, `max_new_tokens`: Advanced sampling parameters
+
+### Qwen3-TTS on Kaggle P100 GPU
+
+Run the full Qwen3-TTS pipeline on a **free Kaggle P100 GPU**. VoiceGenHub automatically pushes a notebook to Kaggle, runs it with GPU acceleration, polls for completion, and downloads the audio to a local timestamped folder — no Kaggle web UI interaction required.
+
+#### Prerequisites
+
+1. **Install the Kaggle CLI:**
+   ```bash
+   pip install kaggle
+   ```
+
+2. **Set up Kaggle API credentials** (`~/.kaggle/kaggle.json`):
+   - Go to https://www.kaggle.com/settings → API → Create New Token
+   - Save the downloaded `kaggle.json` to `~/.kaggle/kaggle.json`
+   - On Windows: `%USERPROFILE%\.kaggle\kaggle.json`
+
+3. **Enable internet on Kaggle notebooks** (required for `pip install`):
+   - Kaggle by default allows internet access from notebooks (no action needed).
+
+#### Usage
+
+
+```bash
+
+
+
+
+# Basic usage — outputs to a timestamped folder (YYYYMMDD_HHMMSS)
+poetry run voicegenhub synthesize "Hello from the Kaggle GPU!" --provider qwen --gpu p100
+
+
+
+
+
+> To use dual T4 GPUs, use `--gpu t4`. To force CPU, use `--cpu` (or omit both flags for default CPU mode).
+
+
+
+# Specify voice and language
+poetry run voicegenhub synthesize "This is a test." --provider qwen --voice Ryan --language en --gpu p100
+
+
+
+# Chinese with native speaker
+poetry run voicegenhub synthesize "你好，这是一个测试。" --provider qwen --voice Serena --language zh --gpu p100
+
+
+
+# Explicit output directory and filename
+poetry run voicegenhub synthesize "Big model test." \
+   --provider qwen \
+   --model Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
+   --output-dir 20260225_153045 \
+   --output-filename my_audio.wav \
+   --gpu p100
+
+
+
+# Adjust polling timeout (default 60 min)
+poetry run voicegenhub synthesize "Long text..." --provider qwen --gpu p100 --timeout 90 --poll-interval 30
+| `--gpu-type` | `p100` | Kaggle GPU type: `p100` (default) or `t4` (dual T4, optional) |
+```
+
+
+#### All `synthesize` flags for Kaggle GPU
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `TEXT` | *(required)* | Text to synthesize |
+| `--provider` | *(required)* | TTS provider: `qwen`, `chatterbox`, etc. |
+| `--voice`, `-v` | `Ryan` | Speaker name: `Ryan`, `Serena`, etc. |
+| `--language`, `-l` | `en` | Language code: `en`, `zh`, `fr`, etc. |
+| `--model`, `-m` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | HuggingFace model ID |
+| `--output-dir`, `-o` | `YYYYMMDD_HHMMSS` (current datetime) | Local folder for the downloaded audio |
+| `--output-filename` | `qwen3_tts.wav` | Filename for the generated audio |
+| `--gpu [p100|t4]` | *(optional)* | Run remotely on Kaggle GPU (specify `p100` or `t4`) |
+| `--cpu` | *(optional)* | Force CPU mode (default if neither flag is set) |
+| `--timeout` | `60` | Timeout in minutes to wait for the kernel |
+| `--poll-interval` | `60` | Status polling interval in seconds |
+
+#### How it works
+
+1. **Build** — VoiceGenHub generates a Jupyter notebook with your text, voice, and model parameters.
+2. **Push** — The notebook is pushed to Kaggle with `enable_gpu: true` (P100).
+3. **Run** — Kaggle executes the notebook: installs `qwen-tts`, loads the model on the GPU, generates audio.
+4. **Poll** — VoiceGenHub polls `kaggle kernels status` every 60 seconds until completion.
+5. **Download** — The `.wav` file is fetched with `kaggle kernels output` and placed in your local output directory.
+
+
+
+
+**Note:** If you do not specify `--gpu` or `--cpu`, VoiceGenHub will run on CPU by default. For Qwen3-TTS and Chatterbox, running on CPU will print a **BIG VISIBLE WARNING** and may be extremely slow or fail. Use `--gpu p100` or `--gpu t4` for remote GPU. Use `--cpu` to force CPU mode explicitly.
+
+**The output directory defaults to the current datetime** (e.g. `20260225_153045/qwen3_tts.wav`).
+
+---
+
+## ⚠️ IMPORTANT: GPU Requirement for Qwen3/Chatterbox
+
+**Qwen3-TTS and Chatterbox require a GPU for practical generation speed.**
+
+- If you run these providers **without** `--gpu` (or on a CPU-only machine), you will see a **BIG WARNING** and generation will be extremely slow or may fail.
+- Always use `--gpu` for Qwen3 and Chatterbox unless you are on a local machine with a powerful GPU.
+
+**Example warning:**
+
+```
+WARNING: Qwen3-TTS and Chatterbox require a GPU for fast generation. Use --gpu (and optionally --gpu-type) to run on Kaggle or your local GPU. CPU-only runs are not recommended and may fail.
+```
+
+#### Available Qwen3-TTS Models on Kaggle GPU
+
+| Model | Size | Speed | Best For |
+|-------|------|-------|----------|
+| `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 600M | Fast | Quick iterations |
+| `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 1.7B | Normal | **Best quality** ✅ |
+
+> **Tip:** The 1.7B model is recommended for production quality. A P100 has 16 GB VRAM — more than enough for the 1.7B model at float16.
+
+---
 
 ### Bark
 

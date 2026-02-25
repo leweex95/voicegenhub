@@ -8,6 +8,7 @@ import json
 import sys
 import tempfile
 import threading
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional
@@ -314,6 +315,16 @@ def cli():
 )
 @click.option("--provider", "-p", help="TTS provider")
 @click.option(
+    "--gpu",
+    type=click.Choice(["p100", "t4"]),
+    help="Use remote Kaggle GPU for generation (currently Qwen3-TTS only)",
+)
+@click.option(
+    "--cpu",
+    is_flag=True,
+    help="Use local CPU for generation (default)",
+)
+@click.option(
     "--lowpass",
     type=int,
     help="Apply lowpass filter with cutoff frequency in Hz (e.g., 1200 for horror effect)",
@@ -387,11 +398,64 @@ def cli():
 )
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
-    lowpass, normalize, distortion, noise, reverb, pitch_shift,
+    gpu, cpu, lowpass, normalize, distortion, noise, reverb, pitch_shift,
     exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
     instruct, ref_audio, ref_text
 ):
-    """Generate speech from text(s)."""
+    """Generate speech from text(s). Use --gpu [p100|t4] for remote Kaggle GPU acceleration."""
+    # Redirect to Kaggle pipeline if --gpu is specified
+    if gpu:
+        if len(texts) > 1:
+            click.echo("Error: --gpu currently supports only single text generation", err=True)
+            sys.exit(1)
+
+        from .kaggle.pipeline import KaggleQwenPipeline
+        pipeline = KaggleQwenPipeline()
+
+        # Determine output directory and filename using the requested format
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        suffix = f"_{gpu}"
+        output_dir_name = f"{timestamp}{suffix}"
+
+        if output:
+            output_path = Path(output)
+            # If user provided a path, we use it as base but still follow the folder naming convention if it's a dir
+            if not output_path.suffix:
+                output_dir = str(output_path / output_dir_name)
+                output_filename = "qwen3_tts.wav"
+            else:
+                output_dir = str(output_path.parent / output_dir_name)
+                output_filename = output_path.name
+        else:
+            output_dir = output_dir_name
+            output_filename = "qwen3_tts.wav"
+
+        try:
+            result_path = pipeline.run(
+                text=texts[0],
+                voice=voice or "Ryan",
+                language=language or "en",
+                output_dir=output_dir,
+                output_filename=output_filename,
+                gpu_type=gpu,  # Now using the gpu value directly as p100 or t4
+            )
+            click.echo(f"SUCCESS: Remote audio available at: {result_path.absolute()}")
+            return
+        except Exception as e:
+            click.echo(f"Error during remote generation: {e}", err=True)
+            sys.exit(1)
+
+    # For local CPU runs, ensure directory structure matches requested format
+    if not output:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = f"{timestamp}_cpu"
+        os.makedirs(output_dir, exist_ok=True)
+        # For single text, we still want to respect the output_dir
+        if len(texts) == 1:
+            output = os.path.join(output_dir, "output.wav")
+        else:
+            output = os.path.join(output_dir, "batch")
+
     # Validate provider immediately
     supported_providers = [
         "edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"
