@@ -40,7 +40,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Setup logging to file so kaggle-gpu-connector can fetch it in real-time
-def log(msg): 
+def log(msg):
     ts = datetime.now().strftime('%H:%M:%S')
     line = f"[{ts}] {msg}"
     print(line, flush=True)
@@ -57,7 +57,7 @@ try:
     else:
         log("Sox already present. Ensuring python packages...")
         subprocess.run("pip install -q -U qwen-tts==0.1.1 'transformers>=4.48.0'", shell=True)
-    
+
     from qwen_tts import Qwen3TTSModel
     log("Setup complete (Imports done).")
 except Exception as e:
@@ -78,7 +78,7 @@ try:
     model = Qwen3TTSModel.from_pretrained(
         "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
         torch_dtype=torch.float32,
-        device_map="auto" 
+        device_map="auto"
     )
 except Exception as e:
     log(f"Load failed: {e}. Retrying with float32 explicitly...")
@@ -98,7 +98,7 @@ ref_text, ref_prompt = choices.get(voice, ("Ryan", "Ryan voice"))
 # 5. Synthesis block
 try:
     log("Synthesizing...")
-    # ENSURE BOTH do_sample and subtalker_dosample are False 
+    # ENSURE BOTH do_sample and subtalker_dosample are False
     # to avoid internal multinomial calls on T4 (prone to NaNs)
     with torch.inference_mode():
         audio_array, sample_rate = model.generate_custom_voice(
@@ -108,13 +108,13 @@ try:
             do_sample=False,
             subtalker_dosample=False
         )
-    
+
     # Check if we got something
     if audio_array is None or len(audio_array) == 0:
         raise ValueError("Empty audio_array returned from model.generate")
-        
+
     log(f"Synthesis done. Array length: {len(audio_array)}")
-    
+
     # 6. Saving
     sf.write(output_file, audio_array, sample_rate)
     log(f"SUCCESS: Audio saved to {output_file}. Array shape: {audio_array.shape}")

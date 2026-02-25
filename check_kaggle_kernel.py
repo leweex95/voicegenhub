@@ -12,7 +12,7 @@ def check_kernel(kernel_id, num_lines=50):
         manager = JobManager(kernel_id=kernel_id)
         status = manager.get_status()
         print(f"Status for {kernel_id}: {status}")
-        
+
         print(f"\nLast logs (raw, truncated to avoid overflow):")
         logs = manager.get_logs()
         if logs:
@@ -34,7 +34,7 @@ def check_kernel(kernel_id, num_lines=50):
                 print(str(logs)[-2000:])
         else:
             print("No logs available yet.")
-            
+
     except Exception as e:
         print(f"Error checking kernel {kernel_id}: {e}")
 

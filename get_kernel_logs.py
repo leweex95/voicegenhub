@@ -15,7 +15,7 @@ for i in range(12): # try up to 2 minutes
             print(f"New logs captured at step {i}:", flush=True)
             print(new_text, flush=True)
             last_logs = logs
-    
+
     status = manager.get_status().lower()
     print(f"Status: {status}", flush=True)
     if "complete" in status or "error" in status:

@@ -78,7 +78,7 @@ try:
     model = Qwen3TTSModel.from_pretrained(
         "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
         torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        device_map="auto" 
+        device_map="auto"
     )
 
     log("Generating audio...")
@@ -87,7 +87,7 @@ try:
         speaker=voice,
         do_sample=False,
     )
-    
+
     sr = 24000
     if isinstance(output, (tuple, list)):
         audio_data = output[0]
@@ -110,7 +110,7 @@ try:
     if audio_data is not None:
         if hasattr(audio_data, 'ndim') and audio_data.ndim > 1:
             audio_data = audio_data.squeeze()
-        
+
         sf.write(output_file, audio_data, int(sr))
         log(f"SUCCESS: Audio saved to {output_file}")
     else:
@@ -145,7 +145,7 @@ try:
     if subprocess.run("espeak-ng --version", shell=True, capture_output=True).returncode != 0:
         log("Installing espeak-ng...")
         subprocess.run("apt-get update -q; apt-get install -y -q espeak-ng", shell=True)
-    
+
     # Fast minimal installs
     log("Installing chatterbox missing deps...")
     # Skip huge ones (torch, transformers are already on Kaggle)
@@ -169,7 +169,7 @@ log(f"Loading Chatterbox model. Text: {text[:50]}...")
 try:
     # Model is Kokoro-82M (very fast, <100MB)
     model = Chatterbox()
-    
+
     log("Generating audio...")
     audio, sr = model.generate(
         text=text,
@@ -177,14 +177,14 @@ try:
         speed=1.0,
         lang_code="a" # American English
     )
-    
+
     if audio is not None:
         if isinstance(audio, torch.Tensor):
             audio = audio.detach().cpu().float().numpy()
-        
+
         if hasattr(audio, 'ndim') and audio.ndim > 1:
             audio = audio.squeeze()
-        
+
         sf.write(output_file, audio, int(sr))
         log(f"SUCCESS: Audio saved to {output_file}")
     else:

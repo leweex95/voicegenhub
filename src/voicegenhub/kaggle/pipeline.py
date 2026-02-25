@@ -151,11 +151,11 @@ def run_kaggle_pipeline(
 
         # Custom log streaming with timeout to avoid 10 min hangs
         logging.info("Step 3: Streaming logs from Kaggle kernel (with 5-minute guard)...")
-        
+
         start_stream_time = time.time()
         timeout_limit = 330  # 5.5 minutes max execution time for a single sentence
         last_log_time = time.time()
-        
+
         def log_callback(content: str):
             nonlocal last_log_time
             last_log_time = time.time()
@@ -164,7 +164,7 @@ def run_kaggle_pipeline(
         while True:
             status = manager.get_status().lower()
             current_time = time.time()
-            
+
             # Use manager.get_logs() directly to check for new logs
             logs = manager.get_logs()
             if logs:
@@ -172,7 +172,7 @@ def run_kaggle_pipeline(
                 # We want to only print the NEW part.
                 # Actually, let's just use JobManager.stream_logs logic but with a condition.
                 pass
-            
+
             # Since manager.stream_logs is blocking, we'll implement a custom poll loop here.
             # We'll use JobManager's get_logs() but keep track of last length.
             # To be safer, I'll just use a timeout on the loop and call manager.get_logs() manually.
@@ -182,11 +182,11 @@ def run_kaggle_pipeline(
         max_duration = 600 # 10 min
         poll_interval = 20
         last_logs = ""
-        
+
         while time.time() - poll_start_time < max_duration:
             status = manager.get_status().lower()
             current_logs = manager.get_logs()
-            
+
             if current_logs != last_logs:
                 new_tokens = current_logs
                 if last_logs and current_logs.startswith(last_logs):
@@ -194,12 +194,12 @@ def run_kaggle_pipeline(
                 if new_tokens.strip():
                     print(new_tokens, end="", flush=True)
                     last_logs = current_logs
-            
+
             if "complete" in status or "error" in status:
                 break
-                
+
             time.sleep(poll_interval)
-            
+
         final_status = manager.get_status().lower()
         if "complete" not in final_status:
             # Check if we hit our internal timeout
@@ -214,8 +214,8 @@ def run_kaggle_pipeline(
         # Since we are synthesizing a single audio file, we only need to download .wav files
         # and stop as soon as we have at least one.
         manager.download_results(
-            dest=str(dest_dir), 
-            file_types={".wav"}, 
+            dest=str(dest_dir),
+            file_types={".wav"},
             expected_image_count=1,
             stable_count_patience=2  # Give it a bit of room to ensure it's written
         )
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
     # Determine local output path
     target_path = Path.cwd() / "kaggle_downloads" / args.output_file
-    
+
     try:
         run_kaggle_pipeline(
             text=args.text,
