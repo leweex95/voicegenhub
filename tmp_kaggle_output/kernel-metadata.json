@@ -1,0 +1,21 @@
+{
+  "id": "leventecsibi/vgh-qwen-8563",
+  "id_no": 110169350,
+  "title": "vgh-qwen-8563",
+  "code_file": "vgh-qwen-8563.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [
+    "gpu"
+  ],
+  "dataset_sources": [],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": [],
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9fa0da194fad2241d3f01a80581cbecbd3a258b4d1b695e2cbbbc62a0fd205ac",
+  "machine_shape": "Gpu"
+}

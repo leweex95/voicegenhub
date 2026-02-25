@@ -1,0 +1,502 @@
+[{"stream_name":"stderr","time":6.462342725,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.4623988279999995,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.4624033260000004,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.4624060199999995,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.03735061,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.03738442,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.037390222,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.037394305,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":11.853426684,"data":"[12:32:20] Checking environment...\n"}
+,{"stream_name":"stdout","time":11.858994793,"data":"[12:32:20] Installing system sox and upgrading transformers...\n"}
+,{"stream_name":"stdout","time":12.138484335,"data":"Get:1 https://cli.github.com/packages stable InRelease [3,917 B]\n"}
+,{"stream_name":"stdout","time":12.151619363,"data":"Get:2 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3,632 B]\n"}
+,{"stream_name":"stdout","time":12.193087859,"data":"Get:3 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1,581 B]\n"}
+,{"stream_name":"stdout","time":12.211867076,"data":"Get:4 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]\n"}
+,{"stream_name":"stdout","time":12.243984565,"data":"Get:5 https://cli.github.com/packages stable/main amd64 Packages [356 B]\n"}
+,{"stream_name":"stdout","time":12.340485181,"data":"Get:6 https://r2u.stat.illinois.edu/ubuntu jammy InRelease [6,555 B]\n"}
+,{"stream_name":"stdout","time":12.341061076999999,"data":"Get:1 https://cli.github.com/packages stable InRelease [3,917 B]\n"}
+,{"stream_name":"stdout","time":12.341080661,"data":"Get:2 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3,632 B]\n"}
+,{"stream_name":"stdout","time":12.341086631,"data":"Get:3 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1,581 B]\n"}
+,{"stream_name":"stdout","time":12.341091904,"data":"Get:4 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]\n"}
+,{"stream_name":"stdout","time":12.341118506,"data":"Get:5 https://cli.github.com/packages stable/main amd64 Packages [356 B]\n"}
+,{"stream_name":"stdout","time":12.352658005,"data":"Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.418246814,"data":"Get:8 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [2,361 kB]\n"}
+,{"stream_name":"stdout","time":12.487239688,"data":"Get:9 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]\n"}
+,{"stream_name":"stdout","time":12.543657096,"data":"Get:6 https://r2u.stat.illinois.edu/ubuntu jammy InRelease [6,555 B]\n"}
+,{"stream_name":"stdout","time":12.543680407,"data":"Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.543706946,"data":"Get:8 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [2,361 kB]\n"}
+,{"stream_name":"stdout","time":12.543713039,"data":"Get:9 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]\n"}
+,{"stream_name":"stdout","time":12.574847910999999,"data":"Get:10 https://r2u.stat.illinois.edu/ubuntu jammy/main amd64 Packages [2,909 kB]\n"}
+,{"stream_name":"stdout","time":12.682176279,"data":"Hit:11 https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.7773737,"data":"Get:10 https://r2u.stat.illinois.edu/ubuntu jammy/main amd64 Packages [2,909 kB]\n"}
+,{"stream_name":"stdout","time":12.77739852,"data":"Hit:11 https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.817191843,"data":"Hit:12 https://ppa.launchpadcontent.net/graphics-drivers/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.823502418,"data":"Get:13 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3,737 kB]\n"}
+,{"stream_name":"stdout","time":12.951991033,"data":"Hit:14 https://ppa.launchpadcontent.net/ubuntugis/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.968451324,"data":"Get:15 https://r2u.stat.illinois.edu/ubuntu jammy/main all Packages [9,769 kB]\n"}
+,{"stream_name":"stdout","time":13.019902766,"data":"Hit:12 https://ppa.launchpadcontent.net/graphics-drivers/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":13.019926675,"data":"Get:13 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3,737 kB]\n"}
+,{"stream_name":"stdout","time":13.019931037,"data":"Hit:14 https://ppa.launchpadcontent.net/ubuntugis/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":13.019934786,"data":"Get:15 https://r2u.stat.illinois.edu/ubuntu jammy/main all Packages [9,769 kB]\n"}
+,{"stream_name":"stdout","time":13.070294583999999,"data":"Get:16 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]\n"}
+,{"stream_name":"stdout","time":13.2193029,"data":"Get:17 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6,538 kB]\n"}
+,{"stream_name":"stdout","time":13.272884951,"data":"Get:16 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]\n"}
+,{"stream_name":"stdout","time":13.272910882,"data":"Get:17 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6,538 kB]\n"}
+,{"stream_name":"stdout","time":13.302280854,"data":"Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,613 kB]\n"}
+,{"stream_name":"stdout","time":13.317922263,"data":"Get:19 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1,301 kB]\n"}
+,{"stream_name":"stdout","time":13.504645296,"data":"Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,613 kB]\n"}
+,{"stream_name":"stdout","time":13.504669996,"data":"Get:19 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1,301 kB]\n"}
+,{"stream_name":"stdout","time":13.788781691,"data":"Get:20 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4,070 kB]\n"}
+,{"stream_name":"stdout","time":13.991055359,"data":"Get:20 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4,070 kB]\n"}
+,{"stream_name":"stdout","time":14.032057443,"data":"Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6,749 kB]\n"}
+,{"stream_name":"stdout","time":14.234411976,"data":"Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6,749 kB]\n"}
+,{"stream_name":"stdout","time":14.940017015,"data":"Fetched 39.4 MB in 3s (13.9 MB/s)\n"}
+,{"stream_name":"stdout","time":15.142263015,"data":"Reading package lists...Fetched 39.4 MB in 3s (13.9 MB/s)\n"}
+,{"stream_name":"stdout","time":16.604015702,"data":"Reading package lists...\n"}
+,{"stream_name":"stderr","time":16.627177561,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stdout","time":16.806694979,"data":"Reading package lists...\n"}
+,{"stream_name":"stderr","time":16.830008867,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stderr","time":16.830038659,"data":"\n"}
+,{"stream_name":"stderr","time":16.830058597,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stdout","time":18.235006174,"data":"Reading package lists...\n"}
+,{"stream_name":"stdout","time":18.437495652,"data":"Building dependency tree...\n"}
+,{"stream_name":"stdout","time":18.651801197,"data":"Building dependency tree...\n"}
+,{"stream_name":"stdout","time":18.653702979,"data":"Reading state information...\n"}
+,{"stream_name":"stdout","time":18.85434631,"data":"\n"}
+,{"stream_name":"stdout","time":18.854382788,"data":"Reading state information...\n"}
+,{"stream_name":"stdout","time":18.902701509,"data":"The following additional packages will be installed:\n"}
+,{"stream_name":"stdout","time":18.90327021,"data":"  libao-common libao4 libid3tag0 libmad0 libopencore-amrnb0 libopencore-amrwb0\n"}
+,{"stream_name":"stdout","time":18.903307522,"data":"  libsox-fmt-alsa libsox-fmt-ao libsox-fmt-base libsox-fmt-mp3 libsox-fmt-oss\n"}
+,{"stream_name":"stdout","time":18.904786061,"data":"  libsox-fmt-pulse libsox3 libwavpack1\n"}
+,{"stream_name":"stdout","time":18.905918812,"data":"Suggested packages:\n"}
+,{"stream_name":"stdout","time":18.905931371,"data":"  libaudio2 libsndio6.1\n"}
+,{"stream_name":"stdout","time":18.970756275,"data":"The following NEW packages will be installed:\n"}
+,{"stream_name":"stdout","time":18.971132981,"data":"  libao-common libao4 libid3tag0 libmad0 libopencore-amrnb0 libopencore-amrwb0\n"}
+,{"stream_name":"stdout","time":18.971142545,"data":"  libsox-fmt-all libsox-fmt-alsa libsox-fmt-ao libsox-fmt-base libsox-fmt-mp3\n"}
+,{"stream_name":"stdout","time":18.971995584,"data":"  libsox-fmt-oss libsox-fmt-pulse libsox3 libwavpack1 sox\n"}
+,{"stream_name":"stdout","time":19.105118601,"data":"The following additional packages will be installed:\n"}
+,{"stream_name":"stdout","time":19.105153329,"data":"  libao-common libao4 libid3tag0 libmad0 libopencore-amrnb0 libopencore-amrwb0\n"}
+,{"stream_name":"stdout","time":19.105156809,"data":"  libsox-fmt-alsa libsox-fmt-ao libsox-fmt-base libsox-fmt-mp3 libsox-fmt-oss\n"}
+,{"stream_name":"stdout","time":19.105159428,"data":"  libsox-fmt-pulse libsox3 libwavpack1\n"}
+,{"stream_name":"stdout","time":19.105161702,"data":"Suggested packages:\n"}
+,{"stream_name":"stdout","time":19.105164349,"data":"  libaudio2 libsndio6.1\n"}
+,{"stream_name":"stdout","time":19.105167459,"data":"The following NEW packages will be installed:\n"}
+,{"stream_name":"stdout","time":19.105171331,"data":"  libao-common libao4 libid3tag0 libmad0 libopencore-amrnb0 libopencore-amrwb0\n"}
+,{"stream_name":"stdout","time":19.105176394,"data":"  libsox-fmt-all libsox-fmt-alsa libsox-fmt-ao libsox-fmt-base libsox-fmt-mp3\n"}
+,{"stream_name":"stdout","time":19.105180269,"data":"  libsox-fmt-oss libsox-fmt-pulse libsox3 libwavpack1 sox\n"}
+,{"stream_name":"stdout","time":19.262512913,"data":"0 upgraded, 16 newly installed, 0 to remove and 139 not upgraded.\n"}
+,{"stream_name":"stdout","time":19.262539355,"data":"Need to get 800 kB of archives.\n"}
+,{"stream_name":"stdout","time":19.262557036,"data":"After this operation, 2,533 kB of additional disk space will be used.\n"}
+,{"stream_name":"stdout","time":19.262561531,"data":"Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libao-common all 1.2.2+20180113-1.1ubuntu3 [6,568 B]\n"}
+,{"stream_name":"stdout","time":19.397990213,"data":"Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libao4 amd64 1.2.2+20180113-1.1ubuntu3 [35.2 kB]\n"}
+,{"stream_name":"stdout","time":19.464670653,"data":"0 upgraded, 16 newly installed, 0 to remove and 139 not upgraded.\n"}
+,{"stream_name":"stdout","time":19.464700445,"data":"Need to get 800 kB of archives.\n"}
+,{"stream_name":"stdout","time":19.464705813,"data":"After this operation, 2,533 kB of additional disk space will be used.\n"}
+,{"stream_name":"stdout","time":19.464710587,"data":"Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libao-common all 1.2.2+20180113-1.1ubuntu3 [6,568 B]\n"}
+,{"stream_name":"stdout","time":19.464715199,"data":"Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libao4 amd64 1.2.2+20180113-1.1ubuntu3 [35.2 kB]\n"}
+,{"stream_name":"stdout","time":19.565391577,"data":"Get:3 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libid3tag0 amd64 0.15.1b-14 [31.3 kB]\n"}
+,{"stream_name":"stdout","time":19.666546694,"data":"Get:4 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libmad0 amd64 0.15.1b-10ubuntu1 [63.1 kB]\n"}
+,{"stream_name":"stdout","time":19.76759798,"data":"Get:3 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libid3tag0 amd64 0.15.1b-14 [31.3 kB]\n"}
+,{"stream_name":"stdout","time":19.767623837,"data":"Get:4 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libmad0 amd64 0.15.1b-10ubuntu1 [63.1 kB]\n"}
+,{"stream_name":"stdout","time":19.791293082,"data":"Get:5 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libopencore-amrnb0 amd64 0.1.5-1 [94.8 kB]\n"}
+,{"stream_name":"stdout","time":19.888112011,"data":"Get:6 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libopencore-amrwb0 amd64 0.1.5-1 [49.1 kB]\n"}
+,{"stream_name":"stdout","time":19.927269267,"data":"Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox3 amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [240 kB]\n"}
+,{"stream_name":"stdout","time":19.993424262,"data":"Get:5 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libopencore-amrnb0 amd64 0.1.5-1 [94.8 kB]\n"}
+,{"stream_name":"stdout","time":19.99344493,"data":"Get:6 http://archive.ubuntu.com/ubuntu jammy/universe amd64 libopencore-amrwb0 amd64 0.1.5-1 [49.1 kB]\n"}
+,{"stream_name":"stdout","time":19.993450845,"data":"Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox3 amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [240 kB]\n"}
+,{"stream_name":"stdout","time":20.052274728,"data":"Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-alsa amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [11.2 kB]\n"}
+,{"stream_name":"stdout","time":20.056241261,"data":"Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-ao amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [7,740 B]\n"}
+,{"stream_name":"stdout","time":20.059134851,"data":"Get:10 http://archive.ubuntu.com/ubuntu jammy/main amd64 libwavpack1 amd64 5.4.0-1build2 [83.7 kB]\n"}
+,{"stream_name":"stdout","time":20.086234451,"data":"Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-base amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [33.7 kB]\n"}
+,{"stream_name":"stdout","time":20.096466833,"data":"Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-mp3 amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [17.3 kB]\n"}
+,{"stream_name":"stdout","time":20.101541014,"data":"Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-oss amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [9,424 B]\n"}
+,{"stream_name":"stdout","time":20.10392741,"data":"Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-pulse amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [7,732 B]\n"}
+,{"stream_name":"stdout","time":20.130333762,"data":"Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-all amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [5,016 B]\n"}
+,{"stream_name":"stdout","time":20.131177952,"data":"Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 sox amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [104 kB]\n"}
+,{"stream_name":"stdout","time":20.25460871,"data":"Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-alsa amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [11.2 kB]\n"}
+,{"stream_name":"stdout","time":20.254647135,"data":"Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-ao amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [7,740 B]\n"}
+,{"stream_name":"stdout","time":20.254652825,"data":"Get:10 http://archive.ubuntu.com/ubuntu jammy/main amd64 libwavpack1 amd64 5.4.0-1build2 [83.7 kB]\n"}
+,{"stream_name":"stdout","time":20.254657017,"data":"Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-base amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [33.7 kB]\n"}
+,{"stream_name":"stdout","time":20.254661528,"data":"Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-mp3 amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [17.3 kB]\n"}
+,{"stream_name":"stdout","time":20.254665978,"data":"Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-oss amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [9,424 B]\n"}
+,{"stream_name":"stdout","time":20.254669855,"data":"Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-pulse amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [7,732 B]\n"}
+,{"stream_name":"stdout","time":20.254673504,"data":"Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 libsox-fmt-all amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [5,016 B]\n"}
+,{"stream_name":"stdout","time":20.254677169,"data":"Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 sox amd64 14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1 [104 kB]\n"}
+,{"stream_name":"stdout","time":22.211314643,"data":"Fetched 800 kB in 1s (681 kB/s)\n"}
+,{"stream_name":"stdout","time":22.280923561,"data":"Selecting previously unselected package libao-common.\r\n"}
+,{"stream_name":"stdout","time":22.413566733,"data":"(Reading database ... \r(Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\r(Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\rFetched 800 kB in 1s (681 kB/s)\n"}
+,{"stream_name":"stdout","time":22.413602465,"data":"Selecting previously unselected package libao-common.\r\n"}
+,{"stream_name":"stdout","time":22.873384924,"data":"(Reading database ... \r(Reading database ... 5%\r(Reading database ... 10%\r(Reading database ... 15%\r(Reading database ... 20%\r(Reading database ... 25%\r(Reading database ... 30%\r(Reading database ... 35%\r(Reading database ... 40%\r(Reading database ... 45%\r(Reading database ... 50%\r(Reading database ... 55%\r(Reading database ... 60%\r(Reading database ... 65%\r(Reading database ... 70%\r(Reading database ... 75%\r(Reading database ... 80%\r(Reading database ... 65%\r(Reading database ... 70%\r(Reading database ... 75%\r(Reading database ... 80%\r(Reading database ... 85%\r(Reading database ... 90%\r(Reading database ... 95%\r(Reading database ... 100%\r(Reading database ... 124463 files and directories currently installed.)\r\n"}
+,{"stream_name":"stdout","time":22.877333562,"data":"Preparing to unpack .../00-libao-common_1.2.2+20180113-1.1ubuntu3_all.deb ...\r\n"}
+,{"stream_name":"stdout","time":22.885504012,"data":"Unpacking libao-common (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":22.904923492,"data":"(Reading database ... 85%\r(Reading database ... 90%\r(Reading database ... 95%\r(Reading database ... 100%\r(Reading database ... 124463 files and directories currently installed.)\r\n"}
+,{"stream_name":"stdout","time":22.904944616,"data":"Preparing to unpack .../00-libao-common_1.2.2+20180113-1.1ubuntu3_all.deb ...\r\n"}
+,{"stream_name":"stdout","time":22.904949213,"data":"Unpacking libao-common (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":22.973458294,"data":"Selecting previously unselected package libao4:amd64.\r\n"}
+,{"stream_name":"stdout","time":22.985372384,"data":"Preparing to unpack .../01-libao4_1.2.2+20180113-1.1ubuntu3_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.004987466,"data":"Unpacking libao4:amd64 (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":23.072838317,"data":"Selecting previously unselected package libid3tag0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.08464771,"data":"Preparing to unpack .../02-libid3tag0_0.15.1b-14_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.09215534,"data":"Unpacking libid3tag0:amd64 (0.15.1b-14) ...\r\n"}
+,{"stream_name":"stdout","time":23.153865102,"data":"Selecting previously unselected package libmad0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.165484958,"data":"Preparing to unpack .../03-libmad0_0.15.1b-10ubuntu1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.173084062,"data":"Unpacking libmad0:amd64 (0.15.1b-10ubuntu1) ...\r\n"}
+,{"stream_name":"stdout","time":23.175647901,"data":"Selecting previously unselected package libao4:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.17566486,"data":"Preparing to unpack .../01-libao4_1.2.2+20180113-1.1ubuntu3_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.175669124,"data":"Unpacking libao4:amd64 (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":23.175672843,"data":"Selecting previously unselected package libid3tag0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.175676539,"data":"Preparing to unpack .../02-libid3tag0_0.15.1b-14_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.175680092,"data":"Unpacking libid3tag0:amd64 (0.15.1b-14) ...\r\n"}
+,{"stream_name":"stdout","time":23.175683497,"data":"Selecting previously unselected package libmad0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.175687058,"data":"Preparing to unpack .../03-libmad0_0.15.1b-10ubuntu1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.175690263,"data":"Unpacking libmad0:amd64 (0.15.1b-10ubuntu1) ...\r\n"}
+,{"stream_name":"stdout","time":23.237342548,"data":"Selecting previously unselected package libopencore-amrnb0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.24887757,"data":"Preparing to unpack .../04-libopencore-amrnb0_0.1.5-1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.256502798,"data":"Unpacking libopencore-amrnb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":23.337725001,"data":"Selecting previously unselected package libopencore-amrwb0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.349305328,"data":"Preparing to unpack .../05-libopencore-amrwb0_0.1.5-1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.356783136,"data":"Unpacking libopencore-amrwb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":23.421902251,"data":"Selecting previously unselected package libsox3:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.433540098,"data":"Preparing to unpack .../06-libsox3_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.439426407,"data":"Selecting previously unselected package libopencore-amrnb0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.439445056,"data":"Preparing to unpack .../04-libopencore-amrnb0_0.1.5-1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.439450331,"data":"Unpacking libopencore-amrnb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":23.439454674,"data":"Selecting previously unselected package libopencore-amrwb0:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.439458358,"data":"Preparing to unpack .../05-libopencore-amrwb0_0.1.5-1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.439462532,"data":"Unpacking libopencore-amrwb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":23.439466564,"data":"Selecting previously unselected package libsox3:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.43947002,"data":"Preparing to unpack .../06-libsox3_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.440405956,"data":"Unpacking libsox3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.494109284,"data":"Selecting previously unselected package libsox-fmt-alsa:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.505731701,"data":"Preparing to unpack .../07-libsox-fmt-alsa_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.513159285,"data":"Unpacking libsox-fmt-alsa:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.563799408,"data":"Selecting previously unselected package libsox-fmt-ao:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.575372743,"data":"Preparing to unpack .../08-libsox-fmt-ao_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.582774766,"data":"Unpacking libsox-fmt-ao:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.642327281,"data":"Unpacking libsox3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.642350468,"data":"Selecting previously unselected package libsox-fmt-alsa:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.642356001,"data":"Preparing to unpack .../07-libsox-fmt-alsa_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.642360207,"data":"Unpacking libsox-fmt-alsa:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.642364292,"data":"Selecting previously unselected package libsox-fmt-ao:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.642368327,"data":"Preparing to unpack .../08-libsox-fmt-ao_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.64237255,"data":"Unpacking libsox-fmt-ao:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.646942146,"data":"Selecting previously unselected package libwavpack1:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.658619699,"data":"Preparing to unpack .../09-libwavpack1_5.4.0-1build2_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.665476201,"data":"Unpacking libwavpack1:amd64 (5.4.0-1build2) ...\r\n"}
+,{"stream_name":"stdout","time":23.72059401,"data":"Selecting previously unselected package libsox-fmt-base:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.732391926,"data":"Preparing to unpack .../10-libsox-fmt-base_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.741001752,"data":"Unpacking libsox-fmt-base:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.794145516,"data":"Selecting previously unselected package libsox-fmt-mp3:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.805768734,"data":"Preparing to unpack .../11-libsox-fmt-mp3_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.812450326,"data":"Unpacking libsox-fmt-mp3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.848947417,"data":"Selecting previously unselected package libwavpack1:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.848966496,"data":"Preparing to unpack .../09-libwavpack1_5.4.0-1build2_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.84897193,"data":"Unpacking libwavpack1:amd64 (5.4.0-1build2) ...\r\n"}
+,{"stream_name":"stdout","time":23.848976047,"data":"Selecting previously unselected package libsox-fmt-base:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.848980162,"data":"Preparing to unpack .../10-libsox-fmt-base_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.848984336,"data":"Unpacking libsox-fmt-base:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.848988408,"data":"Selecting previously unselected package libsox-fmt-mp3:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.848992389,"data":"Preparing to unpack .../11-libsox-fmt-mp3_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.848996664,"data":"Unpacking libsox-fmt-mp3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.863093109,"data":"Selecting previously unselected package libsox-fmt-oss:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.87465988,"data":"Preparing to unpack .../12-libsox-fmt-oss_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.881871484,"data":"Unpacking libsox-fmt-oss:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":23.931049458,"data":"Selecting previously unselected package libsox-fmt-pulse:amd64.\r\n"}
+,{"stream_name":"stdout","time":23.942592397,"data":"Preparing to unpack .../13-libsox-fmt-pulse_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":23.949995349,"data":"Unpacking libsox-fmt-pulse:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.002234813,"data":"Selecting previously unselected package libsox-fmt-all:amd64.\r\n"}
+,{"stream_name":"stdout","time":24.01375035,"data":"Preparing to unpack .../14-libsox-fmt-all_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":24.02099325,"data":"Unpacking libsox-fmt-all:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.065374926,"data":"Selecting previously unselected package libsox-fmt-oss:amd64.\r\n"}
+,{"stream_name":"stdout","time":24.065398224,"data":"Preparing to unpack .../12-libsox-fmt-oss_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":24.065404806,"data":"Unpacking libsox-fmt-oss:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.065408484,"data":"Selecting previously unselected package libsox-fmt-pulse:amd64.\r\n"}
+,{"stream_name":"stdout","time":24.065412728,"data":"Preparing to unpack .../13-libsox-fmt-pulse_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":24.065425931,"data":"Unpacking libsox-fmt-pulse:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.065430214,"data":"Selecting previously unselected package libsox-fmt-all:amd64.\r\n"}
+,{"stream_name":"stdout","time":24.065434003,"data":"Preparing to unpack .../14-libsox-fmt-all_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":24.065437575,"data":"Unpacking libsox-fmt-all:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.075204962,"data":"Selecting previously unselected package sox.\r\n"}
+,{"stream_name":"stdout","time":24.086984356,"data":"Preparing to unpack .../15-sox_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":24.094557944,"data":"Unpacking sox (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.207578624,"data":"Setting up libsox3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.229894171,"data":"Setting up libsox-fmt-oss:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.252365471,"data":"Setting up libao-common (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":24.277260779,"data":"Selecting previously unselected package sox.\r\n"}
+,{"stream_name":"stdout","time":24.277280642,"data":"Preparing to unpack .../15-sox_14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1_amd64.deb ...\r\n"}
+,{"stream_name":"stdout","time":24.277285253,"data":"Unpacking sox (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.277289274,"data":"Setting up libsox3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.277292452,"data":"Setting up libsox-fmt-oss:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.277295948,"data":"Setting up libao-common (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":24.281823152,"data":"Setting up libid3tag0:amd64 (0.15.1b-14) ...\r\n"}
+,{"stream_name":"stdout","time":24.304278759,"data":"Setting up libopencore-amrwb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":24.327983952,"data":"Setting up libsox-fmt-alsa:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.348484148,"data":"Setting up libao4:amd64 (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":24.370369214,"data":"Setting up libmad0:amd64 (0.15.1b-10ubuntu1) ...\r\n"}
+,{"stream_name":"stdout","time":24.391710272,"data":"Setting up libwavpack1:amd64 (5.4.0-1build2) ...\r\n"}
+,{"stream_name":"stdout","time":24.411734619,"data":"Setting up libopencore-amrnb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":24.431507233,"data":"Setting up libsox-fmt-base:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.451906231,"data":"Setting up libsox-fmt-ao:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.472476199,"data":"Setting up libsox-fmt-mp3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.484030019,"data":"Setting up libid3tag0:amd64 (0.15.1b-14) ...\r\n"}
+,{"stream_name":"stdout","time":24.484048513,"data":"Setting up libopencore-amrwb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":24.484053378,"data":"Setting up libsox-fmt-alsa:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.484070034,"data":"Setting up libao4:amd64 (1.2.2+20180113-1.1ubuntu3) ...\r\n"}
+,{"stream_name":"stdout","time":24.484074136,"data":"Setting up libmad0:amd64 (0.15.1b-10ubuntu1) ...\r\n"}
+,{"stream_name":"stdout","time":24.48407761,"data":"Setting up libwavpack1:amd64 (5.4.0-1build2) ...\r\n"}
+,{"stream_name":"stdout","time":24.484080935,"data":"Setting up libopencore-amrnb0:amd64 (0.1.5-1) ...\r\n"}
+,{"stream_name":"stdout","time":24.48408451,"data":"Setting up libsox-fmt-base:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.484089875,"data":"Setting up libsox-fmt-ao:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.484092476,"data":"Setting up libsox-fmt-mp3:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.493012767,"data":"Setting up libsox-fmt-pulse:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.513736521,"data":"Setting up sox (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.54453056,"data":"Setting up libsox-fmt-all:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.567725087,"data":"Processing triggers for libc-bin (2.35-0ubuntu3.8) ...\r\n"}
+,{"stream_name":"stdout","time":24.695088108,"data":"Setting up libsox-fmt-pulse:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.695139885,"data":"Setting up sox (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.695144177,"data":"Setting up libsox-fmt-all:amd64 (14.4.2+git20190427-2+deb11u2ubuntu0.22.04.1) ...\r\n"}
+,{"stream_name":"stdout","time":24.695147053,"data":"Processing triggers for libc-bin (2.35-0ubuntu3.8) ...\r\n"}
+,{"stream_name":"stdout","time":24.918243534,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbbind_2_5.so.3 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.918268476,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.918422346,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_adapter_level_zero.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.918437407,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919001024,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbbind.so.3 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919012424,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919016757,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_adapter_level_zero_v2.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919020897,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919024643,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbbind_2_0.so.3 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919028995,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919055101,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_loader.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.91906205,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919066066,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbb.so.12 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919069647,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919073243,"data":"/sbin/ldconfig.real: /usr/local/lib/libumf.so.1 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919077249,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919080534,"data":"/sbin/ldconfig.real: /usr/local/lib/libtcm_debug.so.1 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919097289,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919100682,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_adapter_opencl.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919104181,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919107324,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbmalloc_proxy.so.2 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919110853,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919114009,"data":"/sbin/ldconfig.real: /usr/local/lib/libtcm.so.1 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.91911748,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919120694,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbmalloc.so.2 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919125742,"data":"\r\n"}
+,{"stream_name":"stdout","time":24.919128838,"data":"/sbin/ldconfig.real: /usr/local/lib/libhwloc.so.15 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":24.919132411,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121024653,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbbind_2_5.so.3 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121051908,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121054941,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_adapter_level_zero.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121057591,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121059887,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbbind.so.3 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121062355,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121064498,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_adapter_level_zero_v2.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121066951,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121069049,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbbind_2_0.so.3 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121071476,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121073602,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_loader.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121075873,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121078,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbb.so.12 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121080354,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121082608,"data":"/sbin/ldconfig.real: /usr/local/lib/libumf.so.1 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121086007,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121089218,"data":"/sbin/ldconfig.real: /usr/local/lib/libtcm_debug.so.1 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121094223,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121097926,"data":"/sbin/ldconfig.real: /usr/local/lib/libur_adapter_opencl.so.0 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121101809,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121106889,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbmalloc_proxy.so.2 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121111265,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121115074,"data":"/sbin/ldconfig.real: /usr/local/lib/libtcm.so.1 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121118593,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121121767,"data":"/sbin/ldconfig.real: /usr/local/lib/libtbbmalloc.so.2 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121125236,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.121140831,"data":"/sbin/ldconfig.real: /usr/local/lib/libhwloc.so.15 is not a symbolic link\r\n"}
+,{"stream_name":"stdout","time":25.121143856,"data":"\r\n"}
+,{"stream_name":"stdout","time":25.799241821,"data":"Processing triggers for man-db (2.10.2-1) ...\r\n"}
+,{"stream_name":"stdout","time":26.001299397,"data":"Processing triggers for man-db (2.10.2-1) ...\r\n"}
+,{"stream_name":"stdout","time":26.242887892,"data":"Processing triggers for mailcap (3.70+nmu1ubuntu1) ...\r\n"}
+,{"stream_name":"stdout","time":26.331586421,"data":"Processing triggers for mailcap (3.70+nmu1ubuntu1) ...\r\n"}
+,{"stream_name":"stdout","time":26.331612718,"data":"[12:32:34] Installing python packages...\n"}
+,{"stream_name":"stdout","time":28.321632648,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.9/63.9 kB 3.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.523553291,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.9/63.9 kB 3.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.478799407,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.4/61.4 kB 5.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.624730144,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.0/44.0 kB 3.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.681041981,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.4/61.4 kB 5.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.681076988,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.0/44.0 kB 3.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.759316866,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.5/113.5 kB 9.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.883690971,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 107.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.908132178,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 35.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.961323707,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.5/113.5 kB 9.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.961343242,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 107.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.961352877,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 35.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":31.068376869,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 88.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":31.270055807,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 88.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stderr","time":57.464701996,"data":"2026-02-21 12:33:05.164490: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.465071038,"data":"WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n"}
+,{"stream_name":"stderr","time":57.465086516,"data":"E0000 00:00:1771677185.341611      23 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.465091441,"data":"E0000 00:00:1771677185.405169      23 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.465096319,"data":"W0000 00:00:1771677185.851058      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.465100392,"data":"W0000 00:00:1771677185.851102      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.465104222,"data":"W0000 00:00:1771677185.851110      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.465108239,"data":"W0000 00:00:1771677185.851112      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.670170778,"data":"2026-02-21 12:33:05.164490: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.670204777,"data":"WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n"}
+,{"stream_name":"stderr","time":57.670226463,"data":"E0000 00:00:1771677185.341611      23 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.670233811,"data":"E0000 00:00:1771677185.405169      23 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.670238475,"data":"W0000 00:00:1771677185.851058      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.670242478,"data":"W0000 00:00:1771677185.851102      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.67024633,"data":"W0000 00:00:1771677185.851110      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.67025265,"data":"W0000 00:00:1771677185.851112      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.670256306,"data":"\n"}
+,{"stream_name":"stderr","time":57.670258541,"data":"2026-02-21 12:33:05.164490: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.670269224,"data":"WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n"}
+,{"stream_name":"stderr","time":57.670271686,"data":"E0000 00:00:1771677185.341611      23 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.670274106,"data":"E0000 00:00:1771677185.405169      23 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"}
+,{"stream_name":"stderr","time":57.670277742,"data":"W0000 00:00:1771677185.851058      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.670280311,"data":"W0000 00:00:1771677185.851102      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.670282781,"data":"W0000 00:00:1771677185.851110      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stderr","time":57.670285258,"data":"W0000 00:00:1771677185.851112      23 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.\n"}
+,{"stream_name":"stdout","time":75.682067736,"data":"\n"}
+,{"stream_name":"stdout","time":75.682098247,"data":"********\n"}
+,{"stream_name":"stdout","time":75.682104076,"data":"Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.\n"}
+,{"stream_name":"stdout","time":75.682109389,"data":"********\n"}
+,{"stream_name":"stdout","time":75.682114196,"data":" \n"}
+,{"stream_name":"stdout","time":77.090062501,"data":"[12:33:25] Setup complete (Imports done).\n"}
+,{"stream_name":"stdout","time":77.090799525,"data":"[12:33:25] Loading Qwen model...\n"}
+,{"stream_name":"stderr","time":77.33215065,"data":"`torch_dtype` is deprecated! Use `dtype` instead!\n"}
+,{"stream_name":"stderr","time":77.332180548,"data":"\n"}
+,{"stream_name":"stderr","time":77.332185916,"data":"`torch_dtype` is deprecated! Use `dtype` instead!\n"}
+,{"stream_name":"stdout","time":89.331847764,"data":"[12:33:37] Synthesizing: The GPU is faster. No more excuses. Successfully c...\n"}
+,{"stream_name":"stderr","time":89.64006613,"data":"The following generation flags are not valid and may be ignored: ['temperature']. Set `TRANSFORMERS_VERBOSITY=info` for more details.\n"}
+,{"stream_name":"stderr","time":89.640095698,"data":"\n"}
+,{"stream_name":"stderr","time":89.640101232,"data":"The following generation flags are not valid and may be ignored: ['temperature']. Set `TRANSFORMERS_VERBOSITY=info` for more details.\n"}
+,{"stream_name":"stderr","time":89.642220036,"data":"Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.\n"}
+,{"stream_name":"stderr","time":89.642243498,"data":"\n"}
+,{"stream_name":"stderr","time":89.642249741,"data":"Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.\n"}
+,{"stream_name":"stderr","time":90.19809212,"data":"/pytorch/aten/src/ATen/native/cuda/TensorCompare.cu:112: _assert_async_cuda_kernel: block: [0,0,0], thread: [0,0,0] Assertion `probability tensor contains either `inf`, `nan` or element \u003c 0` failed.\n"}
+,{"stream_name":"stdout","time":90.232304265,"data":"[12:33:38] ERROR: CUDA error: device-side assert triggered\n"}
+,{"stream_name":"stdout","time":90.23234741,"data":"Search for `cudaErrorAssert' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":90.232368655,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stdout","time":90.232372989,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stdout","time":90.232377288,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stdout","time":90.232380985,"data":"\n"}
+,{"stream_name":"stderr","time":90.239674174,"data":"/pytorch/aten/src/ATen/native/cuda/TensorCompare.cu:112: _assert_async_cuda_kernel: block: [0,0,0], thread: [0,0,0] Assertion `probability tensor contains either `inf`, `nan` or element \u003c 0` failed.\n"}
+,{"stream_name":"stderr","time":90.239698133,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":90.239703274,"data":"  File \"/tmp/ipykernel_23/2876581066.py\", line 52, in \u003ccell line: 0\u003e\n"}
+,{"stream_name":"stderr","time":90.239707525,"data":"    audio_array = model.generate_custom_voice(text=text, speaker=voice, do_sample=False)\n"}
+,{"stream_name":"stderr","time":90.2397111,"data":"                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.23971485,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239718675,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239722424,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239725845,"data":"  File \"/usr/local/lib/python3.12/dist-packages/qwen_tts/inference/qwen3_tts_model.py\", line 829, in generate_custom_voice\n"}
+,{"stream_name":"stderr","time":90.23972958,"data":"    talker_codes_list, _ = self.model.generate(\n"}
+,{"stream_name":"stderr","time":90.239732952,"data":"                           ^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.23973685,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239741268,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239744588,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239747985,"data":"  File \"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/models/modeling_qwen3_tts.py\", line 2272, in generate\n"}
+,{"stream_name":"stderr","time":90.239752115,"data":"    talker_result = self.talker.generate(\n"}
+,{"stream_name":"stderr","time":90.239759433,"data":"                    ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239763103,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239767458,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239770921,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239774113,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2564, in generate\n"}
+,{"stream_name":"stderr","time":90.239777787,"data":"    result = decoding_method(\n"}
+,{"stream_name":"stderr","time":90.239781189,"data":"             ^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239784904,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2787, in _sample\n"}
+,{"stream_name":"stderr","time":90.239800187,"data":"    outputs = model_forward(**model_inputs, return_dict=True)\n"}
+,{"stream_name":"stderr","time":90.23980493,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239808589,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1775, in _wrapped_call_impl\n"}
+,{"stream_name":"stderr","time":90.23981247,"data":"    return self._call_impl(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239816379,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239821095,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1786, in _call_impl\n"}
+,{"stream_name":"stderr","time":90.239824972,"data":"    return forward_call(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.23982846,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239832059,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/utils/generic.py\", line 918, in wrapper\n"}
+,{"stream_name":"stderr","time":90.239835862,"data":"    output = func(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239839237,"data":"             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239843102,"data":"  File \"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/models/modeling_qwen3_tts.py\", line 1671, in forward\n"}
+,{"stream_name":"stderr","time":90.239847017,"data":"    predictor_result = self.code_predictor.generate(\n"}
+,{"stream_name":"stderr","time":90.239850508,"data":"                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.23985392,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239857494,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.23986121,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239865154,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2564, in generate\n"}
+,{"stream_name":"stderr","time":90.2398692,"data":"    result = decoding_method(\n"}
+,{"stream_name":"stderr","time":90.239872804,"data":"             ^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239876071,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2829, in _sample\n"}
+,{"stream_name":"stderr","time":90.239879731,"data":"    next_tokens = torch.multinomial(probs, num_samples=1).squeeze(1)\n"}
+,{"stream_name":"stderr","time":90.239883172,"data":"                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239886602,"data":"torch.AcceleratorError: CUDA error: device-side assert triggered\n"}
+,{"stream_name":"stderr","time":90.239890012,"data":"Search for `cudaErrorAssert' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":90.239893604,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stderr","time":90.239897085,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stderr","time":90.239901915,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stderr","time":90.239905524,"data":"\n"}
+,{"stream_name":"stderr","time":90.239907901,"data":"\n"}
+,{"stream_name":"stderr","time":90.239910149,"data":"/pytorch/aten/src/ATen/native/cuda/TensorCompare.cu:112: _assert_async_cuda_kernel: block: [0,0,0], thread: [0,0,0] Assertion `probability tensor contains either `inf`, `nan` or element \u003c 0` failed.\n"}
+,{"stream_name":"stderr","time":90.239916737,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":90.239919072,"data":"  File \"/tmp/ipykernel_23/2876581066.py\", line 52, in \u003ccell line: 0\u003e\n"}
+,{"stream_name":"stderr","time":90.239921555,"data":"    audio_array = model.generate_custom_voice(text=text, speaker=voice, do_sample=False)\n"}
+,{"stream_name":"stderr","time":90.239923985,"data":"                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.23992671,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239929149,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239931342,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.23993409,"data":"  File \"/usr/local/lib/python3.12/dist-packages/qwen_tts/inference/qwen3_tts_model.py\", line 829, in generate_custom_voice\n"}
+,{"stream_name":"stderr","time":90.239937707,"data":"    talker_codes_list, _ = self.model.generate(\n"}
+,{"stream_name":"stderr","time":90.239940774,"data":"                           ^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239943029,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239945492,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239947912,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239950117,"data":"  File \"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/models/modeling_qwen3_tts.py\", line 2272, in generate\n"}
+,{"stream_name":"stderr","time":90.239952501,"data":"    talker_result = self.talker.generate(\n"}
+,{"stream_name":"stderr","time":90.239954755,"data":"                    ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239956977,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.239959294,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239961467,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239963725,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2564, in generate\n"}
+,{"stream_name":"stderr","time":90.239966087,"data":"    result = decoding_method(\n"}
+,{"stream_name":"stderr","time":90.239968262,"data":"             ^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239970443,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2787, in _sample\n"}
+,{"stream_name":"stderr","time":90.239972866,"data":"    outputs = model_forward(**model_inputs, return_dict=True)\n"}
+,{"stream_name":"stderr","time":90.239975117,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239977372,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1775, in _wrapped_call_impl\n"}
+,{"stream_name":"stderr","time":90.239979709,"data":"    return self._call_impl(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239982001,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239984213,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1786, in _call_impl\n"}
+,{"stream_name":"stderr","time":90.2399889,"data":"    return forward_call(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239991171,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.239993397,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/utils/generic.py\", line 918, in wrapper\n"}
+,{"stream_name":"stderr","time":90.239995787,"data":"    output = func(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.239997982,"data":"             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.240000207,"data":"  File \"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/models/modeling_qwen3_tts.py\", line 1671, in forward\n"}
+,{"stream_name":"stderr","time":90.240003065,"data":"    predictor_result = self.code_predictor.generate(\n"}
+,{"stream_name":"stderr","time":90.240005329,"data":"                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.240007581,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py\", line 120, in decorate_context\n"}
+,{"stream_name":"stderr","time":90.240009924,"data":"    return func(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":90.240012111,"data":"           ^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.240014505,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2564, in generate\n"}
+,{"stream_name":"stderr","time":90.240016858,"data":"    result = decoding_method(\n"}
+,{"stream_name":"stderr","time":90.240019048,"data":"             ^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.24002123,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/generation/utils.py\", line 2829, in _sample\n"}
+,{"stream_name":"stderr","time":90.240023594,"data":"    next_tokens = torch.multinomial(probs, num_samples=1).squeeze(1)\n"}
+,{"stream_name":"stderr","time":90.240025864,"data":"                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":90.24002813,"data":"torch.AcceleratorError: CUDA error: device-side assert triggered\n"}
+,{"stream_name":"stderr","time":90.240030379,"data":"Search for `cudaErrorAssert' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":90.240032779,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stderr","time":90.240035134,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stderr","time":90.240037406,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stderr","time":90.24003969,"data":"\n"}
+,{"stream_name":"stderr","time":95.789994703,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":95.790022672,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":95.93363853,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":95.933663849,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":96.487782048,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"remove_papermill_header.RemovePapermillHeader\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":96.487827125,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":100.0615263,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":100.390727215,"data":"[NbConvertApp] Writing 165027 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":102.701965383,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"nbconvert.preprocessors.ExtractOutputPreprocessor\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":102.701993046,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":102.722470289,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":103.525080946,"data":"[NbConvertApp] Writing 416004 bytes to __results__.html\n"}
+]

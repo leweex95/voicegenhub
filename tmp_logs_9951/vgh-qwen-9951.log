@@ -1,0 +1,135 @@
+[{"stream_name":"stderr","time":6.202867164,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.202939578,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.2029446870000005,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.202947335,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.772392431,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.772418603,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.772422189,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.772424731,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.010223753,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":8.010249283,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":8.010255268,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":8.010354425,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":8.010377316,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":8.010558097,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":8.010748733,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":8.010755615,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":8.010760003,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":8.01076368,"data":"  File \"/tmp/ipykernel_24/4023502002.py\", line 23\n"}
+,{"stream_name":"stderr","time":8.010767396,"data":"    subprocess.run(\"pip install -q -U sox qwen-tts==0.1.1 `\"transformers\u003e=4.48.0`\"\", shell=True)\n"}
+,{"stream_name":"stderr","time":8.010771343,"data":"                   ^\n"}
+,{"stream_name":"stderr","time":8.010774698,"data":"SyntaxError: invalid syntax. Perhaps you forgot a comma?\n"}
+,{"stream_name":"stderr","time":8.010778295,"data":"\n"}
+,{"stream_name":"stderr","time":8.010781426,"data":"\n"}
+,{"stream_name":"stderr","time":10.034080753,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":10.034110123,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":10.177936649,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":10.177961646,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":10.726475878,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"remove_papermill_header.RemovePapermillHeader\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":10.726510616,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":10.755415908,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":10.793860863999999,"data":"[NbConvertApp] ERROR | Notebook JSON is invalid: '#VSC-d43e8ecf' does not match '^[a-zA-Z0-9-_]+$'\n"}
+,{"stream_name":"stderr","time":10.793881522,"data":"\n"}
+,{"stream_name":"stderr","time":10.793887908,"data":"Failed validating 'pattern' in code_cell['properties']['id']:\n"}
+,{"stream_name":"stderr","time":10.793891585,"data":"\n"}
+,{"stream_name":"stderr","time":10.793896394,"data":"On instance['cells'][2]['id']:\n"}
+,{"stream_name":"stderr","time":10.793900525,"data":"'#VSC-d43e8ecf'\n"}
+,{"stream_name":"stderr","time":10.821039478,"data":"[NbConvertApp] ERROR | Notebook is invalid after preprocessor \u003cnbconvert.preprocessors.tagremove.TagRemovePreprocessor object at 0x78bd24027320\u003e\n"}
+,{"stream_name":"stderr","time":10.821069785,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":10.821082356,"data":"  File \"/usr/local/bin/jupyter-nbconvert\", line 10, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":10.821087771,"data":"    sys.exit(main())\n"}
+,{"stream_name":"stderr","time":10.821091705,"data":"             ^^^^^^\n"}
+,{"stream_name":"stderr","time":10.821095866,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_core/application.py\", line 284, in launch_instance\n"}
+,{"stream_name":"stderr","time":10.821970491,"data":"    super().launch_instance(argv=argv, **kwargs)\n"}
+,{"stream_name":"stderr","time":10.821977591,"data":"  File \"/usr/local/lib/python3.12/dist-packages/traitlets/config/application.py\", line 992, in launch_instance\n"}
+,{"stream_name":"stderr","time":10.823208257,"data":"    app.start()\n"}
+,{"stream_name":"stderr","time":10.823223139,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 369, in start\n"}
+,{"stream_name":"stderr","time":10.823395415,"data":"    self.convert_notebooks()\n"}
+,{"stream_name":"stderr","time":10.823401135,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 541, in convert_notebooks\n"}
+,{"stream_name":"stderr","time":10.823591573,"data":"    self.convert_single_notebook(notebook_filename)\n"}
+,{"stream_name":"stderr","time":10.823597106,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 506, in convert_single_notebook\n"}
+,{"stream_name":"stderr","time":10.823809374,"data":"    output, resources = self.export_single_notebook(notebook_filename, resources, input_buffer=input_buffer)\n"}
+,{"stream_name":"stderr","time":10.823870567,"data":"                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":10.823876205,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 435, in export_single_notebook\n"}
+,{"stream_name":"stderr","time":10.824066598,"data":"    output, resources = self.exporter.from_filename(notebook_filename, resources=resources)\n"}
+,{"stream_name":"stderr","time":10.824143583,"data":"                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":10.824149576,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 190, in from_filename\n"}
+,{"stream_name":"stderr","time":10.824303071,"data":"    return self.from_file(f, resources=resources, **kw)\n"}
+,{"stream_name":"stderr","time":10.824309011,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":10.824312692,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 208, in from_file\n"}
+,{"stream_name":"stderr","time":10.824460941,"data":"    return self.from_notebook_node(nbformat.read(file_stream, as_version=4), resources=resources, **kw)\n"}
+,{"stream_name":"stderr","time":10.824538535,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":10.824552634,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/notebook.py\", line 32, in from_notebook_node\n"}
+,{"stream_name":"stderr","time":10.824615525,"data":"    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)\n"}
+,{"stream_name":"stderr","time":10.824689477,"data":"                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":10.824697713,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 147, in from_notebook_node\n"}
+,{"stream_name":"stderr","time":10.824808808,"data":"    nb_copy, resources = self._preprocess(nb_copy, resources)\n"}
+,{"stream_name":"stderr","time":10.824844264,"data":"                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":10.824848356,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 336, in _preprocess\n"}
+,{"stream_name":"stderr","time":10.825059597,"data":"    self._validate_preprocessor(nbc, preprocessor)\n"}
+,{"stream_name":"stderr","time":10.825070332,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 305, in _validate_preprocessor\n"}
+,{"stream_name":"stderr","time":10.825243227,"data":"    nbformat.validate(nbc, relax_add_props=True)\n"}
+,{"stream_name":"stderr","time":10.825248186,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbformat/validator.py\", line 509, in validate\n"}
+,{"stream_name":"stderr","time":10.826666292,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":10.82911532,"data":"nbformat.validator.NotebookValidationError: '#VSC-d43e8ecf' does not match '^[a-zA-Z0-9-_]+$'\n"}
+,{"stream_name":"stderr","time":10.829126612,"data":"\n"}
+,{"stream_name":"stderr","time":10.829130811,"data":"Failed validating 'pattern' in code_cell['properties']['id']:\n"}
+,{"stream_name":"stderr","time":10.829135038,"data":"\n"}
+,{"stream_name":"stderr","time":10.829138798,"data":"On instance['cells'][2]['id']:\n"}
+,{"stream_name":"stderr","time":10.829143084,"data":"'#VSC-d43e8ecf'\n"}
+,{"stream_name":"stderr","time":13.127683873,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"nbconvert.preprocessors.ExtractOutputPreprocessor\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":13.127720594,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":13.147538356,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":13.186715484,"data":"[NbConvertApp] ERROR | Notebook JSON is invalid: '#VSC-d43e8ecf' does not match '^[a-zA-Z0-9-_]+$'\n"}
+,{"stream_name":"stderr","time":13.186743529,"data":"\n"}
+,{"stream_name":"stderr","time":13.186748634,"data":"Failed validating 'pattern' in code_cell['properties']['id']:\n"}
+,{"stream_name":"stderr","time":13.186752756,"data":"\n"}
+,{"stream_name":"stderr","time":13.186756402,"data":"On instance['cells'][2]['id']:\n"}
+,{"stream_name":"stderr","time":13.186760304,"data":"'#VSC-d43e8ecf'\n"}
+,{"stream_name":"stderr","time":13.221651306,"data":"[NbConvertApp] ERROR | Notebook is invalid after preprocessor \u003cnbconvert.preprocessors.tagremove.TagRemovePreprocessor object at 0x7ded4ac766c0\u003e\n"}
+,{"stream_name":"stderr","time":13.221690163,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":13.221695663,"data":"  File \"/usr/local/bin/jupyter-nbconvert\", line 10, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":13.221699763,"data":"    sys.exit(main())\n"}
+,{"stream_name":"stderr","time":13.221703067,"data":"             ^^^^^^\n"}
+,{"stream_name":"stderr","time":13.221706461,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_core/application.py\", line 284, in launch_instance\n"}
+,{"stream_name":"stderr","time":13.221861886,"data":"    super().launch_instance(argv=argv, **kwargs)\n"}
+,{"stream_name":"stderr","time":13.221868545,"data":"  File \"/usr/local/lib/python3.12/dist-packages/traitlets/config/application.py\", line 992, in launch_instance\n"}
+,{"stream_name":"stderr","time":13.222202761,"data":"    app.start()\n"}
+,{"stream_name":"stderr","time":13.222212255,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 369, in start\n"}
+,{"stream_name":"stderr","time":13.222392215,"data":"    self.convert_notebooks()\n"}
+,{"stream_name":"stderr","time":13.222399043,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 541, in convert_notebooks\n"}
+,{"stream_name":"stderr","time":13.222637012,"data":"    self.convert_single_notebook(notebook_filename)\n"}
+,{"stream_name":"stderr","time":13.222643348,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 506, in convert_single_notebook\n"}
+,{"stream_name":"stderr","time":13.222865752,"data":"    output, resources = self.export_single_notebook(notebook_filename, resources, input_buffer=input_buffer)\n"}
+,{"stream_name":"stderr","time":13.222915063,"data":"                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.222922323,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/nbconvertapp.py\", line 435, in export_single_notebook\n"}
+,{"stream_name":"stderr","time":13.223139525,"data":"    output, resources = self.exporter.from_filename(notebook_filename, resources=resources)\n"}
+,{"stream_name":"stderr","time":13.223191895,"data":"                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.223198233,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 190, in from_filename\n"}
+,{"stream_name":"stderr","time":13.223375614,"data":"    return self.from_file(f, resources=resources, **kw)\n"}
+,{"stream_name":"stderr","time":13.223382603,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.223386218,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 208, in from_file\n"}
+,{"stream_name":"stderr","time":13.223522033,"data":"    return self.from_notebook_node(nbformat.read(file_stream, as_version=4), resources=resources, **kw)\n"}
+,{"stream_name":"stderr","time":13.223585356,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.223592157,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/html.py\", line 211, in from_notebook_node\n"}
+,{"stream_name":"stderr","time":13.223759574,"data":"    return super().from_notebook_node(nb, resources, **kw)\n"}
+,{"stream_name":"stderr","time":13.22376501,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.223777137,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/templateexporter.py\", line 375, in from_notebook_node\n"}
+,{"stream_name":"stderr","time":13.223975223,"data":"    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)\n"}
+,{"stream_name":"stderr","time":13.224005197,"data":"                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.224024072,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 147, in from_notebook_node\n"}
+,{"stream_name":"stderr","time":13.224163979,"data":"    nb_copy, resources = self._preprocess(nb_copy, resources)\n"}
+,{"stream_name":"stderr","time":13.224178677,"data":"                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":13.224182703,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 336, in _preprocess\n"}
+,{"stream_name":"stderr","time":13.224387081,"data":"    self._validate_preprocessor(nbc, preprocessor)\n"}
+,{"stream_name":"stderr","time":13.224393477,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbconvert/exporters/exporter.py\", line 305, in _validate_preprocessor\n"}
+,{"stream_name":"stderr","time":13.224535022,"data":"    nbformat.validate(nbc, relax_add_props=True)\n"}
+,{"stream_name":"stderr","time":13.224549804,"data":"  File \"/usr/local/lib/python3.12/dist-packages/nbformat/validator.py\", line 509, in validate\n"}
+,{"stream_name":"stderr","time":13.224772738,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":13.224831756,"data":"nbformat.validator.NotebookValidationError: '#VSC-d43e8ecf' does not match '^[a-zA-Z0-9-_]+$'\n"}
+,{"stream_name":"stderr","time":13.224837572,"data":"\n"}
+,{"stream_name":"stderr","time":13.224841117,"data":"Failed validating 'pattern' in code_cell['properties']['id']:\n"}
+,{"stream_name":"stderr","time":13.224844603,"data":"\n"}
+,{"stream_name":"stderr","time":13.224847802,"data":"On instance['cells'][2]['id']:\n"}
+,{"stream_name":"stderr","time":13.224851172,"data":"'#VSC-d43e8ecf'\n"}
+]

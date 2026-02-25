@@ -1,0 +1,680 @@
+[{"stream_name":"stderr","time":5.398127914,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":5.3981848,"data":"  validate(nb)\n"}
+,{"stream_name":"stderr","time":6.2687688999999995,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.268800704,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.268805911,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.268809939,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.846099447,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.8461329,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.846138829,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.846142634,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":11.519826189,"data":"[09:59:16] Installing dependencies (this takes 1-2 mins)...\n"}
+,{"stream_name":"stdout","time":11.822014613,"data":"Get:1 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3,632 B]\n"}
+,{"stream_name":"stdout","time":11.832618613,"data":"Get:2 https://cli.github.com/packages stable InRelease [3,917 B]\n"}
+,{"stream_name":"stdout","time":11.854717959,"data":"Get:3 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1,581 B]\n"}
+,{"stream_name":"stdout","time":12.012939443,"data":"Get:4 https://r2u.stat.illinois.edu/ubuntu jammy InRelease [6,555 B]\n"}
+,{"stream_name":"stdout","time":12.024101685,"data":"Get:5 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]\n"}
+,{"stream_name":"stdout","time":12.024216326,"data":"Get:1 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3,632 B]\n"}
+,{"stream_name":"stdout","time":12.024224276,"data":"Get:2 https://cli.github.com/packages stable InRelease [3,917 B]\n"}
+,{"stream_name":"stdout","time":12.024229519,"data":"Get:3 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1,581 B]\n"}
+,{"stream_name":"stdout","time":12.024234811,"data":"Get:4 https://r2u.stat.illinois.edu/ubuntu jammy InRelease [6,555 B]\n"}
+,{"stream_name":"stdout","time":12.058004486,"data":"Get:6 https://cli.github.com/packages stable/main amd64 Packages [356 B]\n"}
+,{"stream_name":"stdout","time":12.068082428,"data":"Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.123980108,"data":"Get:8 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [2,361 kB]\n"}
+,{"stream_name":"stdout","time":12.213831815,"data":"Get:9 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]\n"}
+,{"stream_name":"stdout","time":12.226643074,"data":"Get:5 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]\n"}
+,{"stream_name":"stdout","time":12.226683066,"data":"Get:6 https://cli.github.com/packages stable/main amd64 Packages [356 B]\n"}
+,{"stream_name":"stdout","time":12.226688934,"data":"Hit:7 http://archive.ubuntu.com/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.226703957,"data":"Get:8 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [2,361 kB]\n"}
+,{"stream_name":"stdout","time":12.226708054,"data":"Get:9 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]\n"}
+,{"stream_name":"stdout","time":12.335213182,"data":"Get:10 https://r2u.stat.illinois.edu/ubuntu jammy/main all Packages [9,769 kB]\n"}
+,{"stream_name":"stdout","time":12.344399315,"data":"Hit:11 https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.484918383,"data":"Hit:12 https://ppa.launchpadcontent.net/graphics-drivers/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.537440972,"data":"Get:10 https://r2u.stat.illinois.edu/ubuntu jammy/main all Packages [9,769 kB]\n"}
+,{"stream_name":"stdout","time":12.537472723,"data":"Hit:11 https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.53747757,"data":"Hit:12 https://ppa.launchpadcontent.net/graphics-drivers/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.612594439,"data":"Hit:13 https://ppa.launchpadcontent.net/ubuntugis/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.814804023,"data":"Hit:13 https://ppa.launchpadcontent.net/ubuntugis/ppa/ubuntu jammy InRelease\n"}
+,{"stream_name":"stdout","time":12.83806234,"data":"Get:14 https://r2u.stat.illinois.edu/ubuntu jammy/main amd64 Packages [2,909 kB]\n"}
+,{"stream_name":"stdout","time":12.866686174,"data":"Get:15 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3,737 kB]\n"}
+,{"stream_name":"stdout","time":12.871991065,"data":"Get:16 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]\n"}
+,{"stream_name":"stdout","time":13.041255301,"data":"Get:14 https://r2u.stat.illinois.edu/ubuntu jammy/main amd64 Packages [2,909 kB]\n"}
+,{"stream_name":"stdout","time":13.041284669,"data":"Get:15 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3,737 kB]\n"}
+,{"stream_name":"stdout","time":13.041289724,"data":"Get:16 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]\n"}
+,{"stream_name":"stdout","time":13.136724819,"data":"Get:17 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,613 kB]\n"}
+,{"stream_name":"stdout","time":13.339037323,"data":"Get:17 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,613 kB]\n"}
+,{"stream_name":"stdout","time":13.688079113,"data":"Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6,749 kB]\n"}
+,{"stream_name":"stdout","time":13.690849514,"data":"Get:19 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6,538 kB]\n"}
+,{"stream_name":"stdout","time":13.890945056,"data":"Get:20 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1,301 kB]\n"}
+,{"stream_name":"stdout","time":13.891226092,"data":"Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6,749 kB]\n"}
+,{"stream_name":"stdout","time":13.891265884,"data":"Get:19 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6,538 kB]\n"}
+,{"stream_name":"stdout","time":14.050597634,"data":"Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4,070 kB]\n"}
+,{"stream_name":"stdout","time":14.093978847,"data":"Get:20 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1,301 kB]\n"}
+,{"stream_name":"stdout","time":14.09401321,"data":"Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4,070 kB]\n"}
+,{"stream_name":"stdout","time":14.924125882,"data":"Fetched 39.4 MB in 3s (12.5 MB/s)\n"}
+,{"stream_name":"stdout","time":15.126332675,"data":"Reading package lists...Fetched 39.4 MB in 3s (12.5 MB/s)\n"}
+,{"stream_name":"stdout","time":16.657545501,"data":"Reading package lists...\n"}
+,{"stream_name":"stderr","time":16.680892716,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stdout","time":16.859906724,"data":"\n"}
+,{"stream_name":"stderr","time":16.88331828,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stderr","time":16.883344299,"data":"\n"}
+,{"stream_name":"stderr","time":16.883348509,"data":"W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n"}
+,{"stream_name":"stdout","time":25.894022074,"data":"[09:59:30] Downgrading to numpy \u003c 2 and torch 2.4.1...\n"}
+,{"stream_name":"stdout","time":28.118926702,"data":"Collecting numpy==1.26.4\n"}
+,{"stream_name":"stdout","time":28.15337211,"data":"  Downloading numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)\n"}
+,{"stream_name":"stdout","time":28.162137771,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.0/61.0 kB 8.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.272465135,"data":"Collecting torch==2.4.1\n"}
+,{"stream_name":"stdout","time":28.28161409,"data":"  Downloading torch-2.4.1-cp312-cp312-manylinux1_x86_64.whl.metadata (26 kB)\n"}
+,{"stream_name":"stdout","time":28.321331478,"data":"Collecting numpy==1.26.4\n"}
+,{"stream_name":"stdout","time":28.321369189,"data":"  Downloading numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)\n"}
+,{"stream_name":"stdout","time":28.321374225,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.0/61.0 kB 8.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.32137933,"data":"Collecting torch==2.4.1\n"}
+,{"stream_name":"stdout","time":28.321383022,"data":"  Downloading torch-2.4.1-cp312-cp312-manylinux1_x86_64.whl.metadata (26 kB)\n"}
+,{"stream_name":"stdout","time":28.377394587,"data":"Collecting torchaudio==2.4.1\n"}
+,{"stream_name":"stdout","time":28.387147975,"data":"  Downloading torchaudio-2.4.1-cp312-cp312-manylinux1_x86_64.whl.metadata (6.4 kB)\n"}
+,{"stream_name":"stdout","time":28.489040696,"data":"Collecting torchvision==0.19.1\n"}
+,{"stream_name":"stdout","time":28.498055711,"data":"  Downloading torchvision-0.19.1-cp312-cp312-manylinux1_x86_64.whl.metadata (6.0 kB)\n"}
+,{"stream_name":"stdout","time":28.578606757,"data":"Collecting transformers==4.44.2\n"}
+,{"stream_name":"stdout","time":28.58001043,"data":"Collecting torchaudio==2.4.1\n"}
+,{"stream_name":"stdout","time":28.580036581,"data":"  Downloading torchaudio-2.4.1-cp312-cp312-manylinux1_x86_64.whl.metadata (6.4 kB)\n"}
+,{"stream_name":"stdout","time":28.580042632,"data":"Collecting torchvision==0.19.1\n"}
+,{"stream_name":"stdout","time":28.580047815,"data":"  Downloading torchvision-0.19.1-cp312-cp312-manylinux1_x86_64.whl.metadata (6.0 kB)\n"}
+,{"stream_name":"stdout","time":28.587759896,"data":"  Downloading transformers-4.44.2-py3-none-any.whl.metadata (43 kB)\n"}
+,{"stream_name":"stdout","time":28.590090297,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.7/43.7 kB 270.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.671831728,"data":"Requirement already satisfied: soundfile in /usr/local/lib/python3.12/dist-packages (0.13.1)\n"}
+,{"stream_name":"stdout","time":28.690810174,"data":"Collecting num2words\n"}
+,{"stream_name":"stdout","time":28.699255528,"data":"  Downloading num2words-0.5.14-py3-none-any.whl.metadata (13 kB)\n"}
+,{"stream_name":"stdout","time":28.724167739,"data":"Collecting phonemizer\n"}
+,{"stream_name":"stdout","time":28.733022536,"data":"  Downloading phonemizer-3.3.0-py3-none-any.whl.metadata (48 kB)\n"}
+,{"stream_name":"stdout","time":28.73541138,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 219.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.751438641,"data":"Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (3.20.3)\n"}
+,{"stream_name":"stdout","time":28.752561622,"data":"Requirement already satisfied: typing-extensions\u003e=4.8.0 in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (4.15.0)\n"}
+,{"stream_name":"stdout","time":28.754019231,"data":"Requirement already satisfied: sympy in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (1.14.0)\n"}
+,{"stream_name":"stdout","time":28.755330154,"data":"Requirement already satisfied: networkx in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (3.6.1)\n"}
+,{"stream_name":"stdout","time":28.756295787,"data":"Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (3.1.6)\n"}
+,{"stream_name":"stdout","time":28.75814266,"data":"Requirement already satisfied: fsspec in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (2025.3.0)\n"}
+,{"stream_name":"stdout","time":28.75938776,"data":"Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (75.2.0)\n"}
+,{"stream_name":"stdout","time":28.781191225,"data":"Collecting transformers==4.44.2\n"}
+,{"stream_name":"stdout","time":28.781218928,"data":"  Downloading transformers-4.44.2-py3-none-any.whl.metadata (43 kB)\n"}
+,{"stream_name":"stdout","time":28.781224188,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.7/43.7 kB 270.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.781229478,"data":"Requirement already satisfied: soundfile in /usr/local/lib/python3.12/dist-packages (0.13.1)\n"}
+,{"stream_name":"stdout","time":28.781233708,"data":"Collecting num2words\n"}
+,{"stream_name":"stdout","time":28.781237675,"data":"  Downloading num2words-0.5.14-py3-none-any.whl.metadata (13 kB)\n"}
+,{"stream_name":"stdout","time":28.781242038,"data":"Collecting phonemizer\n"}
+,{"stream_name":"stdout","time":28.781246174,"data":"  Downloading phonemizer-3.3.0-py3-none-any.whl.metadata (48 kB)\n"}
+,{"stream_name":"stdout","time":28.781250364,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.2/48.2 kB 219.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.781255053,"data":"Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (3.20.3)\n"}
+,{"stream_name":"stdout","time":28.781258719,"data":"Requirement already satisfied: typing-extensions\u003e=4.8.0 in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (4.15.0)\n"}
+,{"stream_name":"stdout","time":28.781275501,"data":"Requirement already satisfied: sympy in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (1.14.0)\n"}
+,{"stream_name":"stdout","time":28.781290591,"data":"Requirement already satisfied: networkx in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (3.6.1)\n"}
+,{"stream_name":"stdout","time":28.781293278,"data":"Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (3.1.6)\n"}
+,{"stream_name":"stdout","time":28.781295726,"data":"Requirement already satisfied: fsspec in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (2025.3.0)\n"}
+,{"stream_name":"stdout","time":28.781298208,"data":"Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch==2.4.1) (75.2.0)\n"}
+,{"stream_name":"stdout","time":28.785296204,"data":"Collecting nvidia-cuda-nvrtc-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.793886476,"data":"  Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.819887204,"data":"Collecting nvidia-cuda-runtime-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.828548963,"data":"  Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.853941248,"data":"Collecting nvidia-cuda-cupti-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.862247127,"data":"  Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":28.895933467,"data":"Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.904497175,"data":"  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":28.930815160999998,"data":"Collecting nvidia-cublas-cu12==12.1.3.1 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.93934882,"data":"  Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.966303929,"data":"Collecting nvidia-cufft-cu12==11.0.2.54 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.974801694,"data":"  Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.987336306,"data":"Collecting nvidia-cuda-nvrtc-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.987356861,"data":"  Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.987361605,"data":"Collecting nvidia-cuda-runtime-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.9873657,"data":"  Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.987369483,"data":"Collecting nvidia-cuda-cupti-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.987373567,"data":"  Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":28.987377468,"data":"Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.98738115,"data":"  Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":28.987385094,"data":"Collecting nvidia-cublas-cu12==12.1.3.1 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.987388525,"data":"  Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":28.987408193,"data":"Collecting nvidia-cufft-cu12==11.0.2.54 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":28.987412186,"data":"  Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":29.000038657,"data":"Collecting nvidia-curand-cu12==10.3.2.106 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.008443224,"data":"  Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":29.034870019,"data":"Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.043389805,"data":"  Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":29.068980612,"data":"Collecting nvidia-cusparse-cu12==12.1.0.106 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.077335329,"data":"  Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":29.102374294,"data":"Collecting nvidia-nccl-cu12==2.20.5 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.111519168,"data":"  Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl.metadata (1.8 kB)\n"}
+,{"stream_name":"stdout","time":29.137268457,"data":"Collecting nvidia-nvtx-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.145703205,"data":"  Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.7 kB)\n"}
+,{"stream_name":"stdout","time":29.179564807,"data":"Collecting triton==3.0.0 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.18891978,"data":"  Downloading triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.3 kB)\n"}
+,{"stream_name":"stdout","time":29.199674231,"data":"Requirement already satisfied: pillow!=8.3.*,\u003e=5.3.0 in /usr/local/lib/python3.12/dist-packages (from torchvision==0.19.1) (11.3.0)\n"}
+,{"stream_name":"stdout","time":29.202181057,"data":"Collecting nvidia-curand-cu12==10.3.2.106 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.202204008,"data":"  Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)\n"}
+,{"stream_name":"stdout","time":29.20220895,"data":"Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.202212654,"data":"  Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":29.20221685,"data":"Collecting nvidia-cusparse-cu12==12.1.0.106 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.202220425,"data":"  Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)\n"}
+,{"stream_name":"stdout","time":29.202223995,"data":"Collecting nvidia-nccl-cu12==2.20.5 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.202227625,"data":"  Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl.metadata (1.8 kB)\n"}
+,{"stream_name":"stdout","time":29.202231454,"data":"Collecting nvidia-nvtx-cu12==12.1.105 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.202235234,"data":"  Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.7 kB)\n"}
+,{"stream_name":"stdout","time":29.202239198,"data":"Collecting triton==3.0.0 (from torch==2.4.1)\n"}
+,{"stream_name":"stdout","time":29.202242967,"data":"  Downloading triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.3 kB)\n"}
+,{"stream_name":"stdout","time":29.202247111,"data":"Requirement already satisfied: pillow!=8.3.*,\u003e=5.3.0 in /usr/local/lib/python3.12/dist-packages (from torchvision==0.19.1) (11.3.0)\n"}
+,{"stream_name":"stdout","time":29.320636525,"data":"Collecting huggingface-hub\u003c1.0,\u003e=0.23.2 (from transformers==4.44.2)\n"}
+,{"stream_name":"stdout","time":29.329497723,"data":"  Downloading huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)\n"}
+,{"stream_name":"stdout","time":29.400021355,"data":"Requirement already satisfied: packaging\u003e=20.0 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (25.0)\n"}
+,{"stream_name":"stdout","time":29.401149884,"data":"Requirement already satisfied: pyyaml\u003e=5.1 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (6.0.3)\n"}
+,{"stream_name":"stdout","time":29.403318243,"data":"Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (2025.11.3)\n"}
+,{"stream_name":"stdout","time":29.404481086,"data":"Requirement already satisfied: requests in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (2.32.4)\n"}
+,{"stream_name":"stdout","time":29.405772566,"data":"Requirement already satisfied: safetensors\u003e=0.4.1 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (0.7.0)\n"}
+,{"stream_name":"stdout","time":29.522965548,"data":"Collecting huggingface-hub\u003c1.0,\u003e=0.23.2 (from transformers==4.44.2)\n"}
+,{"stream_name":"stdout","time":29.523003055,"data":"  Downloading huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)\n"}
+,{"stream_name":"stdout","time":29.523008194,"data":"Requirement already satisfied: packaging\u003e=20.0 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (25.0)\n"}
+,{"stream_name":"stdout","time":29.523012665,"data":"Requirement already satisfied: pyyaml\u003e=5.1 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (6.0.3)\n"}
+,{"stream_name":"stdout","time":29.523016931,"data":"Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (2025.11.3)\n"}
+,{"stream_name":"stdout","time":29.523021108000002,"data":"Requirement already satisfied: requests in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (2.32.4)\n"}
+,{"stream_name":"stdout","time":29.523025219,"data":"Requirement already satisfied: safetensors\u003e=0.4.1 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (0.7.0)\n"}
+,{"stream_name":"stdout","time":29.704644556,"data":"Collecting tokenizers\u003c0.20,\u003e=0.19 (from transformers==4.44.2)\n"}
+,{"stream_name":"stdout","time":29.714495788,"data":"  Downloading tokenizers-0.19.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)\n"}
+,{"stream_name":"stdout","time":29.720754263,"data":"Requirement already satisfied: tqdm\u003e=4.27 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (4.67.1)\n"}
+,{"stream_name":"stdout","time":29.727464411,"data":"Requirement already satisfied: nvidia-nvjitlink-cu12 in /usr/local/lib/python3.12/dist-packages (from nvidia-cusolver-cu12==11.4.5.107-\u003etorch==2.4.1) (12.6.85)\n"}
+,{"stream_name":"stdout","time":29.734173664,"data":"Requirement already satisfied: cffi\u003e=1.0 in /usr/local/lib/python3.12/dist-packages (from soundfile) (2.0.0)\n"}
+,{"stream_name":"stdout","time":29.748141746,"data":"INFO: pip is looking at multiple versions of num2words to determine which version is compatible with other requirements. This could take a while.\n"}
+,{"stream_name":"stdout","time":29.754910547,"data":"Collecting num2words\n"}
+,{"stream_name":"stdout","time":29.764547993,"data":"  Downloading num2words-0.5.13-py3-none-any.whl.metadata (12 kB)\n"}
+,{"stream_name":"stdout","time":29.783692915,"data":"  Downloading num2words-0.5.12-py3-none-any.whl.metadata (11 kB)\n"}
+,{"stream_name":"stdout","time":29.872710372,"data":"  Downloading num2words-0.5.11-py3-none-any.whl.metadata (10 kB)\n"}
+,{"stream_name":"stdout","time":29.891507109,"data":"  Downloading num2words-0.5.10-py3-none-any.whl.metadata (8.9 kB)\n"}
+,{"stream_name":"stdout","time":29.906802821,"data":"Collecting tokenizers\u003c0.20,\u003e=0.19 (from transformers==4.44.2)\n"}
+,{"stream_name":"stdout","time":29.906833488,"data":"  Downloading tokenizers-0.19.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)\n"}
+,{"stream_name":"stdout","time":29.9068374,"data":"Requirement already satisfied: tqdm\u003e=4.27 in /usr/local/lib/python3.12/dist-packages (from transformers==4.44.2) (4.67.1)\n"}
+,{"stream_name":"stdout","time":29.906840235,"data":"Requirement already satisfied: nvidia-nvjitlink-cu12 in /usr/local/lib/python3.12/dist-packages (from nvidia-cusolver-cu12==11.4.5.107-\u003etorch==2.4.1) (12.6.85)\n"}
+,{"stream_name":"stdout","time":29.906843095,"data":"Requirement already satisfied: cffi\u003e=1.0 in /usr/local/lib/python3.12/dist-packages (from soundfile) (2.0.0)\n"}
+,{"stream_name":"stdout","time":29.90684583,"data":"INFO: pip is looking at multiple versions of num2words to determine which version is compatible with other requirements. This could take a while.\n"}
+,{"stream_name":"stdout","time":29.906848332,"data":"Collecting num2words\n"}
+,{"stream_name":"stdout","time":29.90685096,"data":"  Downloading num2words-0.5.13-py3-none-any.whl.metadata (12 kB)\n"}
+,{"stream_name":"stdout","time":29.906865235,"data":"  Downloading num2words-0.5.12-py3-none-any.whl.metadata (11 kB)\n"}
+,{"stream_name":"stdout","time":29.906867724,"data":"  Downloading num2words-0.5.11-py3-none-any.whl.metadata (10 kB)\n"}
+,{"stream_name":"stdout","time":29.906870323,"data":"  Downloading num2words-0.5.10-py3-none-any.whl.metadata (8.9 kB)\n"}
+,{"stream_name":"stdout","time":29.909351909,"data":"  Downloading num2words-0.5.9-py3-none-any.whl.metadata (8.3 kB)\n"}
+,{"stream_name":"stdout","time":29.927548059,"data":"  Downloading num2words-0.5.8-py3-none-any.whl.metadata (8.3 kB)\n"}
+,{"stream_name":"stdout","time":29.946069171,"data":"  Downloading num2words-0.5.6-py2.py3-none-any.whl.metadata (5.9 kB)\n"}
+,{"stream_name":"stdout","time":29.950462409,"data":"Requirement already satisfied: joblib in /usr/local/lib/python3.12/dist-packages (from phonemizer) (1.5.3)\n"}
+,{"stream_name":"stdout","time":29.97139416,"data":"Collecting segments (from phonemizer)\n"}
+,{"stream_name":"stdout","time":29.980427485,"data":"  Downloading segments-2.3.0-py2.py3-none-any.whl.metadata (3.5 kB)\n"}
+,{"stream_name":"stdout","time":29.984358271,"data":"Requirement already satisfied: attrs\u003e=18.1 in /usr/local/lib/python3.12/dist-packages (from phonemizer) (25.4.0)\n"}
+,{"stream_name":"stdout","time":30.002515283,"data":"Collecting dlinfo (from phonemizer)\n"}
+,{"stream_name":"stdout","time":30.01461981,"data":"  Downloading dlinfo-2.0.0-py3-none-any.whl.metadata (1.1 kB)\n"}
+,{"stream_name":"stdout","time":30.020458451,"data":"Requirement already satisfied: pycparser in /usr/local/lib/python3.12/dist-packages (from cffi\u003e=1.0-\u003esoundfile) (2.23)\n"}
+,{"stream_name":"stdout","time":30.034832492,"data":"Requirement already satisfied: hf-xet\u003c2.0.0,\u003e=1.1.3 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub\u003c1.0,\u003e=0.23.2-\u003etransformers==4.44.2) (1.2.0)\n"}
+,{"stream_name":"stdout","time":30.07992034,"data":"Requirement already satisfied: MarkupSafe\u003e=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2-\u003etorch==2.4.1) (3.0.3)\n"}
+,{"stream_name":"stdout","time":30.089944651,"data":"Requirement already satisfied: charset_normalizer\u003c4,\u003e=2 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (3.4.4)\n"}
+,{"stream_name":"stdout","time":30.091191504,"data":"Requirement already satisfied: idna\u003c4,\u003e=2.5 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (3.11)\n"}
+,{"stream_name":"stdout","time":30.092459911,"data":"Requirement already satisfied: urllib3\u003c3,\u003e=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (2.5.0)\n"}
+,{"stream_name":"stdout","time":30.093702654,"data":"Requirement already satisfied: certifi\u003e=2017.4.17 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (2026.1.4)\n"}
+,{"stream_name":"stdout","time":30.112057674,"data":"  Downloading num2words-0.5.9-py3-none-any.whl.metadata (8.3 kB)\n"}
+,{"stream_name":"stdout","time":30.112084595,"data":"  Downloading num2words-0.5.8-py3-none-any.whl.metadata (8.3 kB)\n"}
+,{"stream_name":"stdout","time":30.112089317,"data":"  Downloading num2words-0.5.6-py2.py3-none-any.whl.metadata (5.9 kB)\n"}
+,{"stream_name":"stdout","time":30.112094574,"data":"Requirement already satisfied: joblib in /usr/local/lib/python3.12/dist-packages (from phonemizer) (1.5.3)\n"}
+,{"stream_name":"stdout","time":30.112099346,"data":"Collecting segments (from phonemizer)\n"}
+,{"stream_name":"stdout","time":30.11210343,"data":"  Downloading segments-2.3.0-py2.py3-none-any.whl.metadata (3.5 kB)\n"}
+,{"stream_name":"stdout","time":30.112107774,"data":"Requirement already satisfied: attrs\u003e=18.1 in /usr/local/lib/python3.12/dist-packages (from phonemizer) (25.4.0)\n"}
+,{"stream_name":"stdout","time":30.112112546,"data":"Collecting dlinfo (from phonemizer)\n"}
+,{"stream_name":"stdout","time":30.112116409,"data":"  Downloading dlinfo-2.0.0-py3-none-any.whl.metadata (1.1 kB)\n"}
+,{"stream_name":"stdout","time":30.112120437,"data":"Requirement already satisfied: pycparser in /usr/local/lib/python3.12/dist-packages (from cffi\u003e=1.0-\u003esoundfile) (2.23)\n"}
+,{"stream_name":"stdout","time":30.112125191,"data":"Requirement already satisfied: hf-xet\u003c2.0.0,\u003e=1.1.3 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub\u003c1.0,\u003e=0.23.2-\u003etransformers==4.44.2) (1.2.0)\n"}
+,{"stream_name":"stdout","time":30.112129666,"data":"Requirement already satisfied: MarkupSafe\u003e=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2-\u003etorch==2.4.1) (3.0.3)\n"}
+,{"stream_name":"stdout","time":30.112133559,"data":"Requirement already satisfied: charset_normalizer\u003c4,\u003e=2 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (3.4.4)\n"}
+,{"stream_name":"stdout","time":30.112137747,"data":"Requirement already satisfied: idna\u003c4,\u003e=2.5 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (3.11)\n"}
+,{"stream_name":"stdout","time":30.112143392,"data":"Requirement already satisfied: urllib3\u003c3,\u003e=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (2.5.0)\n"}
+,{"stream_name":"stdout","time":30.112147124,"data":"Requirement already satisfied: certifi\u003e=2017.4.17 in /usr/local/lib/python3.12/dist-packages (from requests-\u003etransformers==4.44.2) (2026.1.4)\n"}
+,{"stream_name":"stdout","time":30.129623556,"data":"Collecting csvw\u003e=1.5.6 (from segments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.138728357,"data":"  Downloading csvw-3.7.0-py2.py3-none-any.whl.metadata (10 kB)\n"}
+,{"stream_name":"stdout","time":30.152279451,"data":"Requirement already satisfied: mpmath\u003c1.4,\u003e=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy-\u003etorch==2.4.1) (1.3.0)\n"}
+,{"stream_name":"stdout","time":30.176450187,"data":"Collecting isodate (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.184762906,"data":"  Downloading isodate-0.7.2-py3-none-any.whl.metadata (11 kB)\n"}
+,{"stream_name":"stdout","time":30.188841582,"data":"Requirement already satisfied: python-dateutil in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (2.9.0.post0)\n"}
+,{"stream_name":"stdout","time":30.2101752,"data":"Collecting rfc3986\u003c2 (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.218881138,"data":"  Downloading rfc3986-1.5.0-py2.py3-none-any.whl.metadata (6.5 kB)\n"}
+,{"stream_name":"stdout","time":30.222057778,"data":"Requirement already satisfied: uritemplate\u003e=3.0.0 in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (4.2.0)\n"}
+,{"stream_name":"stdout","time":30.223008985,"data":"Requirement already satisfied: babel in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (2.17.0)\n"}
+,{"stream_name":"stdout","time":30.241555006,"data":"Collecting language-tags (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.251273696,"data":"  Downloading language_tags-1.2.0-py3-none-any.whl.metadata (2.1 kB)\n"}
+,{"stream_name":"stdout","time":30.277262531,"data":"Collecting rdflib (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.285460289,"data":"  Downloading rdflib-7.6.0-py3-none-any.whl.metadata (12 kB)\n"}
+,{"stream_name":"stdout","time":30.290355649,"data":"Requirement already satisfied: termcolor in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (3.3.0)\n"}
+,{"stream_name":"stdout","time":30.291554289,"data":"Requirement already satisfied: jsonschema in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (4.26.0)\n"}
+,{"stream_name":"stdout","time":30.312752366,"data":"Requirement already satisfied: jsonschema-specifications\u003e=2023.03.6 in /usr/local/lib/python3.12/dist-packages (from jsonschema-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (2025.9.1)\n"}
+,{"stream_name":"stdout","time":30.313737482,"data":"Requirement already satisfied: referencing\u003e=0.28.4 in /usr/local/lib/python3.12/dist-packages (from jsonschema-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (0.37.0)\n"}
+,{"stream_name":"stdout","time":30.314825605,"data":"Requirement already satisfied: rpds-py\u003e=0.25.0 in /usr/local/lib/python3.12/dist-packages (from jsonschema-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (0.30.0)\n"}
+,{"stream_name":"stdout","time":30.318111236,"data":"Requirement already satisfied: six\u003e=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (1.17.0)\n"}
+,{"stream_name":"stdout","time":30.321618122,"data":"Requirement already satisfied: pyparsing\u003c4,\u003e=2.1.0 in /usr/local/lib/python3.12/dist-packages (from rdflib-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (3.3.1)\n"}
+,{"stream_name":"stdout","time":30.332010426,"data":"Collecting csvw\u003e=1.5.6 (from segments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.332032731,"data":"  Downloading csvw-3.7.0-py2.py3-none-any.whl.metadata (10 kB)\n"}
+,{"stream_name":"stdout","time":30.332036289,"data":"Requirement already satisfied: mpmath\u003c1.4,\u003e=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy-\u003etorch==2.4.1) (1.3.0)\n"}
+,{"stream_name":"stdout","time":30.33203993,"data":"Collecting isodate (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.332061322,"data":"  Downloading isodate-0.7.2-py3-none-any.whl.metadata (11 kB)\n"}
+,{"stream_name":"stdout","time":30.332065814,"data":"Requirement already satisfied: python-dateutil in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (2.9.0.post0)\n"}
+,{"stream_name":"stdout","time":30.332070831,"data":"Collecting rfc3986\u003c2 (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.332074845,"data":"  Downloading rfc3986-1.5.0-py2.py3-none-any.whl.metadata (6.5 kB)\n"}
+,{"stream_name":"stdout","time":30.332078876,"data":"Requirement already satisfied: uritemplate\u003e=3.0.0 in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (4.2.0)\n"}
+,{"stream_name":"stdout","time":30.332083531,"data":"Requirement already satisfied: babel in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (2.17.0)\n"}
+,{"stream_name":"stdout","time":30.332087498,"data":"Collecting language-tags (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.332091259,"data":"  Downloading language_tags-1.2.0-py3-none-any.whl.metadata (2.1 kB)\n"}
+,{"stream_name":"stdout","time":30.332094792,"data":"Collecting rdflib (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer)\n"}
+,{"stream_name":"stdout","time":30.332098385,"data":"  Downloading rdflib-7.6.0-py3-none-any.whl.metadata (12 kB)\n"}
+,{"stream_name":"stdout","time":30.332101966,"data":"Requirement already satisfied: termcolor in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (3.3.0)\n"}
+,{"stream_name":"stdout","time":30.332105879,"data":"Requirement already satisfied: jsonschema in /usr/local/lib/python3.12/dist-packages (from csvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (4.26.0)\n"}
+,{"stream_name":"stdout","time":30.332111539,"data":"Requirement already satisfied: jsonschema-specifications\u003e=2023.03.6 in /usr/local/lib/python3.12/dist-packages (from jsonschema-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (2025.9.1)\n"}
+,{"stream_name":"stdout","time":30.332115349,"data":"Requirement already satisfied: referencing\u003e=0.28.4 in /usr/local/lib/python3.12/dist-packages (from jsonschema-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (0.37.0)\n"}
+,{"stream_name":"stdout","time":30.33211809,"data":"Requirement already satisfied: rpds-py\u003e=0.25.0 in /usr/local/lib/python3.12/dist-packages (from jsonschema-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (0.30.0)\n"}
+,{"stream_name":"stdout","time":30.332121598,"data":"Requirement already satisfied: six\u003e=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (1.17.0)\n"}
+,{"stream_name":"stdout","time":30.332159935,"data":"Requirement already satisfied: pyparsing\u003c4,\u003e=2.1.0 in /usr/local/lib/python3.12/dist-packages (from rdflib-\u003ecsvw\u003e=1.5.6-\u003esegments-\u003ephonemizer) (3.3.1)\n"}
+,{"stream_name":"stdout","time":30.352801536,"data":"Downloading numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (18.0 MB)\n"}
+,{"stream_name":"stdout","time":30.440876141,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.0/18.0 MB 283.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.451146452,"data":"Downloading torch-2.4.1-cp312-cp312-manylinux1_x86_64.whl (797.0 MB)\n"}
+,{"stream_name":"stdout","time":30.555110078,"data":"Downloading numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (18.0 MB)\n"}
+,{"stream_name":"stdout","time":30.555155058,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.0/18.0 MB 283.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":30.555160887,"data":"Downloading torch-2.4.1-cp312-cp312-manylinux1_x86_64.whl (797.0 MB)\n"}
+,{"stream_name":"stdout","time":37.364099475,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 797.0/797.0 MB 76.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.373542202,"data":"Downloading torchaudio-2.4.1-cp312-cp312-manylinux1_x86_64.whl (3.4 MB)\n"}
+,{"stream_name":"stdout","time":37.418422425,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 79.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.428187084,"data":"Downloading torchvision-0.19.1-cp312-cp312-manylinux1_x86_64.whl (7.0 MB)\n"}
+,{"stream_name":"stdout","time":37.519419688,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 78.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.528144081,"data":"Downloading transformers-4.44.2-py3-none-any.whl (9.5 MB)\n"}
+,{"stream_name":"stdout","time":37.566403913,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 797.0/797.0 MB 76.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.566428863,"data":"Downloading torchaudio-2.4.1-cp312-cp312-manylinux1_x86_64.whl (3.4 MB)\n"}
+,{"stream_name":"stdout","time":37.566433843,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 79.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.566439383,"data":"Downloading torchvision-0.19.1-cp312-cp312-manylinux1_x86_64.whl (7.0 MB)\n"}
+,{"stream_name":"stdout","time":37.566443463,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 78.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.566448102,"data":"Downloading transformers-4.44.2-py3-none-any.whl (9.5 MB)\n"}
+,{"stream_name":"stdout","time":37.650756388,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.5/9.5 MB 78.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.659235883,"data":"Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)\n"}
+,{"stream_name":"stdout","time":37.853026674,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.5/9.5 MB 78.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.853056022,"data":"Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)\n"}
+,{"stream_name":"stdout","time":41.152880064,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 151.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.161223464,"data":"Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)\n"}
+,{"stream_name":"stdout","time":41.255146285,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 152.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.263500644,"data":"Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)\n"}
+,{"stream_name":"stdout","time":41.357382173,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 151.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.357408557,"data":"Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)\n"}
+,{"stream_name":"stdout","time":41.357413773,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 152.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.357419282,"data":"Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)\n"}
+,{"stream_name":"stdout","time":41.416520113,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 160.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.426920677,"data":"Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)\n"}
+,{"stream_name":"stdout","time":41.432548644,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 246.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.442122729,"data":"Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)\n"}
+,{"stream_name":"stdout","time":41.618437259,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 160.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.618465988,"data":"Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)\n"}
+,{"stream_name":"stdout","time":41.618471262,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 246.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":41.618475888,"data":"Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)\n"}
+,{"stream_name":"stdout","time":44.876722555,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 225.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":44.884959349,"data":"Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)\n"}
+,{"stream_name":"stdout","time":45.07862926,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 225.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":45.078670912,"data":"Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)\n"}
+,{"stream_name":"stdout","time":45.4082797,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 241.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":45.41640128,"data":"Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)\n"}
+,{"stream_name":"stdout","time":45.610300492,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 241.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":45.610332737,"data":"Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)\n"}
+,{"stream_name":"stdout","time":45.655724396,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 246.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":45.664526661,"data":"Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)\n"}
+,{"stream_name":"stdout","time":45.857833533,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 246.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":45.857862675,"data":"Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)\n"}
+,{"stream_name":"stdout","time":46.172228386,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 281.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":46.180708773,"data":"Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)\n"}
+,{"stream_name":"stdout","time":46.374495425,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 281.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":46.37452887,"data":"Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)\n"}
+,{"stream_name":"stdout","time":46.985240456,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 281.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":46.99643896,"data":"Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl (176.2 MB)\n"}
+,{"stream_name":"stdout","time":47.187358948,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 281.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":47.187386879,"data":"Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl (176.2 MB)\n"}
+,{"stream_name":"stdout","time":47.880725246,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 205.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":47.890809966,"data":"Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)\n"}
+,{"stream_name":"stdout","time":47.893466228,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 285.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":47.904810179,"data":"Downloading triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (209.5 MB)\n"}
+,{"stream_name":"stdout","time":48.082875925,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 205.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.082907728,"data":"Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)\n"}
+,{"stream_name":"stdout","time":48.082913531,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 285.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.082918822,"data":"Downloading triton-3.0.0-1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (209.5 MB)\n"}
+,{"stream_name":"stdout","time":48.866544246,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.5/209.5 MB 229.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.875574188,"data":"Downloading num2words-0.5.6-py2.py3-none-any.whl (64 kB)\n"}
+,{"stream_name":"stdout","time":48.877953071,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.8/64.8 kB 294.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.886782827,"data":"Downloading phonemizer-3.3.0-py3-none-any.whl (103 kB)\n"}
+,{"stream_name":"stdout","time":48.889618906,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.8/103.8 kB 308.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.898299265,"data":"Downloading huggingface_hub-0.36.2-py3-none-any.whl (566 kB)\n"}
+,{"stream_name":"stdout","time":48.902531659,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 320.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.913881813,"data":"Downloading tokenizers-0.19.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.6 MB)\n"}
+,{"stream_name":"stdout","time":48.931730602,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.6/3.6 MB 241.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.941480803,"data":"Downloading dlinfo-2.0.0-py3-none-any.whl (3.7 kB)\n"}
+,{"stream_name":"stdout","time":48.950507623,"data":"Downloading segments-2.3.0-py2.py3-none-any.whl (15 kB)\n"}
+,{"stream_name":"stdout","time":48.959457723,"data":"Downloading csvw-3.7.0-py2.py3-none-any.whl (60 kB)\n"}
+,{"stream_name":"stdout","time":48.961696308,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.7/60.7 kB 276.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.970043015,"data":"Downloading rfc3986-1.5.0-py2.py3-none-any.whl (31 kB)\n"}
+,{"stream_name":"stdout","time":48.978793674,"data":"Downloading isodate-0.7.2-py3-none-any.whl (22 kB)\n"}
+,{"stream_name":"stdout","time":48.987780117,"data":"Downloading language_tags-1.2.0-py3-none-any.whl (213 kB)\n"}
+,{"stream_name":"stdout","time":48.99057012,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 213.4/213.4 kB 364.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.999080549,"data":"Downloading rdflib-7.6.0-py3-none-any.whl (615 kB)\n"}
+,{"stream_name":"stdout","time":49.005443985,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 615.4/615.4 kB 164.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.06841851,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.5/209.5 MB 229.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068454995,"data":"Downloading num2words-0.5.6-py2.py3-none-any.whl (64 kB)\n"}
+,{"stream_name":"stdout","time":49.068459843,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.8/64.8 kB 294.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068464196,"data":"Downloading phonemizer-3.3.0-py3-none-any.whl (103 kB)\n"}
+,{"stream_name":"stdout","time":49.068468089,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.8/103.8 kB 308.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068472107,"data":"Downloading huggingface_hub-0.36.2-py3-none-any.whl (566 kB)\n"}
+,{"stream_name":"stdout","time":49.068476525,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 320.9 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068495498,"data":"Downloading tokenizers-0.19.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.6 MB)\n"}
+,{"stream_name":"stdout","time":49.068499971,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.6/3.6 MB 241.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068503921,"data":"Downloading dlinfo-2.0.0-py3-none-any.whl (3.7 kB)\n"}
+,{"stream_name":"stdout","time":49.068507855,"data":"Downloading segments-2.3.0-py2.py3-none-any.whl (15 kB)\n"}
+,{"stream_name":"stdout","time":49.06851125,"data":"Downloading csvw-3.7.0-py2.py3-none-any.whl (60 kB)\n"}
+,{"stream_name":"stdout","time":49.068514947,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.7/60.7 kB 276.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068529146,"data":"Downloading rfc3986-1.5.0-py2.py3-none-any.whl (31 kB)\n"}
+,{"stream_name":"stdout","time":49.068533218,"data":"Downloading isodate-0.7.2-py3-none-any.whl (22 kB)\n"}
+,{"stream_name":"stdout","time":49.068536621,"data":"Downloading language_tags-1.2.0-py3-none-any.whl (213 kB)\n"}
+,{"stream_name":"stdout","time":49.068540346,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 213.4/213.4 kB 364.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":49.068544202,"data":"Downloading rdflib-7.6.0-py3-none-any.whl (615 kB)\n"}
+,{"stream_name":"stdout","time":49.068547995,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 615.4/615.4 kB 164.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.88948228,"data":"Installing collected packages: rfc3986, num2words, language-tags, triton, rdflib, nvidia-nvtx-cu12, nvidia-nccl-cu12, nvidia-cusparse-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, isodate, dlinfo, nvidia-cusolver-cu12, nvidia-cudnn-cu12, huggingface-hub, torch, tokenizers, transformers, torchvision, torchaudio, csvw, segments, phonemizer\n"}
+,{"stream_name":"stdout","time":60.091528306,"data":"Installing collected packages: rfc3986, num2words, language-tags, triton, rdflib, nvidia-nvtx-cu12, nvidia-nccl-cu12, nvidia-cusparse-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, isodate, dlinfo, nvidia-cusolver-cu12, nvidia-cudnn-cu12, huggingface-hub, torch, tokenizers, transformers, torchvision, torchaudio, csvw, segments, phonemizer\n"}
+,{"stream_name":"stdout","time":66.357649473,"data":"  Attempting uninstall: triton\n"}
+,{"stream_name":"stdout","time":66.514924484,"data":"    Found existing installation: triton 3.5.0\n"}
+,{"stream_name":"stdout","time":66.549143893,"data":"    Uninstalling triton-3.5.0:\n"}
+,{"stream_name":"stdout","time":66.559758214,"data":"  Attempting uninstall: triton\n"}
+,{"stream_name":"stdout","time":66.559784912,"data":"    Found existing installation: triton 3.5.0\n"}
+,{"stream_name":"stdout","time":66.559790566,"data":"    Uninstalling triton-3.5.0:\n"}
+,{"stream_name":"stdout","time":69.049855608,"data":"      Successfully uninstalled triton-3.5.0\n"}
+,{"stream_name":"stdout","time":69.252956679,"data":"      Successfully uninstalled triton-3.5.0\n"}
+,{"stream_name":"stdout","time":73.302414803,"data":"  Attempting uninstall: nvidia-nvtx-cu12\n"}
+,{"stream_name":"stdout","time":73.457197865,"data":"    Found existing installation: nvidia-nvtx-cu12 12.6.77\n"}
+,{"stream_name":"stdout","time":73.462727023,"data":"    Uninstalling nvidia-nvtx-cu12-12.6.77:\n"}
+,{"stream_name":"stdout","time":73.507013495,"data":"  Attempting uninstall: nvidia-nvtx-cu12\n"}
+,{"stream_name":"stdout","time":73.507038944,"data":"    Found existing installation: nvidia-nvtx-cu12 12.6.77\n"}
+,{"stream_name":"stdout","time":73.507044877,"data":"    Uninstalling nvidia-nvtx-cu12-12.6.77:\n"}
+,{"stream_name":"stdout","time":73.542179086,"data":"      Successfully uninstalled nvidia-nvtx-cu12-12.6.77\n"}
+,{"stream_name":"stdout","time":73.56384874,"data":"  Attempting uninstall: nvidia-nccl-cu12\n"}
+,{"stream_name":"stdout","time":73.744347132,"data":"      Successfully uninstalled nvidia-nvtx-cu12-12.6.77\n"}
+,{"stream_name":"stdout","time":73.744387862,"data":"  Attempting uninstall: nvidia-nccl-cu12\n"}
+,{"stream_name":"stdout","time":73.866626237,"data":"    Found existing installation: nvidia-nccl-cu12 2.27.5\n"}
+,{"stream_name":"stdout","time":73.87060568,"data":"    Uninstalling nvidia-nccl-cu12-2.27.5:\n"}
+,{"stream_name":"stdout","time":74.068795673,"data":"    Found existing installation: nvidia-nccl-cu12 2.27.5\n"}
+,{"stream_name":"stdout","time":74.068817724,"data":"    Uninstalling nvidia-nccl-cu12-2.27.5:\n"}
+,{"stream_name":"stdout","time":75.502576873,"data":"      Successfully uninstalled nvidia-nccl-cu12-2.27.5\n"}
+,{"stream_name":"stdout","time":75.704734058,"data":"      Successfully uninstalled nvidia-nccl-cu12-2.27.5\n"}
+,{"stream_name":"stdout","time":78.434379982,"data":"  Attempting uninstall: nvidia-cusparse-cu12\n"}
+,{"stream_name":"stdout","time":78.636378378,"data":"  Attempting uninstall: nvidia-cusparse-cu12\n"}
+,{"stream_name":"stdout","time":78.750033288,"data":"    Found existing installation: nvidia-cusparse-cu12 12.5.4.2\n"}
+,{"stream_name":"stdout","time":78.753829685,"data":"    Uninstalling nvidia-cusparse-cu12-12.5.4.2:\n"}
+,{"stream_name":"stdout","time":78.952383516,"data":"    Found existing installation: nvidia-cusparse-cu12 12.5.4.2\n"}
+,{"stream_name":"stdout","time":78.952429711,"data":"    Uninstalling nvidia-cusparse-cu12-12.5.4.2:\n"}
+,{"stream_name":"stdout","time":79.848491015,"data":"      Successfully uninstalled nvidia-cusparse-cu12-12.5.4.2\n"}
+,{"stream_name":"stdout","time":80.05075806,"data":"      Successfully uninstalled nvidia-cusparse-cu12-12.5.4.2\n"}
+,{"stream_name":"stdout","time":82.601578691,"data":"  Attempting uninstall: nvidia-curand-cu12\n"}
+,{"stream_name":"stdout","time":82.803683178,"data":"  Attempting uninstall: nvidia-curand-cu12\n"}
+,{"stream_name":"stdout","time":82.916811114,"data":"    Found existing installation: nvidia-curand-cu12 10.3.7.77\n"}
+,{"stream_name":"stdout","time":82.920555633,"data":"    Uninstalling nvidia-curand-cu12-10.3.7.77:\n"}
+,{"stream_name":"stdout","time":83.11906147,"data":"    Found existing installation: nvidia-curand-cu12 10.3.7.77\n"}
+,{"stream_name":"stdout","time":83.119087462,"data":"    Uninstalling nvidia-curand-cu12-10.3.7.77:\n"}
+,{"stream_name":"stdout","time":83.25486142,"data":"      Successfully uninstalled nvidia-curand-cu12-10.3.7.77\n"}
+,{"stream_name":"stdout","time":83.457136306,"data":"      Successfully uninstalled nvidia-curand-cu12-10.3.7.77\n"}
+,{"stream_name":"stdout","time":83.69414844799999,"data":"  Attempting uninstall: nvidia-cufft-cu12\n"}
+,{"stream_name":"stdout","time":83.896784669,"data":"  Attempting uninstall: nvidia-cufft-cu12\n"}
+,{"stream_name":"stdout","time":83.916263923,"data":"    Found existing installation: nvidia-cufft-cu12 11.3.0.4\n"}
+,{"stream_name":"stdout","time":83.920061353,"data":"    Uninstalling nvidia-cufft-cu12-11.3.0.4:\n"}
+,{"stream_name":"stdout","time":84.118393045,"data":"    Found existing installation: nvidia-cufft-cu12 11.3.0.4\n"}
+,{"stream_name":"stdout","time":84.118417288,"data":"    Uninstalling nvidia-cufft-cu12-11.3.0.4:\n"}
+,{"stream_name":"stdout","time":84.957277576,"data":"      Successfully uninstalled nvidia-cufft-cu12-11.3.0.4\n"}
+,{"stream_name":"stdout","time":85.159376349,"data":"      Successfully uninstalled nvidia-cufft-cu12-11.3.0.4\n"}
+,{"stream_name":"stdout","time":90.179126439,"data":"  Attempting uninstall: nvidia-cuda-runtime-cu12\n"}
+,{"stream_name":"stdout","time":90.381463669,"data":"  Attempting uninstall: nvidia-cuda-runtime-cu12\n"}
+,{"stream_name":"stdout","time":90.416928746,"data":"    Found existing installation: nvidia-cuda-runtime-cu12 12.6.77\n"}
+,{"stream_name":"stdout","time":90.423009673,"data":"    Uninstalling nvidia-cuda-runtime-cu12-12.6.77:\n"}
+,{"stream_name":"stdout","time":90.504580497,"data":"      Successfully uninstalled nvidia-cuda-runtime-cu12-12.6.77\n"}
+,{"stream_name":"stdout","time":90.558855728,"data":"  Attempting uninstall: nvidia-cuda-nvrtc-cu12\n"}
+,{"stream_name":"stdout","time":90.619502275,"data":"    Found existing installation: nvidia-cuda-runtime-cu12 12.6.77\n"}
+,{"stream_name":"stdout","time":90.619528455,"data":"    Uninstalling nvidia-cuda-runtime-cu12-12.6.77:\n"}
+,{"stream_name":"stdout","time":90.619534998,"data":"      Successfully uninstalled nvidia-cuda-runtime-cu12-12.6.77\n"}
+,{"stream_name":"stdout","time":90.61954054,"data":"  Attempting uninstall: nvidia-cuda-nvrtc-cu12\n"}
+,{"stream_name":"stdout","time":90.890981686,"data":"    Found existing installation: nvidia-cuda-nvrtc-cu12 12.6.77\n"}
+,{"stream_name":"stdout","time":90.89453343,"data":"    Uninstalling nvidia-cuda-nvrtc-cu12-12.6.77:\n"}
+,{"stream_name":"stdout","time":91.095181912,"data":"    Found existing installation: nvidia-cuda-nvrtc-cu12 12.6.77\n"}
+,{"stream_name":"stdout","time":91.095206914,"data":"    Uninstalling nvidia-cuda-nvrtc-cu12-12.6.77:\n"}
+,{"stream_name":"stdout","time":91.097197515,"data":"      Successfully uninstalled nvidia-cuda-nvrtc-cu12-12.6.77\n"}
+,{"stream_name":"stdout","time":91.299522599,"data":"      Successfully uninstalled nvidia-cuda-nvrtc-cu12-12.6.77\n"}
+,{"stream_name":"stdout","time":91.501147322,"data":"  Attempting uninstall: nvidia-cuda-cupti-cu12\n"}
+,{"stream_name":"stdout","time":91.703348313,"data":"  Attempting uninstall: nvidia-cuda-cupti-cu12\n"}
+,{"stream_name":"stdout","time":91.859815955,"data":"    Found existing installation: nvidia-cuda-cupti-cu12 12.6.80\n"}
+,{"stream_name":"stdout","time":91.864484398,"data":"    Uninstalling nvidia-cuda-cupti-cu12-12.6.80:\n"}
+,{"stream_name":"stdout","time":92.006022914,"data":"      Successfully uninstalled nvidia-cuda-cupti-cu12-12.6.80\n"}
+,{"stream_name":"stdout","time":92.062143596,"data":"    Found existing installation: nvidia-cuda-cupti-cu12 12.6.80\n"}
+,{"stream_name":"stdout","time":92.062177978,"data":"    Uninstalling nvidia-cuda-cupti-cu12-12.6.80:\n"}
+,{"stream_name":"stdout","time":92.062184525,"data":"      Successfully uninstalled nvidia-cuda-cupti-cu12-12.6.80\n"}
+,{"stream_name":"stdout","time":92.259600065,"data":"  Attempting uninstall: nvidia-cublas-cu12\n"}
+,{"stream_name":"stdout","time":92.397057209,"data":"    Found existing installation: nvidia-cublas-cu12 12.6.4.1\n"}
+,{"stream_name":"stdout","time":92.400650727,"data":"    Uninstalling nvidia-cublas-cu12-12.6.4.1:\n"}
+,{"stream_name":"stdout","time":92.461990591,"data":"  Attempting uninstall: nvidia-cublas-cu12\n"}
+,{"stream_name":"stdout","time":92.462018073,"data":"    Found existing installation: nvidia-cublas-cu12 12.6.4.1\n"}
+,{"stream_name":"stdout","time":92.462030351,"data":"    Uninstalling nvidia-cublas-cu12-12.6.4.1:\n"}
+,{"stream_name":"stdout","time":94.447573052,"data":"      Successfully uninstalled nvidia-cublas-cu12-12.6.4.1\n"}
+,{"stream_name":"stdout","time":94.650089253,"data":"      Successfully uninstalled nvidia-cublas-cu12-12.6.4.1\n"}
+,{"stream_name":"stdout","time":99.447043648,"data":"  Attempting uninstall: numpy\n"}
+,{"stream_name":"stdout","time":99.64924796,"data":"  Attempting uninstall: numpy\n"}
+,{"stream_name":"stdout","time":99.729964584,"data":"    Found existing installation: numpy 2.0.2\n"}
+,{"stream_name":"stdout","time":99.811428297,"data":"    Uninstalling numpy-2.0.2:\n"}
+,{"stream_name":"stdout","time":99.932139005,"data":"    Found existing installation: numpy 2.0.2\n"}
+,{"stream_name":"stdout","time":99.932168385,"data":"    Uninstalling numpy-2.0.2:\n"}
+,{"stream_name":"stdout","time":100.516220547,"data":"      Successfully uninstalled numpy-2.0.2\n"}
+,{"stream_name":"stdout","time":100.718404059,"data":"      Successfully uninstalled numpy-2.0.2\n"}
+,{"stream_name":"stdout","time":105.612676841,"data":"  Attempting uninstall: nvidia-cusolver-cu12\n"}
+,{"stream_name":"stdout","time":105.798721928,"data":"    Found existing installation: nvidia-cusolver-cu12 11.7.1.2\n"}
+,{"stream_name":"stdout","time":105.802531218,"data":"    Uninstalling nvidia-cusolver-cu12-11.7.1.2:\n"}
+,{"stream_name":"stdout","time":105.820159472,"data":"  Attempting uninstall: nvidia-cusolver-cu12\n"}
+,{"stream_name":"stdout","time":105.820184443,"data":"    Found existing installation: nvidia-cusolver-cu12 11.7.1.2\n"}
+,{"stream_name":"stdout","time":105.820188778,"data":"    Uninstalling nvidia-cusolver-cu12-11.7.1.2:\n"}
+,{"stream_name":"stdout","time":106.710018145,"data":"      Successfully uninstalled nvidia-cusolver-cu12-11.7.1.2\n"}
+,{"stream_name":"stdout","time":106.912320793,"data":"      Successfully uninstalled nvidia-cusolver-cu12-11.7.1.2\n"}
+,{"stream_name":"stdout","time":108.542424446,"data":"  Attempting uninstall: nvidia-cudnn-cu12\n"}
+,{"stream_name":"stdout","time":108.744582241,"data":"  Attempting uninstall: nvidia-cudnn-cu12\n"}
+,{"stream_name":"stdout","time":108.870954955,"data":"    Found existing installation: nvidia-cudnn-cu12 9.10.2.21\n"}
+,{"stream_name":"stdout","time":108.875762242,"data":"    Uninstalling nvidia-cudnn-cu12-9.10.2.21:\n"}
+,{"stream_name":"stdout","time":109.07333492,"data":"    Found existing installation: nvidia-cudnn-cu12 9.10.2.21\n"}
+,{"stream_name":"stdout","time":109.073367412,"data":"    Uninstalling nvidia-cudnn-cu12-9.10.2.21:\n"}
+,{"stream_name":"stdout","time":112.998693446,"data":"      Successfully uninstalled nvidia-cudnn-cu12-9.10.2.21\n"}
+,{"stream_name":"stdout","time":113.200980148,"data":"      Successfully uninstalled nvidia-cudnn-cu12-9.10.2.21\n"}
+,{"stream_name":"stdout","time":121.252438896,"data":"  Attempting uninstall: huggingface-hub\n"}
+,{"stream_name":"stdout","time":121.300135849,"data":"    Found existing installation: huggingface_hub 1.4.1\n"}
+,{"stream_name":"stdout","time":121.321602669,"data":"    Uninstalling huggingface_hub-1.4.1:\n"}
+,{"stream_name":"stdout","time":121.434009081,"data":"      Successfully uninstalled huggingface_hub-1.4.1\n"}
+,{"stream_name":"stdout","time":121.454744482,"data":"  Attempting uninstall: huggingface-hub\n"}
+,{"stream_name":"stdout","time":121.454776714,"data":"    Found existing installation: huggingface_hub 1.4.1\n"}
+,{"stream_name":"stdout","time":121.454781724,"data":"    Uninstalling huggingface_hub-1.4.1:\n"}
+,{"stream_name":"stdout","time":121.454785516,"data":"      Successfully uninstalled huggingface_hub-1.4.1\n"}
+,{"stream_name":"stdout","time":121.759651452,"data":"  Attempting uninstall: torch\n"}
+,{"stream_name":"stdout","time":121.961939986,"data":"  Attempting uninstall: torch\n"}
+,{"stream_name":"stdout","time":122.107431675,"data":"    Found existing installation: torch 2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":122.309743127,"data":"    Found existing installation: torch 2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":122.739412495,"data":"    Uninstalling torch-2.9.0+cu126:\n"}
+,{"stream_name":"stdout","time":122.941504696,"data":"    Uninstalling torch-2.9.0+cu126:\n"}
+,{"stream_name":"stdout","time":135.077775195,"data":"      Successfully uninstalled torch-2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":135.279879997,"data":"      Successfully uninstalled torch-2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":153.467395204,"data":"  Attempting uninstall: tokenizers\n"}
+,{"stream_name":"stdout","time":153.676706205,"data":"  Attempting uninstall: tokenizers\n"}
+,{"stream_name":"stdout","time":153.81430909,"data":"    Found existing installation: tokenizers 0.22.2\n"}
+,{"stream_name":"stdout","time":153.823394285,"data":"    Uninstalling tokenizers-0.22.2:\n"}
+,{"stream_name":"stdout","time":153.884088723,"data":"      Successfully uninstalled tokenizers-0.22.2\n"}
+,{"stream_name":"stdout","time":154.01717236,"data":"    Found existing installation: tokenizers 0.22.2\n"}
+,{"stream_name":"stdout","time":154.017210844,"data":"    Uninstalling tokenizers-0.22.2:\n"}
+,{"stream_name":"stdout","time":154.017217898,"data":"      Successfully uninstalled tokenizers-0.22.2\n"}
+,{"stream_name":"stdout","time":158.900766969,"data":"  Attempting uninstall: transformers\n"}
+,{"stream_name":"stdout","time":159.016156455,"data":"    Found existing installation: transformers 5.2.0\n"}
+,{"stream_name":"stdout","time":159.103318041,"data":"  Attempting uninstall: transformers\n"}
+,{"stream_name":"stdout","time":159.103355439,"data":"    Found existing installation: transformers 5.2.0\n"}
+,{"stream_name":"stdout","time":159.452894772,"data":"    Uninstalling transformers-5.2.0:\n"}
+,{"stream_name":"stdout","time":159.655157851,"data":"    Uninstalling transformers-5.2.0:\n"}
+,{"stream_name":"stdout","time":161.522291114,"data":"      Successfully uninstalled transformers-5.2.0\n"}
+,{"stream_name":"stdout","time":161.724620535,"data":"      Successfully uninstalled transformers-5.2.0\n"}
+,{"stream_name":"stdout","time":167.725336488,"data":"  Attempting uninstall: torchvision\n"}
+,{"stream_name":"stdout","time":167.927905336,"data":"  Attempting uninstall: torchvision\n"}
+,{"stream_name":"stdout","time":168.020408022,"data":"    Found existing installation: torchvision 0.24.0+cu126\n"}
+,{"stream_name":"stdout","time":168.041826365,"data":"    Uninstalling torchvision-0.24.0+cu126:\n"}
+,{"stream_name":"stdout","time":168.222626471,"data":"    Found existing installation: torchvision 0.24.0+cu126\n"}
+,{"stream_name":"stdout","time":168.222672863,"data":"    Uninstalling torchvision-0.24.0+cu126:\n"}
+,{"stream_name":"stdout","time":168.231071706,"data":"      Successfully uninstalled torchvision-0.24.0+cu126\n"}
+,{"stream_name":"stdout","time":168.433622327,"data":"      Successfully uninstalled torchvision-0.24.0+cu126\n"}
+,{"stream_name":"stdout","time":168.786484683,"data":"  Attempting uninstall: torchaudio\n"}
+,{"stream_name":"stdout","time":168.989108601,"data":"  Attempting uninstall: torchaudio\n"}
+,{"stream_name":"stdout","time":169.056703121,"data":"    Found existing installation: torchaudio 2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":169.072504244,"data":"    Uninstalling torchaudio-2.9.0+cu126:\n"}
+,{"stream_name":"stdout","time":169.150850952,"data":"      Successfully uninstalled torchaudio-2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":169.259074415,"data":"    Found existing installation: torchaudio 2.9.0+cu126\n"}
+,{"stream_name":"stdout","time":169.259099917,"data":"    Uninstalling torchaudio-2.9.0+cu126:\n"}
+,{"stream_name":"stdout","time":169.259105619,"data":"      Successfully uninstalled torchaudio-2.9.0+cu126\n"}
+,{"stream_name":"stderr","time":169.848461343,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":169.848494865,"data":"bigframes 2.31.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":169.848500212,"data":"cesium 0.12.4 requires numpy\u003c3.0,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848504476,"data":"kaggle-environments 1.27.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848508533,"data":"google-colab 1.0.0 requires jupyter-server==2.14.0, but you have jupyter-server 2.12.5 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848512468,"data":"google-colab 1.0.0 requires pandas==2.2.2, but you have pandas 2.3.3 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848516402,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848520069,"data":"jaxlib 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848523683,"data":"opencv-contrib-python 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848527535,"data":"opencv-python 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848531678,"data":"shap 0.50.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.84853642,"data":"jax 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848540121,"data":"rasterio 1.5.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.848543967,"data":"tobler 0.13.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.84854752,"data":"opencv-python-headless 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":169.8485516,"data":"pytensor 2.36.3 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stdout","time":169.848822863,"data":"Successfully installed csvw-3.7.0 dlinfo-2.0.0 huggingface-hub-0.36.2 isodate-0.7.2 language-tags-1.2.0 num2words-0.5.6 numpy-1.26.4 nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.20.5 nvidia-nvtx-cu12-12.1.105 phonemizer-3.3.0 rdflib-7.6.0 rfc3986-1.5.0 segments-2.3.0 tokenizers-0.19.1 torch-2.4.1 torchaudio-2.4.1 torchvision-0.19.1 transformers-4.44.2 triton-3.0.0\n"}
+,{"stream_name":"stderr","time":170.052012034,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":170.052044904,"data":"bigframes 2.31.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":170.052052311,"data":"cesium 0.12.4 requires numpy\u003c3.0,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052056563,"data":"kaggle-environments 1.27.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052060354,"data":"google-colab 1.0.0 requires jupyter-server==2.14.0, but you have jupyter-server 2.12.5 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052065725,"data":"google-colab 1.0.0 requires pandas==2.2.2, but you have pandas 2.3.3 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052069703,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.05207372,"data":"jaxlib 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052077993,"data":"opencv-contrib-python 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052082828,"data":"opencv-python 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052087468,"data":"shap 0.50.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052091413,"data":"jax 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052095097,"data":"rasterio 1.5.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052098692,"data":"tobler 0.13.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052102391,"data":"opencv-python-headless 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052106396,"data":"pytensor 2.36.3 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052110122,"data":"\n"}
+,{"stream_name":"stderr","time":170.05211532,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":170.052118608,"data":"bigframes 2.31.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":170.052121061,"data":"cesium 0.12.4 requires numpy\u003c3.0,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052124408,"data":"kaggle-environments 1.27.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.05212689,"data":"google-colab 1.0.0 requires jupyter-server==2.14.0, but you have jupyter-server 2.12.5 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052129293,"data":"google-colab 1.0.0 requires pandas==2.2.2, but you have pandas 2.3.3 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052131623,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052146655,"data":"jaxlib 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052149188,"data":"opencv-contrib-python 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052152195,"data":"opencv-python 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052156243,"data":"shap 0.50.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052161436,"data":"jax 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.05216559,"data":"rasterio 1.5.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052169948,"data":"tobler 0.13.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052174616,"data":"opencv-python-headless 4.12.0.88 requires numpy\u003c2.3.0,\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stderr","time":170.052179446,"data":"pytensor 2.36.3 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
+,{"stream_name":"stdout","time":170.053134342,"data":"Successfully installed csvw-3.7.0 dlinfo-2.0.0 huggingface-hub-0.36.2 isodate-0.7.2 language-tags-1.2.0 num2words-0.5.6 numpy-1.26.4 nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.20.5 nvidia-nvtx-cu12-12.1.105 phonemizer-3.3.0 rdflib-7.6.0 rfc3986-1.5.0 segments-2.3.0 tokenizers-0.19.1 torch-2.4.1 torchaudio-2.4.1 torchvision-0.19.1 transformers-4.44.2 triton-3.0.0\n"}
+,{"stream_name":"stdout","time":170.464807149,"data":"[10:01:55] Installing Chatterbox...\n"}
+,{"stream_name":"stdout","time":171.613352008,"data":"Collecting chatterbox-tts\n"}
+,{"stream_name":"stdout","time":171.65114479,"data":"  Downloading chatterbox_tts-0.1.6-py3-none-any.whl.metadata (11 kB)\n"}
+,{"stream_name":"stdout","time":171.706844711,"data":"Collecting misaki[en]\n"}
+,{"stream_name":"stdout","time":171.716912004,"data":"  Downloading misaki-0.9.4-py3-none-any.whl.metadata (19 kB)\n"}
+,{"stream_name":"stdout","time":171.815828066,"data":"Collecting chatterbox-tts\n"}
+,{"stream_name":"stdout","time":171.815856286,"data":"  Downloading chatterbox_tts-0.1.6-py3-none-any.whl.metadata (11 kB)\n"}
+,{"stream_name":"stdout","time":171.815862254,"data":"Collecting misaki[en]\n"}
+,{"stream_name":"stdout","time":171.815866041,"data":"  Downloading misaki-0.9.4-py3-none-any.whl.metadata (19 kB)\n"}
+,{"stream_name":"stdout","time":172.147685976,"data":"Collecting numpy\u003c1.26.0,\u003e=1.24.0 (from chatterbox-tts)\n"}
+,{"stream_name":"stdout","time":172.158760116,"data":"  Downloading numpy-1.25.2.tar.gz (10.8 MB)\n"}
+,{"stream_name":"stdout","time":172.239584337,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.8/10.8 MB 188.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":172.350122847,"data":"Collecting numpy\u003c1.26.0,\u003e=1.24.0 (from chatterbox-tts)\n"}
+,{"stream_name":"stdout","time":172.350154655,"data":"  Downloading numpy-1.25.2.tar.gz (10.8 MB)\n"}
+,{"stream_name":"stdout","time":172.350174245,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.8/10.8 MB 188.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":173.393411878,"data":"  Installing build dependencies: started\n"}
+,{"stream_name":"stdout","time":173.595514733,"data":"  Installing build dependencies: started\n"}
+,{"stream_name":"stdout","time":179.702565981,"data":"  Installing build dependencies: finished with status 'done'\n"}
+,{"stream_name":"stdout","time":179.705383619,"data":"  Getting requirements to build wheel: started\n"}
+,{"stream_name":"stderr","time":179.872484153,"data":"  error: subprocess-exited-with-error\n"}
+,{"stream_name":"stderr","time":179.872516941,"data":"  \n"}
+,{"stream_name":"stderr","time":179.87252281,"data":"  × Getting requirements to build wheel did not run successfully.\n"}
+,{"stream_name":"stderr","time":179.87252877,"data":"  │ exit code: 1\n"}
+,{"stream_name":"stderr","time":179.872533503,"data":"  ╰─\u003e See above for output.\n"}
+,{"stream_name":"stderr","time":179.872539733,"data":"  \n"}
+,{"stream_name":"stderr","time":179.872545372,"data":"  note: This error originates from a subprocess, and is likely not a problem with pip.\n"}
+,{"stream_name":"stdout","time":179.8728333,"data":"  Getting requirements to build wheel: finished with status 'error'\n"}
+,{"stream_name":"stderr","time":179.87464207,"data":"error: subprocess-exited-with-error\n"}
+,{"stream_name":"stderr","time":179.874673904,"data":"\n"}
+,{"stream_name":"stderr","time":179.874681557,"data":"× Getting requirements to build wheel did not run successfully.\n"}
+,{"stream_name":"stderr","time":179.874687666,"data":"│ exit code: 1\n"}
+,{"stream_name":"stderr","time":179.8746926,"data":"╰─\u003e See above for output.\n"}
+,{"stream_name":"stderr","time":179.874697564,"data":"\n"}
+,{"stream_name":"stderr","time":179.874702218,"data":"note: This error originates from a subprocess, and is likely not a problem with pip.\n"}
+,{"stream_name":"stdout","time":179.905895522,"data":"  Installing build dependencies: finished with status 'done'\n"}
+,{"stream_name":"stdout","time":179.905928899,"data":"  Getting requirements to build wheel: started\n"}
+,{"stream_name":"stdout","time":179.905934861,"data":"  Getting requirements to build wheel: finished with status 'error'\n"}
+,{"stream_name":"stderr","time":180.075849398,"data":"  error: subprocess-exited-with-error\n"}
+,{"stream_name":"stderr","time":180.075891798,"data":"  \n"}
+,{"stream_name":"stderr","time":180.075897933,"data":"  × Getting requirements to build wheel did not run successfully.\n"}
+,{"stream_name":"stderr","time":180.075904007,"data":"  │ exit code: 1\n"}
+,{"stream_name":"stderr","time":180.075908851,"data":"  ╰─\u003e See above for output.\n"}
+,{"stream_name":"stderr","time":180.07591332,"data":"  \n"}
+,{"stream_name":"stderr","time":180.075916712,"data":"  note: This error originates from a subprocess, and is likely not a problem with pip.\n"}
+,{"stream_name":"stderr","time":180.075920408,"data":"error: subprocess-exited-with-error\n"}
+,{"stream_name":"stderr","time":180.075923963,"data":"\n"}
+,{"stream_name":"stderr","time":180.075927304,"data":"× Getting requirements to build wheel did not run successfully.\n"}
+,{"stream_name":"stderr","time":180.075931299,"data":"│ exit code: 1\n"}
+,{"stream_name":"stderr","time":180.075934741,"data":"╰─\u003e See above for output.\n"}
+,{"stream_name":"stderr","time":180.075938206,"data":"\n"}
+,{"stream_name":"stderr","time":180.07594152,"data":"note: This error originates from a subprocess, and is likely not a problem with pip.\n"}
+,{"stream_name":"stderr","time":180.075963618,"data":"\n"}
+,{"stream_name":"stderr","time":180.075966249,"data":"  error: subprocess-exited-with-error\n"}
+,{"stream_name":"stderr","time":180.075968806,"data":"  \n"}
+,{"stream_name":"stderr","time":180.07597122,"data":"  × Getting requirements to build wheel did not run successfully.\n"}
+,{"stream_name":"stderr","time":180.075973834,"data":"  │ exit code: 1\n"}
+,{"stream_name":"stderr","time":180.07597677,"data":"  ╰─\u003e See above for output.\n"}
+,{"stream_name":"stderr","time":180.075979262,"data":"  \n"}
+,{"stream_name":"stderr","time":180.075981597,"data":"  note: This error originates from a subprocess, and is likely not a problem with pip.\n"}
+,{"stream_name":"stderr","time":180.075984314,"data":"error: subprocess-exited-with-error\n"}
+,{"stream_name":"stderr","time":180.075986749,"data":"\n"}
+,{"stream_name":"stderr","time":180.075989113,"data":"× Getting requirements to build wheel did not run successfully.\n"}
+,{"stream_name":"stderr","time":180.075991629,"data":"│ exit code: 1\n"}
+,{"stream_name":"stderr","time":180.075994095,"data":"╰─\u003e See above for output.\n"}
+,{"stream_name":"stderr","time":180.075996524,"data":"\n"}
+,{"stream_name":"stderr","time":180.075998989,"data":"note: This error originates from a subprocess, and is likely not a problem with pip.\n"}
+,{"stream_name":"stderr","time":181.336733771,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":181.336763524,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":181.336768919,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":181.336931637,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":181.33694158,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":181.337117375,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":181.337416492,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":181.337425959,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":181.337430383,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":181.337434473,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":181.337438456,"data":"ModuleNotFoundError                       Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":181.337442463,"data":"/tmp/ipykernel_25/515163558.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":181.337447023,"data":"     16 log(\"Installing Chatterbox...\")\n"}
+,{"stream_name":"stderr","time":181.337451287,"data":"     17 subprocess.run(\"pip install --no-cache-dir --prefer-binary chatterbox-tts misaki[en]\", shell=True)\n"}
+,{"stream_name":"stderr","time":181.337455607,"data":"---\u003e 18 from chatterbox import ChatterboxTTS\n"}
+,{"stream_name":"stderr","time":181.337459423,"data":"     19 log(\"Setup complete.\")\n"}
+,{"stream_name":"stderr","time":181.337463048,"data":"     20 \n"}
+,{"stream_name":"stderr","time":181.337467039,"data":"\n"}
+,{"stream_name":"stderr","time":181.337477029,"data":"ModuleNotFoundError: No module named 'chatterbox'\n"}
+,{"stream_name":"stderr","time":181.337481347,"data":"\n"}
+,{"stream_name":"stderr","time":183.566808176,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":183.566840125,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":183.717858615,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":183.717883466,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":184.306514904,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"remove_papermill_header.RemovePapermillHeader\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":184.306549369,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":184.455138746,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":184.763695138,"data":"[NbConvertApp] Writing 32756 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":187.295114332,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"nbconvert.preprocessors.ExtractOutputPreprocessor\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":187.295152159,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":187.316538483,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":188.130643114,"data":"[NbConvertApp] Writing 310089 bytes to __results__.html\n"}
+]

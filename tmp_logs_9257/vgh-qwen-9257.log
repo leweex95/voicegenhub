@@ -1,0 +1,144 @@
+[{"stream_name":"stderr","time":7.189265928,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.1893176069999996,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.189322218,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.189325196,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.852869241,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.852906229,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.852912024,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.852916566,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.120926276,"data":"[10:21:25] Checking environment...\n"}
+,{"stream_name":"stdout","time":13.122144986,"data":"[10:21:25] Installing qwen-tts (minimal)...\n"}
+,{"stream_name":"stdout","time":15.337003269,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.4/61.4 kB 2.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":15.387410905,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.5/113.5 kB 4.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":15.539197534,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.4/61.4 kB 2.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":15.539239336,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.5/113.5 kB 4.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":35.730244474,"data":"\n"}
+,{"stream_name":"stdout","time":35.7302747,"data":"********\n"}
+,{"stream_name":"stdout","time":35.730281599,"data":"Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.\n"}
+,{"stream_name":"stdout","time":35.730287573,"data":"********\n"}
+,{"stream_name":"stdout","time":35.730292606,"data":" \n"}
+,{"stream_name":"stdout","time":35.730297871,"data":"[10:21:48] Setup warning: No module named 'sox'. Trying full install...\n"}
+,{"stream_name":"stdout","time":37.178126474,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.0/44.0 kB 3.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.380733835,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.0/44.0 kB 3.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.463023425,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.9/63.9 kB 4.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.66523129,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.9/63.9 kB 4.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":39.781185382,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 160.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":39.929206315,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 132.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":39.948581111,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 332.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":39.985761973,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.0/12.0 MB 160.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":39.985792102,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17.1/17.1 MB 132.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":39.985799291,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 566.4/566.4 kB 332.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stderr","time":56.293551769,"data":"/bin/sh: 1: sox: not found\n"}
+,{"stream_name":"stderr","time":56.295814584,"data":"/bin/sh: 1: sox: not found\n"}
+,{"stream_name":"stderr","time":56.295838879,"data":"SoX could not be found!\n"}
+,{"stream_name":"stderr","time":56.295845128,"data":"\n"}
+,{"stream_name":"stderr","time":56.295850505,"data":"    If you do not have SoX, proceed here:\n"}
+,{"stream_name":"stderr","time":56.295856031,"data":"     - - - http://sox.sourceforge.net/ - - -\n"}
+,{"stream_name":"stderr","time":56.295861588,"data":"\n"}
+,{"stream_name":"stderr","time":56.295867302,"data":"    If you do (or think that you should) have SoX, double-check your\n"}
+,{"stream_name":"stderr","time":56.29587287,"data":"    path variables.\n"}
+,{"stream_name":"stderr","time":56.295877979,"data":"    \n"}
+,{"stream_name":"stderr","time":56.29588326,"data":"\n"}
+,{"stream_name":"stderr","time":56.295888654,"data":"/bin/sh: 1: sox: not found\n"}
+,{"stream_name":"stderr","time":56.295894385,"data":"SoX could not be found!\n"}
+,{"stream_name":"stderr","time":56.295899571,"data":"\n"}
+,{"stream_name":"stderr","time":56.295904676,"data":"    If you do not have SoX, proceed here:\n"}
+,{"stream_name":"stderr","time":56.295910074,"data":"     - - - http://sox.sourceforge.net/ - - -\n"}
+,{"stream_name":"stderr","time":56.29591543,"data":"\n"}
+,{"stream_name":"stderr","time":56.295920423,"data":"    If you do (or think that you should) have SoX, double-check your\n"}
+,{"stream_name":"stderr","time":56.29592588,"data":"    path variables.\n"}
+,{"stream_name":"stderr","time":56.295931168,"data":"    \n"}
+,{"stream_name":"stderr","time":61.384302637,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":61.384342596,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.384651481,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":61.385214358,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":61.38522942,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":61.385234375,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":61.385446404,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":61.385461945,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":61.385481636,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":61.385486822,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":61.385491921,"data":"ModuleNotFoundError                       Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":61.385496108,"data":"/tmp/ipykernel_24/1268120469.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":61.385500417,"data":"     22 \n"}
+,{"stream_name":"stderr","time":61.385504543,"data":"---\u003e 23     from qwen_tts import Qwen3TTSModel\n"}
+,{"stream_name":"stderr","time":61.38550855,"data":"     24     log(\"Setup complete (Imports done).\")\n"}
+,{"stream_name":"stderr","time":61.385512654,"data":"\n"}
+,{"stream_name":"stderr","time":61.385516483,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/__init__.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385522431,"data":"     20 \n"}
+,{"stream_name":"stderr","time":61.385527545,"data":"---\u003e 21 from .inference.qwen3_tts_model import Qwen3TTSModel, VoiceClonePromptItem\n"}
+,{"stream_name":"stderr","time":61.385530326,"data":"     22 from .inference.qwen3_tts_tokenizer import Qwen3TTSTokenizer\n"}
+,{"stream_name":"stderr","time":61.385533015,"data":"\n"}
+,{"stream_name":"stderr","time":61.385535401,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/inference/qwen3_tts_model.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385538239,"data":"     28 \n"}
+,{"stream_name":"stderr","time":61.385540763,"data":"---\u003e 29 from ..core.models import Qwen3TTSConfig, Qwen3TTSForConditionalGeneration, Qwen3TTSProcessor\n"}
+,{"stream_name":"stderr","time":61.385543429,"data":"     30 \n"}
+,{"stream_name":"stderr","time":61.385545941,"data":"\n"}
+,{"stream_name":"stderr","time":61.385548319,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/__init__.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.38555107,"data":"     16 from .tokenizer_25hz.configuration_qwen3_tts_tokenizer_v1 import Qwen3TTSTokenizerV1Config\n"}
+,{"stream_name":"stderr","time":61.38555377,"data":"---\u003e 17 from .tokenizer_25hz.modeling_qwen3_tts_tokenizer_v1 import Qwen3TTSTokenizerV1Model\n"}
+,{"stream_name":"stderr","time":61.385556534,"data":"     18 from .tokenizer_12hz.configuration_qwen3_tts_tokenizer_v2 import Qwen3TTSTokenizerV2Config\n"}
+,{"stream_name":"stderr","time":61.385560461,"data":"\n"}
+,{"stream_name":"stderr","time":61.385566119,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/tokenizer_25hz/modeling_qwen3_tts_tokenizer_v1.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385570383,"data":"     32 from .vq.whisper_encoder import get_mel_audio, get_T_after_cnn\n"}
+,{"stream_name":"stderr","time":61.38557513,"data":"---\u003e 33 from .vq.speech_vq import WhisperEncoderVQ, XVectorExtractor\n"}
+,{"stream_name":"stderr","time":61.385579931,"data":"     34 \n"}
+,{"stream_name":"stderr","time":61.385584755,"data":"\n"}
+,{"stream_name":"stderr","time":61.38558934,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/tokenizer_25hz/vq/speech_vq.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385593695,"data":"     15 # limitations under the License.\n"}
+,{"stream_name":"stderr","time":61.385597506,"data":"---\u003e 16 import sox\n"}
+,{"stream_name":"stderr","time":61.385601483,"data":"     17 import copy\n"}
+,{"stream_name":"stderr","time":61.385605189,"data":"\n"}
+,{"stream_name":"stderr","time":61.385608849,"data":"ModuleNotFoundError: No module named 'sox'\n"}
+,{"stream_name":"stderr","time":61.385617453,"data":"\n"}
+,{"stream_name":"stderr","time":61.385621314,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":61.385625186,"data":"\n"}
+,{"stream_name":"stderr","time":61.385628814,"data":"ImportError                               Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":61.385632855,"data":"/tmp/ipykernel_24/1268120469.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":61.385638788,"data":"     26     log(f\"Setup warning: {e}. Trying full install...\")\n"}
+,{"stream_name":"stderr","time":61.385642633,"data":"     27     subprocess.run(\"pip install -q qwen-tts==0.1.1 --no-cache-dir\", shell=True)\n"}
+,{"stream_name":"stderr","time":61.38564544,"data":"---\u003e 28     from qwen_tts import Qwen3TTSModel\n"}
+,{"stream_name":"stderr","time":61.385648089,"data":"     29 \n"}
+,{"stream_name":"stderr","time":61.385650514,"data":"     30 # 2. Parameters (Injected by JobManager)\n"}
+,{"stream_name":"stderr","time":61.385653066,"data":"\n"}
+,{"stream_name":"stderr","time":61.385656523,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/__init__.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385662834,"data":"     19 \"\"\"\n"}
+,{"stream_name":"stderr","time":61.385667329,"data":"     20 \n"}
+,{"stream_name":"stderr","time":61.385671688,"data":"---\u003e 21 from .inference.qwen3_tts_model import Qwen3TTSModel, VoiceClonePromptItem\n"}
+,{"stream_name":"stderr","time":61.385677064,"data":"     22 from .inference.qwen3_tts_tokenizer import Qwen3TTSTokenizer\n"}
+,{"stream_name":"stderr","time":61.385682598,"data":"     23 \n"}
+,{"stream_name":"stderr","time":61.385686909,"data":"\n"}
+,{"stream_name":"stderr","time":61.38569056,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/inference/qwen3_tts_model.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385694938,"data":"     27 from transformers import AutoConfig, AutoModel, AutoProcessor\n"}
+,{"stream_name":"stderr","time":61.385698909,"data":"     28 \n"}
+,{"stream_name":"stderr","time":61.385702739,"data":"---\u003e 29 from ..core.models import Qwen3TTSConfig, Qwen3TTSForConditionalGeneration, Qwen3TTSProcessor\n"}
+,{"stream_name":"stderr","time":61.385706832,"data":"     30 \n"}
+,{"stream_name":"stderr","time":61.385710551,"data":"     31 AudioLike = Union[\n"}
+,{"stream_name":"stderr","time":61.385714373,"data":"\n"}
+,{"stream_name":"stderr","time":61.385717972,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/__init__.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385721997,"data":"     17 from .tokenizer_25hz.modeling_qwen3_tts_tokenizer_v1 import Qwen3TTSTokenizerV1Model\n"}
+,{"stream_name":"stderr","time":61.385726091,"data":"     18 from .tokenizer_12hz.configuration_qwen3_tts_tokenizer_v2 import Qwen3TTSTokenizerV2Config\n"}
+,{"stream_name":"stderr","time":61.385730048,"data":"---\u003e 19 from .tokenizer_12hz.modeling_qwen3_tts_tokenizer_v2 import Qwen3TTSTokenizerV2Model\n"}
+,{"stream_name":"stderr","time":61.385734124,"data":"\n"}
+,{"stream_name":"stderr","time":61.385737714,"data":"/usr/local/lib/python3.12/dist-packages/qwen_tts/core/tokenizer_12hz/modeling_qwen3_tts_tokenizer_v2.py in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":61.385743663,"data":"     40 from transformers.utils import ModelOutput, auto_docstring, logging\n"}
+,{"stream_name":"stderr","time":61.385746975,"data":"     41 from transformers.utils.deprecation import deprecate_kwarg\n"}
+,{"stream_name":"stderr","time":61.385750498,"data":"---\u003e 42 from transformers.utils.generic import check_model_inputs\n"}
+,{"stream_name":"stderr","time":61.385765105,"data":"     43 \n"}
+,{"stream_name":"stderr","time":61.385769761,"data":"     44 from .configuration_qwen3_tts_tokenizer_v2 import (\n"}
+,{"stream_name":"stderr","time":61.385774621,"data":"\n"}
+,{"stream_name":"stderr","time":61.385779357,"data":"ImportError: cannot import name 'check_model_inputs' from 'transformers.utils.generic' (/usr/local/lib/python3.12/dist-packages/transformers/utils/generic.py)\n"}
+,{"stream_name":"stderr","time":61.385784546,"data":"\n"}
+,{"stream_name":"stderr","time":63.892383106,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":63.892428158,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":64.062897367,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":64.06292998,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":64.707518291,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"remove_papermill_header.RemovePapermillHeader\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":64.707557009,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":64.746557968,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":65.105668385,"data":"[NbConvertApp] Writing 17463 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":67.903180837,"data":"/usr/local/lib/python3.12/dist-packages/traitlets/traitlets.py:2915: FutureWarning: --Exporter.preprocessors=[\"nbconvert.preprocessors.ExtractOutputPreprocessor\"] for containers is deprecated in traitlets 5.0. You can pass `--Exporter.preprocessors item` ... multiple times to add items to a list.\n"}
+,{"stream_name":"stderr","time":67.903224293,"data":"  warn(\n"}
+,{"stream_name":"stderr","time":67.926823658,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":68.863337581,"data":"[NbConvertApp] Writing 298338 bytes to __results__.html\n"}
+]

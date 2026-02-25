@@ -2236,8 +2236,8 @@ pyyaml = "^6.0"
 [package.source]
 type = "git"
 url = "https://github.com/leweex95/kaggle-gpu-connector"
-reference = "feature/automated-logs"
-resolved_reference = "69005a3e59ffc0593ffd5e6e483b0ca5dfcbea7e"
+reference = "HEAD"
+resolved_reference = "55c0c990bb0fa3a451574b184b181db0abf17ba6"
 
 [[package]]
 name = "kagglesdk"
@@ -6996,4 +6996,4 @@ voice-cloning = ["torchcodec"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "e9367d4639bc6b0437408b4fb00f326c1bf7298fc186ec0b7a4bd5c6ff1fc0bb"
+content-hash = "0d565bc1d76c71d6333860d32cf706f63bbf206f7cb9522336310c53d741686a"

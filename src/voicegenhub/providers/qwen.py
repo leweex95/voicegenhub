@@ -68,7 +68,7 @@ class QwenTTSProvider(TTSProvider):
             "model_name_or_path", "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
         )
         self.device = self.config.get("device", "auto")
-        self.dtype_str = self.config.get("dtype", "bfloat16")
+        self.dtype_str = self.config.get("dtype", "float32")
         self.attn_implementation = self.config.get("attn_implementation", "eager")
         self.generation_mode = self.config.get("generation_mode", "custom_voice")
 
@@ -86,7 +86,8 @@ class QwenTTSProvider(TTSProvider):
         self.top_k = self.config.get("top_k", 50)
         self.repetition_penalty = self.config.get("repetition_penalty", 1.0)
         self.max_new_tokens = self.config.get("max_new_tokens", 2048)
-        self.do_sample = self.config.get("do_sample", True)
+        self.do_sample = self.config.get("do_sample", False)
+        self.subtalker_dosample = self.config.get("subtalker_dosample", False)
 
     @property
     def provider_id(self) -> str:
@@ -262,6 +263,7 @@ class QwenTTSProvider(TTSProvider):
                 "repetition_penalty": self.repetition_penalty,
                 "max_new_tokens": self.max_new_tokens,
                 "do_sample": self.do_sample,
+                "subtalker_dosample": self.subtalker_dosample,
             }
             generate_kwargs.update(request.extra_params)
 
