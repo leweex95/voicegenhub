@@ -10,20 +10,33 @@ logger = get_logger(__name__)
 def apply_cpu_compatibility_patches():
     """Apply patches to ensure stability on CPU-only environments."""
 
-    # 1. Mock torchcodec if missing. This is a common failure point for Transformers >= 4.51 on CPU.
+    # 1. Mock torchcodec if missing or corrupt. This is a common failure point for Transformers >= 4.51 on CPU.
+    # Handling PackageNotFoundError for missing, or Exception (e.g. IndexError) for corrupted installs.
+    is_broken_or_missing = False
     try:
         importlib.metadata.version("torchcodec")
-    except importlib.metadata.PackageNotFoundError:
-        logger.info("torchcodec not found, applying compatibility mocks for Transformers/AudioUtils")
+    except (importlib.metadata.PackageNotFoundError, Exception):
+        is_broken_or_missing = True
+
+    if is_broken_or_missing or "torchcodec" not in sys.modules:
+        logger.info("torchcodec not found or corrupt, applying compatibility mocks for Transformers/AudioUtils")
 
         # Mocking sys.modules
-        class MockTorchCodec:
-            __version__ = "0.9.1"
-            class Frame: pass
-            class Decoder:
-                def __init__(self, *args, **kwargs): pass
+        import types
+        from importlib.machinery import ModuleSpec
+        
+        mock_codec = types.ModuleType("torchcodec")
+        mock_codec.__version__ = "0.9.1"
+        mock_codec.__spec__ = ModuleSpec("torchcodec", None)
+        
+        class Frame: pass
+        class Decoder:
+            def __init__(self, *args, **kwargs): pass
+            
+        mock_codec.Frame = Frame
+        mock_codec.Decoder = Decoder
 
-        sys.modules["torchcodec"] = MockTorchCodec()
+        sys.modules["torchcodec"] = mock_codec
 
         # Mocking importlib.metadata.version
         # Save a reference to the original version function if not already patched
