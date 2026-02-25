@@ -255,6 +255,13 @@ class ChatterboxProvider(TTSProvider):
         try:
             logger.info("Initializing Chatterbox TTS provider...")
 
+            # Apply CPU compatibility patches specifically if not already done
+            try:
+                from ..utils.compatibility import apply_cpu_compatibility_patches
+                apply_cpu_compatibility_patches()
+            except ImportError:
+                pass
+
             # Safety check for Perth watermarker (often fails if setuptools/pkg_resources is missing)
             try:
                 import perth

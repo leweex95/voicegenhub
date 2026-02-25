@@ -61,18 +61,15 @@ class BarkProvider(TTSProvider):
         return "Bark (Suno)"
 
     async def initialize(self) -> None:
-        """Initialize the Bark TTS provider.
-
-        Bark loads three separate neural network models for speech synthesis:
-        1. Text encoder (converts text to embeddings): ~312M params
-        2. Coarse acoustic model (predicts coarse acoustic tokens): ~314M params
-        3. Fine acoustic model (predicts fine acoustic tokens for quality): ~302M params
-
-        This multi-model architecture allows Bark to synthesize natural, expressive speech.
-        The models are loaded once on initialization and reused for all subsequent inference calls.
-        Loading may take time on first run, but subsequent calls are much faster.
-        """
+        """Initialize the Bark TTS provider."""
         try:
+            # Apply CPU compatibility patches
+            try:
+                from ..utils.compatibility import apply_cpu_compatibility_patches
+                apply_cpu_compatibility_patches()
+            except ImportError:
+                pass
+
             import torch
             import torch.serialization
             import warnings

@@ -16,13 +16,21 @@ Example usage:
     audio = await tts.generate("Hello, world!", voice="en-US-AriaNeural")
 """
 
-__version__ = "0.1.0"
+__version__ = "1.1.4"
 __author__ = "leweex95"
 __email__ = "csibi.levente14@gmail.com"
 
 import os
 # Set attention implementation to eager before any imports to prevent SDPA warnings
 os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+
+# Apply CPU compatibility patches early to prevent import-time crashes in dependencies
+try:
+    from .utils.compatibility import apply_cpu_compatibility_patches
+    apply_cpu_compatibility_patches()
+except Exception:
+    # Fail silently to avoid breaking the whole library if the tool itself has issues
+    pass
 
 # Import core classes when available
 try:
