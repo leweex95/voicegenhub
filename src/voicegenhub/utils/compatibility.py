@@ -24,15 +24,15 @@ def apply_cpu_compatibility_patches():
         # Mocking sys.modules
         import types
         from importlib.machinery import ModuleSpec
-        
+
         mock_codec = types.ModuleType("torchcodec")
         mock_codec.__version__ = "0.9.1"
         mock_codec.__spec__ = ModuleSpec("torchcodec", None)
-        
+
         class Frame: pass
         class Decoder:
             def __init__(self, *args, **kwargs): pass
-            
+
         mock_codec.Frame = Frame
         mock_codec.Decoder = Decoder
 
