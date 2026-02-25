@@ -25,38 +25,38 @@ class ProviderFactory:
             try:
                 from .edge import EdgeTTSProvider
                 self._edge_provider_class = EdgeTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Edge provider discovery failed: {e}")
         elif provider_id == "kokoro":
             try:
                 from .kokoro import KokoroTTSProvider
                 self._kokoro_provider_class = KokoroTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Kokoro provider discovery failed: {e}")
         elif provider_id == "elevenlabs":
             try:
                 from .elevenlabs import ElevenLabsTTSProvider
                 self._elevenlabs_provider_class = ElevenLabsTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"ElevenLabs provider discovery failed: {e}")
         elif provider_id == "bark":
             try:
                 from .bark import BarkProvider
                 self._bark_provider_class = BarkProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Bark provider discovery failed: {e}")
         elif provider_id == "chatterbox":
             try:
                 from .chatterbox import ChatterboxProvider
                 self._chatterbox_provider_class = ChatterboxProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Chatterbox provider discovery failed: {e}")
         elif provider_id == "qwen":
             try:
                 from .qwen import QwenTTSProvider
                 self._qwen_provider_class = QwenTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Qwen provider discovery failed: {e}")
 
     async def create_provider(
         self, provider_id: str, config: Optional[Dict[str, Any]] = None

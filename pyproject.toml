@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "1.1.4"
+version = "1.1.5"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
@@ -13,6 +13,7 @@ structlog = "^23.2.0"
 rich = "^13.7.0"
 pydantic = "^2.11.9"
 setuptools = "^75.8.0"
+typer = ">=0.9.0"
 spacy = "^3.8"
 edge-tts = "^7.2.0"
 kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152ca444717ca5d78747ccb4bec"}
@@ -22,10 +23,9 @@ chatterbox-tts = {git = "https://github.com/rsxdalv/chatterbox.git", rev = "004a
 transformers = ">=4.46.3"
 torchaudio = ">=2.6.0"
 librosa = ">=0.11.0"
-torchcodec = {version = "^0.9.1", optional = true}
 
 [tool.poetry.extras]
-voice-cloning = ["torchcodec"]
+voice-cloning = []
 
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"

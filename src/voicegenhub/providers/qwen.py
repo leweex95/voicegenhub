@@ -117,6 +117,13 @@ class QwenTTSProvider(TTSProvider):
             return
 
         try:
+            # Apply CPU compatibility patches
+            try:
+                from ..utils.compatibility import apply_cpu_compatibility_patches
+                apply_cpu_compatibility_patches()
+            except ImportError:
+                pass
+
             from qwen_tts import Qwen3TTSModel
 
             logger.info(
