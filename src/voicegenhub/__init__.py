@@ -16,12 +16,22 @@ Example usage:
     audio = await tts.generate("Hello, world!", voice="en-US-AriaNeural")
 """
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 __author__ = "leweex95"
 __email__ = "csibi.levente14@gmail.com"
 
 import os
-# Set attention implementation to eager before any imports to prevent SDPA warnings
+
+# Apply compatibility patches as early as possible (before providers or heavy imports)
+try:
+    from .utils.compatibility import apply_cpu_compatibility_patches
+    apply_cpu_compatibility_patches()
+except (ImportError, Exception):
+    # Fallback to prevent cyclic or import-time issues
+    os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+# Additional safety for transformers
 os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
 # Apply CPU compatibility patches early to prevent import-time crashes in dependencies

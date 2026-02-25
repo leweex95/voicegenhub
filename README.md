@@ -34,13 +34,12 @@ poetry install -E voice-cloning
 ```
 
 **Voice cloning requirements:**
-- TorchCodec (automatically installed with `voice-cloning` extra)
 - FFmpeg (manual installation required)
-- PyTorch ≤ 2.4.x (for TorchCodec compatibility)
+- PyTorch (standard version)
 
 **On Windows:** Download the "full-shared" FFmpeg build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and add the `bin` directory to your system PATH.
 
-**Note:** If TorchCodec is incompatible with your PyTorch version or FFmpeg is not available, VoiceGenHub will automatically fall back to standard TTS without voice cloning.
+**Note:** VoiceGenHub includes a compatibility layer to ensure stable execution on CPU-only systems and prevents common import-time crashes related to experimental dependencies like TorchCodec. Standard TTS and voice cloning mechanisms will automatically fall back to supported audio loaders if needed.
 
 ## Usage
 

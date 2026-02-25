@@ -22,10 +22,9 @@ chatterbox-tts = {git = "https://github.com/rsxdalv/chatterbox.git", rev = "004a
 transformers = ">=4.46.3"
 torchaudio = ">=2.6.0"
 librosa = ">=0.11.0"
-torchcodec = {version = "^0.9.1", optional = true}
 
 [tool.poetry.extras]
-voice-cloning = ["torchcodec"]
+voice-cloning = []
 
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"
