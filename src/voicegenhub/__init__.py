@@ -22,25 +22,17 @@ __email__ = "csibi.levente14@gmail.com"
 
 import os
 
-# Apply compatibility patches as early as possible (before providers or heavy imports)
-try:
-    from .utils.compatibility import apply_cpu_compatibility_patches
-    apply_cpu_compatibility_patches()
-except (ImportError, Exception):
-    # Fallback to prevent cyclic or import-time issues
-    os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
-    os.environ['CUDA_VISIBLE_DEVICES'] = ''
-
-# Additional safety for transformers
-os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
-
 # Apply CPU compatibility patches early to prevent import-time crashes in dependencies
 try:
     from .utils.compatibility import apply_cpu_compatibility_patches
     apply_cpu_compatibility_patches()
 except Exception:
     # Fail silently to avoid breaking the whole library if the tool itself has issues
-    pass
+    os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
+    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+# Additional safety for transformers
+os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
 # Import core classes when available
 try:

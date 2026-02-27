@@ -7,6 +7,7 @@ from .logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def apply_cpu_compatibility_patches():
     """Apply patches to ensure stability on CPU-only environments."""
 
@@ -29,7 +30,9 @@ def apply_cpu_compatibility_patches():
         mock_codec.__version__ = "0.9.1"
         mock_codec.__spec__ = ModuleSpec("torchcodec", None)
 
-        class Frame: pass
+        class Frame:
+            pass
+
         class Decoder:
             def __init__(self, *args, **kwargs): pass
 
@@ -62,6 +65,7 @@ def apply_cpu_compatibility_patches():
     if "torch" in sys.modules:
         _patch_torch_cuda(sys.modules["torch"])
 
+
 def _patch_torch_cuda(torch):
     """Specific patches for torch when it's already loaded."""
     if not torch.cuda.is_available():
@@ -77,6 +81,7 @@ def _patch_torch_cuda(torch):
                 torch.cuda.is_bf16_supported = lambda: False
             except Exception:
                 pass
+
 
 def ensure_torchcodec():
     """Specific check for torchcodec to satisfy Transformers >= 4.51."""
