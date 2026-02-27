@@ -61,14 +61,19 @@ def _detect_kaggle_username() -> str:
 
 
 def _build_notebook_source(
-    text: str,
+    texts: list,
     voice: str,
     language: str,
     model_id: str,
     dtype: str,
-    output_filename: str,
+    seed: int = 42,
+    temperature: float = 0.7,
 ) -> dict:
-    """Build the Jupyter notebook content for Kaggle GPU execution."""
+    """Build the Jupyter notebook content for Kaggle GPU batch execution.
+
+    Generates one audio file per text entry (audio_001.wav, audio_002.wav, …)
+    and writes a manifest.json that maps each filename to its source text.
+    """
 
     # Language mapping (CLI code → Qwen language string)
     language_map = {
@@ -100,17 +105,32 @@ def _build_notebook_source(
         pip_install("soundfile")
     """)
 
+    # Embed the texts list and metadata directly into the notebook cell
     gen_code = textwrap.dedent(f"""\
+        import json
         import torch
         import soundfile as sf
         from qwen_tts import Qwen3TTSModel
 
-        MODEL_ID = {json.dumps(model_id)}
-        OUTPUT_PATH = "/kaggle/working/{output_filename}"
+        MODEL_ID    = {json.dumps(model_id)}
+        VOICE       = {json.dumps(voice)}
+        LANGUAGE    = {json.dumps(qwen_language)}
+        TEXTS       = {json.dumps(texts)}
+        OUTPUT_DIR  = "/kaggle/working"
+        SEED        = {seed}
+        TEMPERATURE = {temperature}
+
+        # Pin global seed for reproducibility across runs
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(SEED)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
         print(f"CUDA available: {{torch.cuda.is_available()}}")
         if torch.cuda.is_available():
             print(f"GPU: {{torch.cuda.get_device_name(0)}}")
+        print(f"Seed: {{SEED}}  Temperature: {{TEMPERATURE}}")
 
         print(f"Loading model: {{MODEL_ID}}")
         model = Qwen3TTSModel.from_pretrained(
@@ -119,18 +139,38 @@ def _build_notebook_source(
             dtype=torch.float16,
         )
 
-        print("Generating speech...")
-        wavs, sr = model.generate_custom_voice(
-            text={json.dumps(text)},
-            language={json.dumps(qwen_language)},
-            speaker={json.dumps(voice)},
-        )
+        manifest = []
+        for i, text in enumerate(TEXTS, start=1):
+            filename = f"audio_{{i:03d}}.wav"
+            out_path = f"{{OUTPUT_DIR}}/{{filename}}"
+            print(f"[{{i}}/{{len(TEXTS)}}] Generating: {{text[:80]}}")
+            # Re-seed before each text so every audio is independently reproducible
+            torch.manual_seed(SEED + i)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(SEED + i)
+            wavs, sr = model.generate_custom_voice(
+                text=text,
+                language=LANGUAGE,
+                speaker=VOICE,
+                temperature=TEMPERATURE,
+                top_p=0.9,
+                repetition_penalty=1.1,
+            )
+            sf.write(out_path, wavs[0], sr)
+            duration = len(wavs[0]) / sr
+            print(f"  -> {{filename}}  ({{duration:.2f}}s @ {{sr}} Hz)")
+            manifest.append({{"index": i, "file": filename, "text": text, "duration_sec": round(duration, 2)}})
 
-        sf.write(OUTPUT_PATH, wavs[0], sr)
-        print(f"Audio saved to {{OUTPUT_PATH}}")
-        print(f"Sample rate: {{sr}} Hz, Duration: {{len(wavs[0])/sr:.2f}}s")
+        manifest_path = f"{{OUTPUT_DIR}}/manifest.json"
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+        print(f"\\nDone — {{len(TEXTS)}} audio files + manifest.json written to {{OUTPUT_DIR}}")
+        for entry in manifest:
+            print(f"  {{entry['file']}}  {{entry['duration_sec']}}s  {{entry['text'][:60]}}")
     """)
 
+    summary_lines = [f"- `audio_{i:03d}.wav`: {t[:80]}{'…' if len(t) > 80 else ''}\n" for i, t in enumerate(texts, 1)]
     notebook = {
         "nbformat": 4,
         "nbformat_minor": 5,
@@ -148,11 +188,10 @@ def _build_notebook_source(
                 "id": "intro",
                 "metadata": {},
                 "source": [
-                    "# VoiceGenHub — Qwen3-TTS GPU Generation\n",
-                    f"**Model:** `{model_id}`  \n",
-                    f"**Text:** {text[:120]}{'...' if len(text) > 120 else ''}  \n",
-                    f"**Voice:** {voice}  **Language:** {qwen_language}\n",
-                ],
+                    "# VoiceGenHub — Qwen3-TTS GPU Batch Generation\n",
+                    f"**Model:** `{model_id}`  **Voice:** {voice}  **Language:** {qwen_language}\n\n",
+                    f"**{len(texts)} texts to synthesize:**\n",
+                ] + summary_lines,
             },
             {
                 "cell_type": "code",
@@ -297,45 +336,53 @@ class KaggleQwenPipeline:
 
     def run(
         self,
-        text: str,
+        texts,
         voice: str = "Ryan",
         language: str = "en",
         output_dir: Optional[str] = None,
-        output_filename: str = "qwen3_tts.wav",
-        gpu_type: str = "p100",  # "p100" or "t4"
-    ) -> Path:
+        gpu_type: str = "p100",
+        seed: int = 42,
+        temperature: float = 0.7,
+    ) -> list:
         """
-        Run the full Kaggle Qwen3-TTS pipeline.
+        Run the full Kaggle Qwen3-TTS batch pipeline.
 
         Args:
-            text: Text to synthesize.
+            texts: A single text string or a list of text strings to synthesize.
+                   Each text produces one audio file (audio_001.wav, …).
             voice: Speaker name (e.g. "Ryan", "Serena").
             language: ISO language code (e.g. "en", "zh").
-            output_dir: Local directory for the downloaded audio file.
+            output_dir: Local directory for all downloaded files.
                         Defaults to a timestamped folder in the cwd.
-            output_filename: Filename for the generated audio on Kaggle.
             gpu_type: Kaggle accelerator type ("p100", "t4").
 
         Returns:
-            Path to the downloaded audio file.
+            List of Paths to the downloaded audio files.
+            A manifest.json is written alongside the audio files linking each
+            filename to its source text.
         """
+        # Normalise: accept both str and list[str]
+        if isinstance(texts, str):
+            texts = [texts]
+
         username = _detect_kaggle_username()
         kernel_id = f"{username}/{self.kernel_slug}"
 
         if output_dir is None:
             from datetime import datetime
-            output_dir = datetime.now().strftime("%Y%m%d")
+            output_dir = datetime.now().strftime("%Y%m%d_%H%M%S") + f"_{gpu_type}"
 
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
 
         logger.info(
-            "Starting Kaggle Qwen3-TTS pipeline",
+            "Starting Kaggle Qwen3-TTS batch pipeline",
             kernel_id=kernel_id,
             model=self.model_id,
             voice=voice,
             language=language,
             gpu_type=gpu_type,
+            num_texts=len(texts),
         )
 
         # 1. Build notebook + push
@@ -345,14 +392,20 @@ class KaggleQwenPipeline:
             metadata_path = Path(tmpdir) / "kernel-metadata.json"
 
             notebook = _build_notebook_source(
-                text=text,
+                texts=texts,
                 voice=voice,
                 language=language,
                 model_id=self.model_id,
                 dtype=self.dtype,
-                output_filename=output_filename,
+                seed=seed,
+                temperature=temperature,
             )
             notebook_path.write_text(json.dumps(notebook, indent=2))
+
+            # Save a copy of the submitted notebook to the output folder for traceability
+            submitted_nb_dest = output_path / "submitted_notebook.ipynb"
+            submitted_nb_dest.write_text(json.dumps(notebook, indent=2))
+            logger.info(f"Submitted notebook saved: {submitted_nb_dest}")
 
             metadata = _build_kernel_metadata(
                 username, self.kernel_slug, notebook_filename, gpu_type=gpu_type
@@ -361,7 +414,6 @@ class KaggleQwenPipeline:
 
             logger.info(f"Pushing kernel to Kaggle: {kernel_id} (accelerator: {gpu_type})")
             try:
-                # Accelerator flag to ensure correct resource allocation
                 acc_flag = "nvidia-p100-1" if gpu_type == "p100" else "nvidia-t4-2"
                 push_result = _run_cmd(
                     ["kaggle", "kernels", "push", "-p", tmpdir, "--accelerator", acc_flag],
@@ -371,9 +423,6 @@ class KaggleQwenPipeline:
                 push_out = push_result.stdout.strip()
                 logger.info(f"Push result: {push_out}")
 
-                # Kaggle may create the kernel under a different slug than the
-                # metadata 'id' field (it slugifies the 'title' instead when
-                # they differ). Parse the actual URL from the push output.
                 actual_kernel_id = _extract_kernel_id_from_push(push_out, kernel_id)
                 if actual_kernel_id != kernel_id:
                     logger.info(
@@ -391,14 +440,15 @@ class KaggleQwenPipeline:
         # 2. Poll until done
         self._poll_until_complete(kernel_id)
 
-        # 3. Download output
-        local_wav = self._download_output(kernel_id, output_path, output_filename)
+        # 3. Download all output files (audio_*.wav + manifest.json)
+        local_files = self._download_output(kernel_id, output_path, len(texts))
 
         logger.info(
-            "Kaggle Qwen3-TTS pipeline complete",
-            output=str(local_wav),
+            "Kaggle Qwen3-TTS batch pipeline complete",
+            output_dir=str(output_path),
+            num_files=len(local_files),
         )
-        return local_wav
+        return local_files
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -449,9 +499,12 @@ class KaggleQwenPipeline:
         self,
         kernel_id: str,
         output_path: Path,
-        output_filename: str,
-    ) -> Path:
-        """Download kernel output and extract the audio file."""
+        num_texts: int,
+    ) -> list:
+        """Download all kernel outputs (audio_*.wav + manifest.json) to output_path.
+
+        Returns a list of Path objects for each downloaded audio file.
+        """
         with tempfile.TemporaryDirectory() as dl_dir:
             logger.info(f"Downloading kernel outputs from {kernel_id}…")
             _run_cmd(
@@ -460,34 +513,59 @@ class KaggleQwenPipeline:
                 check=True,
             )
 
-            # Kaggle downloads a zip file; find and extract it
             dl_path = Path(dl_dir)
-            wav_files = list(dl_path.rglob("*.wav"))
-            zip_files = list(dl_path.rglob("*.zip"))
 
-            # Extract zips first
-            for zf in zip_files:
+            # Extract any zip archives first
+            for zf in list(dl_path.rglob("*.zip")):
                 logger.info(f"Extracting {zf.name}…")
                 with zipfile.ZipFile(zf, "r") as z:
                     z.extractall(dl_path)
-                wav_files = list(dl_path.rglob("*.wav"))
+
+            wav_files = sorted(dl_path.rglob("*.wav"))
+            manifest_files = list(dl_path.rglob("manifest.json"))
+
+            # Always copy logs and executed notebook — survive even if no wavs
+            for log_file in dl_path.rglob("*.log"):
+                dest = output_path / log_file.name
+                shutil.copy2(log_file, dest)
+                logger.info(f"Kernel log saved: {dest}  ({dest.stat().st_size:,} bytes)")
+
+            for nb_file in dl_path.rglob("*.ipynb"):
+                dest = output_path / "executed_notebook.ipynb"
+                shutil.copy2(nb_file, dest)
+                logger.info(f"Executed notebook saved: {dest}  ({dest.stat().st_size:,} bytes)")
 
             if not wav_files:
-                # List what was downloaded for debugging
                 all_files = list(dl_path.rglob("*"))
                 file_list = ", ".join(f.name for f in all_files if f.is_file())
                 raise FileNotFoundError(
-                    f"No .wav file found in kernel output. Downloaded files: {file_list}\n"
+                    f"No .wav files found in kernel output. Downloaded files: {file_list}\n"
                     f"Check kernel logs: https://www.kaggle.com/code/{kernel_id}"
                 )
 
-            # Find the right wav (matching output_filename if possible)
-            target_wav = next(
-                (f for f in wav_files if f.name == output_filename),
-                wav_files[0],
-            )
+            # Copy all wav files
+            local_wavs = []
+            for wav in wav_files:
+                dest = output_path / wav.name
+                shutil.copy2(wav, dest)
+                logger.info(f"Audio saved locally: {dest}  ({dest.stat().st_size:,} bytes)")
+                local_wavs.append(dest)
 
-            dest = output_path / output_filename
-            shutil.copy2(target_wav, dest)
-            logger.info(f"Audio saved locally: {dest}")
-            return dest
+            # Copy manifest.json if present
+            if manifest_files:
+                manifest_dest = output_path / "manifest.json"
+                shutil.copy2(manifest_files[0], manifest_dest)
+                logger.info(f"Manifest saved locally: {manifest_dest}")
+            else:
+                # Generate a minimal fallback manifest
+                manifest_dest = output_path / "manifest.json"
+                fallback = [
+                    {"index": i + 1, "file": wav.name, "text": f"(text {i + 1} of {num_texts})"}
+                    for i, wav in enumerate(local_wavs)
+                ]
+                manifest_dest.write_text(
+                    json.dumps(fallback, ensure_ascii=False, indent=2), encoding="utf-8"
+                )
+                logger.info(f"Fallback manifest written: {manifest_dest}")
+
+            return local_wavs

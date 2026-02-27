@@ -27,6 +27,22 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 logger = get_logger(__name__)
 
+# Speaker metadata: name -> (language, locale, gender, description).
+# The model's get_supported_speakers() only returns names; this dict supplies
+# the additional info needed to build a Voice object.  New speakers returned
+# by the model but absent here fall back to neutral/multilingual defaults.
+_SPEAKER_META: Dict[str, tuple] = {
+    "Ryan":     ("en", "en-US", VoiceGender.MALE,   "Dynamic male, strong rhythmic drive — English native"),
+    "Aiden":    ("en", "en-US", VoiceGender.MALE,   "Sunny American male, clear midrange — English native"),
+    "Vivian":   ("zh", "zh-CN", VoiceGender.FEMALE, "Bright, slightly edgy young female — Chinese native"),
+    "Serena":   ("zh", "zh-CN", VoiceGender.FEMALE, "Warm, gentle young female — Chinese native"),
+    "Uncle_Fu": ("zh", "zh-CN", VoiceGender.MALE,   "Seasoned male, low mellow timbre — Chinese native"),
+    "Dylan":    ("zh", "zh-CN", VoiceGender.MALE,   "Youthful Beijing male, natural timbre — Chinese native"),
+    "Eric":     ("zh", "zh-CN", VoiceGender.MALE,   "Lively Chengdu male, slightly husky — Chinese native"),
+    "Ono_Anna": ("ja", "ja-JP", VoiceGender.FEMALE, "Playful female, light and nimble — Japanese native"),
+    "Sohee":    ("ko", "ko-KR", VoiceGender.FEMALE, "Warm female with rich emotion — Korean native"),
+}
+
 
 class QwenTTSProvider(TTSProvider):
     """
@@ -173,51 +189,55 @@ class QwenTTSProvider(TTSProvider):
                 provider=self.provider_id,
             ) from e
 
-    async def get_voices(self) -> List[Voice]:
-        """Get available voices based on generation mode."""
+    async def get_voices(self, language: Optional[str] = None) -> List[Voice]:
+        """Return Qwen3-TTS CustomVoice speakers by querying the loaded model.
+
+        Speakers are enriched with language/gender metadata from _SPEAKER_META.
+        Speakers not in _SPEAKER_META fall back to neutral/multilingual defaults.
+        If *language* is provided (e.g. 'en', 'zh', 'ja', 'ko'), only voices whose
+        native language matches are returned.  If no match, the full list is returned.
+        """
         await self.initialize()
+        speakers = self._model.model.get_supported_speakers() or []
 
-        voices = []
+        if not speakers:
+            return [Voice(
+                id="default",
+                name="Default",
+                language="multilingual",
+                locale="multilingual",
+                gender=VoiceGender.NEUTRAL,
+                voice_type=VoiceType.NEURAL,
+                provider="qwen",
+            )]
 
-        if self.generation_mode == "custom_voice":
-            # Get supported speakers
-            try:
-                speakers = self._model.model.get_supported_speakers()
-                if speakers:
-                    for speaker in speakers:
-                        voices.append(
-                            Voice(
-                                id=speaker,
-                                name=speaker.capitalize(),
-                                language="multilingual",
-                                locale="mul",
-                                gender=VoiceGender.NEUTRAL,
-                                voice_type=VoiceType.NEURAL,
-                                provider=self.provider_id,
-                                sample_rate=24000,
-                                description=f"Qwen 3 TTS CustomVoice speaker: {speaker}",
-                            )
-                        )
-            except Exception as e:
-                logger.warning(f"Could not get speakers: {e}")
-
-        if not voices:
-            # Return generic voice entries for other modes
-            voices.append(
-                Voice(
-                    id="default",
-                    name="Default Voice",
-                    language="multilingual",
-                    locale="mul",
-                    gender=VoiceGender.NEUTRAL,
-                    voice_type=VoiceType.NEURAL,
-                    provider=self.provider_id,
-                    sample_rate=24000,
-                    description=f"Qwen 3 TTS {self.generation_mode} mode",
+        voices: List[Voice] = []
+        for speaker in speakers:
+            meta = _SPEAKER_META.get(speaker)
+            if meta:
+                lang, locale, gender, desc = meta
+            else:
+                lang, locale, gender, desc = (
+                    "multilingual", "multilingual", VoiceGender.NEUTRAL,
+                    f"{speaker} speaker",
                 )
-            )
+            voices.append(Voice(
+                id=speaker,
+                name=speaker,
+                language=lang,
+                locale=locale,
+                gender=gender,
+                voice_type=VoiceType.NEURAL,
+                provider="qwen",
+                description=desc,
+            ))
 
-        return voices
+        if language is None:
+            return voices
+
+        lang_filter = language.lower().split("-")[0]  # normalise "en-US" → "en"
+        filtered = [v for v in voices if v.language == lang_filter]
+        return filtered if filtered else voices
 
     def _get_native_speaker_for_language(self, language: str) -> str:
         """Get native speaker for a given language."""

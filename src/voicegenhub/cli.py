@@ -288,7 +288,6 @@ def _process_batch(
 @click.group()
 def cli():
     """VoiceGenHub - Simple Text-to-Speech CLI."""
-    pass
 
 
 @cli.command()
@@ -430,20 +429,30 @@ def cli():
     show_default=True,
     help="Kaggle GPU: Status polling interval in seconds",
 )
+@click.option(
+    "--seed",
+    type=int,
+    default=42,
+    show_default=True,
+    help="Kaggle GPU: Random seed for reproducible generation",
+)
+@click.option(
+    "--temperature",
+    type=float,
+    default=0.7,
+    show_default=True,
+    help="Kaggle GPU: Sampling temperature (lower = more stable/neutral tone, higher = more expressive)",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     gpu, cpu, lowpass, normalize, distortion, noise, reverb, pitch_shift,
     exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
     instruct, ref_audio, ref_text,
-    model, output_dir, output_filename, timeout, poll_interval,
+    model, output_dir, output_filename, timeout, poll_interval, seed, temperature,
 ):
     """Generate speech from text(s). Use --gpu [p100|t4] for remote Kaggle GPU acceleration."""
     # Redirect to Kaggle pipeline if --gpu is specified
     if gpu:
-        if len(texts) > 1:
-            click.echo("Error: --gpu currently supports only single text generation", err=True)
-            sys.exit(1)
-
         from .kaggle.pipeline import KaggleQwenPipeline
         pipeline = KaggleQwenPipeline(
             model_id=model or "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
@@ -451,36 +460,33 @@ def synthesize(
             poll_interval_seconds=poll_interval,
         )
 
-        # Determine output directory and filename
+        # Determine output directory
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         suffix = f"_{gpu}"
-
         if output_dir:
-            # Explicit --output-dir provided
             resolved_output_dir = output_dir
-            resolved_output_filename = output_filename
         elif output:
-            output_path = Path(output)
-            if not output_path.suffix:
-                resolved_output_dir = str(output_path / f"{timestamp}{suffix}")
-                resolved_output_filename = output_filename
-            else:
-                resolved_output_dir = str(output_path.parent / f"{timestamp}{suffix}")
-                resolved_output_filename = output_path.name
+            output_path_obj = Path(output)
+            resolved_output_dir = str(output_path_obj if not output_path_obj.suffix else output_path_obj.parent / f"{timestamp}{suffix}")
         else:
             resolved_output_dir = f"{timestamp}{suffix}"
-            resolved_output_filename = output_filename
 
         try:
-            result_path = pipeline.run(
-                text=texts[0],
+            result_paths = pipeline.run(
+                texts=list(texts),
                 voice=voice or "Ryan",
                 language=language or "en",
                 output_dir=resolved_output_dir,
-                output_filename=resolved_output_filename,
                 gpu_type=gpu,
+                seed=seed,
+                temperature=temperature,
             )
-            click.echo(f"SUCCESS: Remote audio available at: {result_path.absolute()}")
+            click.echo(f"SUCCESS: {len(result_paths)} audio file(s) in: {Path(resolved_output_dir).absolute()}")
+            for p in result_paths:
+                click.echo(f"  {p.name}")
+            manifest = Path(resolved_output_dir) / "manifest.json"
+            if manifest.exists():
+                click.echo("  manifest.json  (prompt→file mapping)")
             return
         except Exception as e:
             click.echo(f"Error during remote generation: {e}", err=True)
@@ -597,7 +603,7 @@ def synthesize(
 def voices(language: Optional[str], format: str, provider: str):
     """List available voices."""
     # Validate provider immediately
-    supported_providers = ["edge", "kokoro", "elevenlabs", "bark", "chatterbox"]
+    supported_providers = ["edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
