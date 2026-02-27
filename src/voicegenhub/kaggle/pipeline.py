@@ -68,11 +68,16 @@ def _build_notebook_source(
     dtype: str,
     seed: int = 42,
     temperature: float = 0.7,
+    instruct: str = "",
 ) -> dict:
     """Build the Jupyter notebook content for Kaggle GPU batch execution.
 
     Generates one audio file per text entry (audio_001.wav, audio_002.wav, …)
     and writes a manifest.json that maps each filename to its source text.
+
+    When *instruct* is non-empty, each text is generated via
+    ``generate_custom_voice(… instruct=instruct)`` so Qwen3's voice-design /
+    emotion capabilities are used even on remote Kaggle GPUs.
     """
 
     # Language mapping (CLI code → Qwen language string)
@@ -119,6 +124,7 @@ def _build_notebook_source(
         OUTPUT_DIR  = "/kaggle/working"
         SEED        = {seed}
         TEMPERATURE = {temperature}
+        INSTRUCT    = {json.dumps(instruct)}
 
         # Pin global seed for reproducibility across runs
         torch.manual_seed(SEED)
@@ -131,6 +137,8 @@ def _build_notebook_source(
         if torch.cuda.is_available():
             print(f"GPU: {{torch.cuda.get_device_name(0)}}")
         print(f"Seed: {{SEED}}  Temperature: {{TEMPERATURE}}")
+        if INSTRUCT:
+            print(f"Instruct: {{INSTRUCT}}")
 
         print(f"Loading model: {{MODEL_ID}}")
         model = Qwen3TTSModel.from_pretrained(
@@ -148,7 +156,7 @@ def _build_notebook_source(
             torch.manual_seed(SEED + i)
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(SEED + i)
-            wavs, sr = model.generate_custom_voice(
+            gen_kwargs = dict(
                 text=text,
                 language=LANGUAGE,
                 speaker=VOICE,
@@ -156,6 +164,9 @@ def _build_notebook_source(
                 top_p=0.9,
                 repetition_penalty=1.1,
             )
+            if INSTRUCT:
+                gen_kwargs["instruct"] = INSTRUCT
+            wavs, sr = model.generate_custom_voice(**gen_kwargs)
             sf.write(out_path, wavs[0], sr)
             duration = len(wavs[0]) / sr
             print(f"  -> {{filename}}  ({{duration:.2f}}s @ {{sr}} Hz)")
@@ -343,6 +354,7 @@ class KaggleQwenPipeline:
         gpu_type: str = "p100",
         seed: int = 42,
         temperature: float = 0.7,
+        instruct: str = "",
     ) -> list:
         """
         Run the full Kaggle Qwen3-TTS batch pipeline.
@@ -355,6 +367,9 @@ class KaggleQwenPipeline:
             output_dir: Local directory for all downloaded files.
                         Defaults to a timestamped folder in the cwd.
             gpu_type: Kaggle accelerator type ("p100", "t4").
+            seed: Random seed for reproducible generation.
+            temperature: Sampling temperature.
+            instruct: Qwen3 instruct string for voice design / emotion control.
 
         Returns:
             List of Paths to the downloaded audio files.
@@ -399,6 +414,7 @@ class KaggleQwenPipeline:
                 dtype=self.dtype,
                 seed=seed,
                 temperature=temperature,
+                instruct=instruct,
             )
             notebook_path.write_text(json.dumps(notebook, indent=2))
 

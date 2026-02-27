@@ -292,6 +292,15 @@ class QwenTTSProvider(TTSProvider):
             }
             generate_kwargs.update(request.extra_params)
 
+            # Seed support: pin torch seed before generation for reproducibility
+            seed = generate_kwargs.pop("seed", None)
+            if seed is not None:
+                seed = int(seed)
+                torch.manual_seed(seed)
+                if torch.cuda.is_available():
+                    torch.cuda.manual_seed_all(seed)
+                logger.info(f"Pinned random seed: {seed}")
+
             # Generate based on mode
             if self.generation_mode == "custom_voice":
                 speaker = generate_kwargs.pop("speaker", self.default_speaker or request.voice_id)

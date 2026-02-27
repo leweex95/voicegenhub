@@ -46,12 +46,29 @@ def _process_single(
     instruct: Optional[str] = None,
     ref_audio: Optional[str] = None,
     ref_text: Optional[str] = None,
+    seed: Optional[int] = None,
 ):
     """Process a single text with effects support."""
     try:
         # Initialize TTS
         tts = VoiceGenHub(provider=provider)
         asyncio.run(tts.initialize())
+
+        # Build extra kwargs
+        extra_kwargs = dict(
+            exaggeration=exaggeration,
+            cfg_weight=cfg_weight,
+        )
+        if audio_prompt_path:
+            extra_kwargs["audio_prompt_path"] = audio_prompt_path
+        if instruct:
+            extra_kwargs["instruct"] = instruct
+        if ref_audio:
+            extra_kwargs["ref_audio"] = ref_audio
+        if ref_text:
+            extra_kwargs["ref_text"] = ref_text
+        if seed is not None:
+            extra_kwargs["seed"] = seed
 
         # Generate audio
         response = asyncio.run(tts.generate(
@@ -61,12 +78,7 @@ def _process_single(
             audio_format=AudioFormat(audio_format),
             speed=speed,
             pitch=pitch,
-            exaggeration=exaggeration,
-            cfg_weight=cfg_weight,
-            audio_prompt_path=audio_prompt_path,
-            instruct=instruct,
-            ref_audio=ref_audio,
-            ref_text=ref_text,
+            **extra_kwargs,
         ))
 
         output_path = Path(output).resolve() if output else Path(".") / f"voicegenhub_output.{audio_format}"
@@ -160,6 +172,7 @@ def _process_batch(
     instruct: Optional[str] = None,
     ref_audio: Optional[str] = None,
     ref_text: Optional[str] = None,
+    seed: Optional[int] = None,
 ):
     """Process multiple texts concurrently with provider-specific limits.
 
@@ -216,6 +229,20 @@ def _process_batch(
         try:
             # Run async generation in thread
             async def generate():
+                gen_kwargs = dict(
+                    exaggeration=exaggeration,
+                    cfg_weight=cfg_weight,
+                )
+                if audio_prompt_path:
+                    gen_kwargs["audio_prompt_path"] = audio_prompt_path
+                if instruct:
+                    gen_kwargs["instruct"] = instruct
+                if ref_audio:
+                    gen_kwargs["ref_audio"] = ref_audio
+                if ref_text:
+                    gen_kwargs["ref_text"] = ref_text
+                if seed is not None:
+                    gen_kwargs["seed"] = seed
                 return await shared_tts.generate(
                     text=text,
                     voice=voice,
@@ -223,12 +250,7 @@ def _process_batch(
                     audio_format=AudioFormat(audio_format),
                     speed=speed,
                     pitch=pitch,
-                    exaggeration=exaggeration,
-                    cfg_weight=cfg_weight,
-                    audio_prompt_path=audio_prompt_path,
-                    instruct=instruct,
-                    ref_audio=ref_audio,
-                    ref_text=ref_text,
+                    **gen_kwargs,
                 )
 
             response = asyncio.run(generate())
@@ -256,6 +278,7 @@ def _process_batch(
                     instruct=instruct,
                     ref_audio=ref_audio,
                     ref_text=ref_text,
+                    seed=seed,
                 )
             else:
                 # Save output directly
@@ -434,7 +457,7 @@ def cli():
     type=int,
     default=42,
     show_default=True,
-    help="Kaggle GPU: Random seed for reproducible generation",
+    help="Random seed for reproducible generation (local CPU and Kaggle GPU)",
 )
 @click.option(
     "--temperature",
@@ -480,6 +503,7 @@ def synthesize(
                 gpu_type=gpu,
                 seed=seed,
                 temperature=temperature,
+                instruct=instruct or "",
             )
             click.echo(f"SUCCESS: {len(result_paths)} audio file(s) in: {Path(resolved_output_dir).absolute()}")
             for p in result_paths:
@@ -563,6 +587,7 @@ def synthesize(
             instruct=instruct,
             ref_audio=ref_audio,
             ref_text=ref_text,
+            seed=seed,
         )
     else:
         # Single text processing (original behavior)
@@ -587,6 +612,7 @@ def synthesize(
             instruct=instruct,
             ref_audio=ref_audio,
             ref_text=ref_text,
+            seed=seed,
         )
 
 
