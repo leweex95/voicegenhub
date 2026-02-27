@@ -34,6 +34,14 @@ except Exception:
 # Additional safety for transformers
 os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
+# Apply CPU compatibility patches early to prevent import-time crashes in dependencies
+try:
+    from .utils.compatibility import apply_cpu_compatibility_patches
+    apply_cpu_compatibility_patches()
+except Exception:
+    # Fail silently to avoid breaking the whole library if the tool itself has issues
+    pass
+
 # Import core classes when available
 try:
     from .config.settings import Settings  # noqa: F401
