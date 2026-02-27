@@ -396,11 +396,46 @@ def cli():
     type=str,
     help="Qwen 3 TTS: Reference text for voice cloning",
 )
+@click.option(
+    "--model",
+    "-m",
+    type=str,
+    default=None,
+    help="Qwen 3 TTS: HuggingFace model ID (e.g. Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice)",
+)
+@click.option(
+    "--output-dir",
+    type=str,
+    default=None,
+    help="Kaggle GPU: Local directory for the downloaded audio (default: YYYYMMDD_HHMMSS_<gpu>)",
+)
+@click.option(
+    "--output-filename",
+    type=str,
+    default="qwen3_tts.wav",
+    show_default=True,
+    help="Kaggle GPU: Filename for the generated audio file",
+)
+@click.option(
+    "--timeout",
+    type=int,
+    default=60,
+    show_default=True,
+    help="Kaggle GPU: Timeout in minutes to wait for the kernel",
+)
+@click.option(
+    "--poll-interval",
+    type=int,
+    default=60,
+    show_default=True,
+    help="Kaggle GPU: Status polling interval in seconds",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     gpu, cpu, lowpass, normalize, distortion, noise, reverb, pitch_shift,
     exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
-    instruct, ref_audio, ref_text
+    instruct, ref_audio, ref_text,
+    model, output_dir, output_filename, timeout, poll_interval,
 ):
     """Generate speech from text(s). Use --gpu [p100|t4] for remote Kaggle GPU acceleration."""
     # Redirect to Kaggle pipeline if --gpu is specified
@@ -410,34 +445,40 @@ def synthesize(
             sys.exit(1)
 
         from .kaggle.pipeline import KaggleQwenPipeline
-        pipeline = KaggleQwenPipeline()
+        pipeline = KaggleQwenPipeline(
+            model_id=model or "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+            timeout_minutes=timeout,
+            poll_interval_seconds=poll_interval,
+        )
 
-        # Determine output directory and filename using the requested format
+        # Determine output directory and filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         suffix = f"_{gpu}"
-        output_dir_name = f"{timestamp}{suffix}"
 
-        if output:
+        if output_dir:
+            # Explicit --output-dir provided
+            resolved_output_dir = output_dir
+            resolved_output_filename = output_filename
+        elif output:
             output_path = Path(output)
-            # If user provided a path, we use it as base but still follow the folder naming convention if it's a dir
             if not output_path.suffix:
-                output_dir = str(output_path / output_dir_name)
-                output_filename = "qwen3_tts.wav"
+                resolved_output_dir = str(output_path / f"{timestamp}{suffix}")
+                resolved_output_filename = output_filename
             else:
-                output_dir = str(output_path.parent / output_dir_name)
-                output_filename = output_path.name
+                resolved_output_dir = str(output_path.parent / f"{timestamp}{suffix}")
+                resolved_output_filename = output_path.name
         else:
-            output_dir = output_dir_name
-            output_filename = "qwen3_tts.wav"
+            resolved_output_dir = f"{timestamp}{suffix}"
+            resolved_output_filename = output_filename
 
         try:
             result_path = pipeline.run(
                 text=texts[0],
                 voice=voice or "Ryan",
                 language=language or "en",
-                output_dir=output_dir,
-                output_filename=output_filename,
-                gpu_type=gpu,  # Now using the gpu value directly as p100 or t4
+                output_dir=resolved_output_dir,
+                output_filename=resolved_output_filename,
+                gpu_type=gpu,
             )
             click.echo(f"SUCCESS: Remote audio available at: {result_path.absolute()}")
             return

@@ -263,30 +263,16 @@ Run the full Qwen3-TTS pipeline on a **free Kaggle P100 GPU**. VoiceGenHub autom
 
 
 ```bash
-
-
-
-
-# Basic usage — outputs to a timestamped folder (YYYYMMDD_HHMMSS)
+# Basic usage — outputs to a timestamped folder (YYYYMMDD_HHMMSS_p100)
 poetry run voicegenhub synthesize "Hello from the Kaggle GPU!" --provider qwen --gpu p100
 
-
-
-
-
-> To use dual T4 GPUs, use `--gpu t4`. To force CPU, use `--cpu` (or omit both flags for default CPU mode).
-
-
+# To use dual T4 GPUs, use --gpu t4. To force CPU, use --cpu (or omit both flags for default CPU mode).
 
 # Specify voice and language
 poetry run voicegenhub synthesize "This is a test." --provider qwen --voice Ryan --language en --gpu p100
 
-
-
 # Chinese with native speaker
 poetry run voicegenhub synthesize "你好，这是一个测试。" --provider qwen --voice Serena --language zh --gpu p100
-
-
 
 # Explicit output directory and filename
 poetry run voicegenhub synthesize "Big model test." \
@@ -296,11 +282,8 @@ poetry run voicegenhub synthesize "Big model test." \
    --output-filename my_audio.wav \
    --gpu p100
 
-
-
 # Adjust polling timeout (default 60 min)
 poetry run voicegenhub synthesize "Long text..." --provider qwen --gpu p100 --timeout 90 --poll-interval 30
-| `--gpu-type` | `p100` | Kaggle GPU type: `p100` (default) or `t4` (dual T4, optional) |
 ```
 
 
@@ -313,7 +296,7 @@ poetry run voicegenhub synthesize "Long text..." --provider qwen --gpu p100 --ti
 | `--voice`, `-v` | `Ryan` | Speaker name: `Ryan`, `Serena`, etc. |
 | `--language`, `-l` | `en` | Language code: `en`, `zh`, `fr`, etc. |
 | `--model`, `-m` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | HuggingFace model ID |
-| `--output-dir`, `-o` | `YYYYMMDD_HHMMSS` (current datetime) | Local folder for the downloaded audio |
+| `--output-dir` | `YYYYMMDD_HHMMSS_<gpu>` (current datetime) | Local folder for the downloaded audio |
 | `--output-filename` | `qwen3_tts.wav` | Filename for the generated audio |
 | `--gpu [p100|t4]` | *(optional)* | Run remotely on Kaggle GPU (specify `p100` or `t4`) |
 | `--cpu` | *(optional)* | Force CPU mode (default if neither flag is set) |
@@ -333,7 +316,7 @@ poetry run voicegenhub synthesize "Long text..." --provider qwen --gpu p100 --ti
 
 **Note:** If you do not specify `--gpu` or `--cpu`, VoiceGenHub will run on CPU by default. For Qwen3-TTS and Chatterbox, running on CPU will print a **BIG VISIBLE WARNING** and may be extremely slow or fail. Use `--gpu p100` or `--gpu t4` for remote GPU. Use `--cpu` to force CPU mode explicitly.
 
-**The output directory defaults to the current datetime** (e.g. `20260225_153045/qwen3_tts.wav`).
+**The output directory defaults to the current datetime plus GPU type** (e.g. `20260225_153045_p100/qwen3_tts.wav`).
 
 ---
 

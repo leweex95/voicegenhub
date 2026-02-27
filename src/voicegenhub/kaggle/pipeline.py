@@ -178,10 +178,18 @@ def _build_notebook_source(
 def _build_kernel_metadata(
     username: str, kernel_slug: str, notebook_filename: str, gpu_type: str = "p100"
 ) -> dict:
-    """Build Kaggle kernel-metadata.json."""
+    """Build Kaggle kernel-metadata.json.
+
+    IMPORTANT: The 'title' must slugify to exactly the same value as the slug
+    portion of the 'id' field.  Kaggle derives the kernel slug from the title
+    (spaces→hyphens, lowercase) and ignores the 'id' slug portion on creation.
+    When they differ, every subsequent push hits a 409 Conflict because Kaggle
+    already owns the title-derived slug.  Keep title = "VoiceGenHub Qwen3 TTS"
+    so it slugifies to "voicegenhub-qwen3-tts", matching _KERNEL_SLUG.
+    """
     return {
         "id": f"{username}/{kernel_slug}",
-        "title": f"VoiceGenHub Remote GPU ({gpu_type.upper()})",
+        "title": "VoiceGenHub Qwen3 TTS",
         "code_file": notebook_filename,
         "language": "python",
         "kernel_type": "notebook",
@@ -272,13 +280,16 @@ class KaggleQwenPipeline:
         dtype: str = "float16",
         kernel_slug: str = _KERNEL_SLUG,
         settings_path: Optional[Path] = None,
+        timeout_minutes: Optional[int] = None,
+        poll_interval_seconds: Optional[int] = None,
     ):
         self.model_id = model_id
         self.dtype = dtype
         self.kernel_slug = kernel_slug
         self._settings = _load_settings() if settings_path is None else json.loads(Path(settings_path).read_text())
-        self._timeout_minutes = self._settings.get("deployment_timeout_minutes", 60)
-        self._poll_interval = self._settings.get("polling_interval_seconds", 60)
+        # CLI-provided values take precedence over settings file
+        self._timeout_minutes = timeout_minutes if timeout_minutes is not None else self._settings.get("deployment_timeout_minutes", 60)
+        self._poll_interval = poll_interval_seconds if poll_interval_seconds is not None else self._settings.get("polling_interval_seconds", 60)
 
     # ------------------------------------------------------------------
     # Public API
