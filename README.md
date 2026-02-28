@@ -1,252 +1,47 @@
-[![Unit tests](https://github.com/leweex95/voicegenhub/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/leweex95/voicegenhub/actions/workflows/unit-tests.yml)
+﻿[![Unit tests](https://github.com/leweex95/voicegenhub/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/leweex95/voicegenhub/actions/workflows/unit-tests.yml)
 [![Daily regression test](https://github.com/leweex95/voicegenhub/actions/workflows/daily-regression-test.yml/badge.svg)](https://github.com/leweex95/voicegenhub/actions/workflows/daily-regression-test.yml)
 [![codecov](https://codecov.io/gh/leweex95/voicegenhub/branch/master/graph/badge.svg)](https://codecov.io/gh/leweex95/voicegenhub)
 
 # VoiceGenHub
 
-Simple, user-friendly Text-to-Speech (TTS) library with CLI and Python API. Supports multiple free and commercial TTS providers.
+Simple CLI-first Text-to-Speech library supporting multiple free and commercial providers â€” including free Kaggle GPU inference for state-of-the-art models.
 
-## Installation
+---
+
+## Install
 
 ```bash
-pip install voicegenhub
-# or
 poetry add voicegenhub
 ```
 
-### Optional Dependencies
+---
 
-- **Microsoft Edge TTS** (free, cloud-based)
-- **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
-- **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
-- **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
-- **Qwen 3 TTS** (Apache 2.0 licensed, multilingual with voice design and cloning) - State-of-the-art quality
-- **ElevenLabs TTS** (commercial, high-quality voices)
+## Providers
 
-### Voice Cloning Support
+| Provider | License | Local / Cloud | Notes |
+|---|---|---|---|
+| **Edge TTS** | Free (Microsoft) | Cloud | Fastest, zero setup |
+| **Kokoro** | Apache 2.0 | Local | Lightweight, high quality |
+| **Bark** | MIT | Local | Prosody markers, 100+ voices |
+| **Chatterbox** | MIT | Local | Emotion control, voice cloning |
+| **Qwen 3 TTS** | Apache 2.0 | Local / Kaggle GPU | State-of-the-art multilingual |
+| **ElevenLabs** | Paid API | Cloud | Commercial-grade voices |
 
-For voice cloning features with Chatterbox TTS:
+---
 
-```bash
-pip install voicegenhub[voice-cloning]
-# or
-poetry install -E voice-cloning
-```
+## Synthesize
 
-**Voice cloning requirements:**
-- FFmpeg (manual installation required)
-- PyTorch (standard version)
-
-**On Windows:** Download the "full-shared" FFmpeg build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and add the `bin` directory to your system PATH.
-
-**Note:** VoiceGenHub includes a compatibility layer to ensure stable execution on CPU-only systems and prevents common import-time crashes related to experimental dependencies like TorchCodec. Standard TTS and voice cloning mechanisms will automatically fall back to supported audio loaders if needed.
-
-## Usage
-
-### Chatterbox TTS
+### Edge TTS (fastest, no setup)
 
 ```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice chatterbox-default --output hello.wav
+poetry run voicegenhub synthesize "Hello, world!" --provider edge --voice en-US-AriaNeural --output hello.mp3
 ```
 
-**Chatterbox features:**
-- **Model selection via voice**: Choose between standard, turbo, or multilingual models using the `--voice` flag
-- Emotion/intensity control with `exaggeration` parameter (0.0-1.0)
-- Zero-shot voice cloning from audio samples
-- MIT License - fully commercial compatible
-- State-of-the-art quality (competitive with ElevenLabs)
-- Built-in Perth watermarking for responsible AI
-
-**Chatterbox voices:**
-- `chatterbox-default`: Standard English model with emotion control
-- `chatterbox-turbo`: Turbo English model (faster generation, English only)
-- `chatterbox-<lang>`: Multilingual model for specific languages (e.g., `chatterbox-es` for Spanish)
-
-**Chatterbox parameters:**
-- `--exaggeration`: Emotion intensity (0.0-1.0, default 0.5). Higher values = more dramatic/emotional.
-- `--cfg-weight`: Classifier-free guidance weight (0.0-1.0, default 0.5). Controls the influence of the text prompt.
-- `--audio-prompt`: Path to reference audio for voice cloning (optional).
-- `temperature`, `max_new_tokens`, `repetition_penalty`, `min_p`, `top_p`: Advanced generation parameters (available in Python API).
-
-**Multilingual Support:**
-Chatterbox supports 23 languages. Use the appropriate voice for the target language:
-```bash
-poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español." --provider chatterbox --voice chatterbox-es --output spanish.wav
-```
-
-**Chatterbox supported languages:** ar, da, de, el, en, es, fi, fr, he, hi, it, ja, ko, ms, nl, no, pl, pt, ru, sv, sw, tr, zh
-
-**Chatterbox Installation Requirements:**
-- **TorchCodec** (optional): Required for voice cloning features. Install with `pip install torchcodec` or `poetry install -E voice-cloning`.
-- **FFmpeg**: Required when TorchCodec is installed for voice cloning. On Windows, install the "full-shared" build from [ffmpeg.org](https://ffmpeg.org/download.html#build-windows) and ensure FFmpeg's `bin` directory is in your system PATH.
-- **PyTorch Compatibility**: TorchCodec 0.9.1 requires PyTorch ≤ 2.4.x. If you have a newer PyTorch version, voice cloning will be automatically disabled with a fallback to standard TTS.
-- Without TorchCodec/FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will gracefully fall back to standard TTS without cloning.
-
-### Qwen 3 TTS
+### Kokoro
 
 ```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider qwen --voice Ryan --output hello.wav
+poetry run voicegenhub synthesize "Hello, world!" --provider kokoro --voice kokoro-af_alloy --output hello.wav
 ```
-
-**Qwen 3 TTS features:**
-- **Three generation modes**: CustomVoice (predefined speakers), VoiceDesign (natural language voice description), VoiceClone (reference audio-based)
-- **10 languages**: Chinese, English, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish
-- **Native speakers**: Automatic selection of native speakers per language for natural, accent-free speech
-- **Voice control via natural language**: Use `instruct` parameter to control emotion, tone, speaking rate, and style
-- **Ultra-low latency**: Streaming generation with <100ms first-token latency
-- **Apache 2.0 License**: Fully commercial compatible
-- **State-of-the-art quality**: Competitive with ElevenLabs, developed by Alibaba's Qwen team
-
-#### Mode 1: CustomVoice (Predefined Speakers)
-
-Use predefined premium speakers with optional emotion/style control:
-
-```bash
-# Basic usage with auto-selected native speaker
-poetry run voicegenhub synthesize "Hello, this is a test." --provider qwen --language en --output output.wav
-
-# Explicit speaker selection
-poetry run voicegenhub synthesize "Hello, this is a test." --provider qwen --language en --voice Ryan --output output.wav
-
-# With emotion instruction
-poetry run voicegenhub synthesize "I'm so excited about this news!" --provider qwen --language en --voice Ryan --instruct "Speak with excitement and joy" --output happy.wav
-```
-
-**Available speakers and their native languages:**
-
-| Speaker | Description | Native Language | Best For |
-|---------|-------------|----------------|----------|
-| **Ryan** | Dynamic male voice with strong rhythmic drive | English | English content, presentations |
-| **Aiden** | Sunny American male voice with clear midrange | English | English content, narration |
-| **Vivian** | Bright, slightly edgy young female voice | Chinese | Mandarin content, audiobooks |
-| **Serena** | Warm, gentle young female voice | Chinese | Mandarin content, customer service |
-| **Uncle_Fu** | Seasoned male voice with low, mellow timbre | Chinese | Mandarin narration, mature content |
-| **Dylan** | Youthful Beijing male voice, natural timbre | Chinese (Beijing) | Beijing dialect content |
-| **Eric** | Lively Chengdu male voice, slightly husky | Chinese (Sichuan) | Sichuan dialect content |
-| **Ono_Anna** | Playful Japanese female, light and nimble | Japanese | Japanese content, anime |
-| **Sohee** | Warm Korean female with rich emotion | Korean | Korean content, storytelling |
-
-**Auto-speaker selection:** If no speaker is specified, Qwen 3 TTS automatically selects a native speaker based on the target language (e.g., Ryan for English, Serena for Chinese).
-
-**Emotion and style control:** Use the `--instruct` parameter with natural language to control voice characteristics:
-- `"Speak with excitement and joy"`
-- `"Very angry tone"`
-- `"Whisper gently"`
-- `"Speak slowly and calmly"`
-- `"Energetic and enthusiastic"`
-
-#### Mode 2: VoiceDesign (Natural Language Voice Description)
-
-Design custom voices using natural language instructions (requires `Qwen3-TTS-VoiceDesign` model):
-
-```python
-from voicegenhub.providers.factory import provider_factory
-from voicegenhub.providers.base import TTSRequest
-
-config = {
-    "model_name_or_path": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
-    "generation_mode": "voice_design",
-}
-
-await provider_factory.discover_provider("qwen")
-provider = await provider_factory.create_provider("qwen", config=config)
-
-request = TTSRequest(
-    text="Welcome to our demonstration.",
-    language="en",
-    voice_id="default",
-    extra_params={
-        "instruct": "Male, 30 years old, confident and professional tone, deep voice with clear articulation"
-    }
-)
-response = await provider.synthesize(request)
-```
-
-**VoiceDesign instruction examples:**
-- `"Female, 25 years old, cheerful and energetic, slightly high-pitched with playful intonation"`
-- `"Male, 17 years old, gaining confidence, deeper breath support, vowels tighten when nervous"`
-- `"Elderly male, 70 years old, wise and gentle, slightly raspy with warm timbre"`
-
-#### Mode 3: VoiceClone (Reference Audio-Based)
-
-Clone voices from 3-second audio samples (requires `Qwen3-TTS-Base` model):
-
-```python
-from voicegenhub.providers.factory import provider_factory
-from voicegenhub.providers.base import TTSRequest
-
-config = {
-    "model_name_or_path": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
-    "generation_mode": "voice_clone",
-}
-
-await provider_factory.discover_provider("qwen")
-provider = await provider_factory.create_provider("qwen", config=config)
-
-request = TTSRequest(
-    text="This is synthesized using the cloned voice.",
-    language="en",
-    voice_id="default",
-    extra_params={
-        "ref_audio": "path/to/reference.wav",  # Can be local path, URL, or numpy array
-        "ref_text": "Transcript of the reference audio",  # Required for best quality
-        "x_vector_only_mode": False  # Set True to skip ref_text (lower quality)
-    }
-)
-response = await provider.synthesize(request)
-```
-
-**Voice cloning tips:**
-- Use clear, noise-free reference audio (3-10 seconds)
-- Provide accurate transcript (`ref_text`) for best cloning quality
-- Supports multilingual cloning (clone any language, synthesize in any language)
-- Combine with VoiceDesign to create reusable custom voices
-
-#### Word Emphasis and Pause Control
-
-**Note:** Qwen 3 TTS does not support explicit word-level emphasis markup (like SSML tags) or pause control. Instead, the model intelligently interprets text and applies natural prosody based on:
-
-1. **Context understanding**: The model reads the entire sentence and applies appropriate emphasis to important words automatically
-2. **Natural language instructions**: Use the `instruct` parameter to guide overall tone and pacing:
-   - `"Speak slowly with emphasis on key words"`
-   - `"Pause dramatically between sentences"`
-   - `"Fast-paced and energetic delivery"`
-3. **Punctuation**: The model respects punctuation for natural pauses (commas, periods, ellipses, em-dashes)
-
-**Example:**
-```bash
-# The model will naturally emphasize "incredible results" due to context
-poetry run voicegenhub synthesize "We achieved incredible results!" --provider qwen --voice Ryan --instruct "Speak with excitement and emphasis" --output emphasized.wav
-```
-
-#### Model Selection
-
-Qwen 3 TTS offers multiple models optimized for different use cases:
-
-| Model | Size | Best For | Streaming | GPU Recommended |Supports |
-|-------|------|----------|-----------|-----------------|---------|
-| `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 600M | Default, fast generation, predefined speakers | ✅ | Optional | CustomVoice |
-| `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 1.7B | Higher quality, predefined speakers | ✅ | Yes | CustomVoice |
-| `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 1.7B | Custom voice design via natural language | ✅ | Yes | VoiceDesign |
-| `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 1.7B | Voice cloning from audio samples | ✅ | Yes | VoiceClone |
-| `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 600M | Voice cloning, faster generation | ✅ | Optional | VoiceClone |
-
-**Installation:**
-```bash
-pip install voicegenhub[qwen]
-# or
-poetry install --with qwen
-```
-
-**Qwen 3 TTS parameters (Python API):**
-- `model_name_or_path`: Model to use (see table above)
-- `device`: "cuda", "cpu", or "auto" (default: auto)
-- `dtype`: "float32", "float16", "bfloat16" (default: bfloat16)
-- `attn_implementation`: "eager", "sdpa", "flash_attention_2" (default: eager)
-- `generation_mode`: "custom_voice", "voice_design", "voice_clone"
-- `speaker`: Speaker name for CustomVoice mode
-- `instruct`: Emotion/style instruction (for CustomVoice) or voice description (for VoiceDesign)
-- `temperature`, `top_p`, `top_k`, `repetition_penalty`, `max_new_tokens`: Advanced sampling parameters
 
 ### Bark
 
@@ -254,29 +49,20 @@ poetry install --with qwen
 poetry run voicegenhub synthesize "Hello, world!" --provider bark --voice bark-en_speaker_0 --output hello.wav
 ```
 
-**Bark features:**
-- Highest naturalness among open-source TTS
-- Prosody markers for emotional expression: `[laughs]`, `[sighs]`, `[pause]`, `[whisper]`
-- 100+ speaker presets
-- Sound effects generation
+Bark supports prosody markers: `[laughs]`, `[sighs]`, `[pause]`, `[whisper]`.
 
-**Bark supported voices:** Use preset names like `bark-en_speaker_0`, `bark-en_speaker_1`, etc.
-
-### Edge TTS
+### Chatterbox (emotion control + voice cloning)
 
 ```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider edge --voice en-US-AriaNeural --output hello.mp3
+# Basic
+poetry run voicegenhub synthesize "Hello, world!" --provider chatterbox --voice chatterbox-default --output hello.wav
+
+# With emotion intensity
+poetry run voicegenhub synthesize "This is incredible!" --provider chatterbox --voice chatterbox-default --exaggeration 0.8 --output excited.wav
+
+# Voice cloning from a reference file
+poetry run voicegenhub synthesize "Hello, cloned voice." --provider chatterbox --voice chatterbox-default --audio-prompt reference.wav --output cloned.wav
 ```
-
-**Edge TTS supported voices:** Check the list of supported voices [here](https://speech.microsoft.com/portal/voicegallery).
-
-### Kokoro TTS
-
-```bash
-poetry run voicegenhub synthesize "Hello, world!" --provider kokoro --voice kokoro-af_alloy --output hello.wav
-```
-
-**Kokoro supported voices:** Check the list of supported voices [here](https://github.com/nazdridoy/kokoro-tts?tab=readme-ov-file#supported-voices).
 
 ### ElevenLabs
 
@@ -284,183 +70,128 @@ poetry run voicegenhub synthesize "Hello, world!" --provider kokoro --voice koko
 poetry run voicegenhub synthesize "Hello, world!" --provider elevenlabs --voice elevenlabs-EXAVITQu4vr4xnSDxMaL --output hello.mp3
 ```
 
-Set your API key in `config/elevenlabs-api-key.json` (the key should be stored as the value for `"ELEVENLABS_API_KEY"` in the JSON file).
+Store your API key in `config/elevenlabs-api-key.json` as `{"ELEVENLABS_API_KEY": "..."}`.
 
-**ElevenLabs supported voices:** Check the list of supported voices [here](https://elevenlabs.io/docs/voices).
+---
 
-## Print all available voices per provider
-
-```bash
-poetry run voicegenhub voices --language en --provider chatterbox
-poetry run voicegenhub voices --language en --provider bark
-poetry run voicegenhub voices --language en --provider edge
-poetry run voicegenhub voices --language en --provider kokoro
-poetry run voicegenhub voices --language en --provider elevenlabs
-```
-
-## Batch Processing with Concurrency Control
-
-Process multiple texts concurrently with automatic provider-specific resource management:
+## Qwen 3 TTS
 
 ```bash
-# Process multiple texts (auto-numbered output files)
-poetry run voicegenhub synthesize "First text" "Second text" "Third text" --provider edge --output batch_output
+poetry run voicegenhub synthesize "Hello from the GPU!" --provider qwen --voice Ryan --language en --gpu p100
 
-# Control concurrency (auto-configured per provider if not specified)
-poetry run voicegenhub synthesize "Text 1" "Text 2" --provider bark --max-concurrent 2 --output output
+# Batch multiple sentences in one GPU job, saved as audio_001.wav â€¦ audio_007.wav + manifest.json
+poetry run voicegenhub synthesize \
+  "The quick brown fox jumps over the lazy dog." \
+  "Technology is changing the world at an unprecedented pace." \
+  "The sunset painted the sky in shades of orange and pink." \
+  --provider qwen --voice Ryan --language en --gpu p100
+
+# Chinese with native speaker
+poetry run voicegenhub synthesize "ä˝ ĺĄ˝ďĽŚčż™ćŻä¸€ä¸Şćµ‹čŻ•ă€‚" --provider qwen --voice Serena --language zh --gpu p100
+
+# Use T4 GPUs instead of P100
+poetry run voicegenhub synthesize "Hello!" --provider qwen --gpu t4
+
+# Custom model, output directory, polling options
+poetry run voicegenhub synthesize "Hello!" \
+  --provider qwen \
+  --model Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice \
+  --output-dir my_output \
+  --gpu p100 \
+  --timeout 90 \
+  --poll-interval 30
 ```
 
-**Provider Concurrency Limits (automatic):**
-- **Fast providers** (Edge, Kokoro, ElevenLabs): Use all CPU cores
-- **Heavy providers** (Bark: 2 concurrent, Chatterbox: 1 concurrent)
+### Voice Cloning (Qwen3-TTS, Kaggle GPU)
 
-**Benefits:**
-- Model instances are shared across concurrent jobs (no reloading)
-- Automatic resource management prevents system overload
-- Progress tracking for each job
-- Failed jobs don't stop the batch
+Clone your own voice onto arbitrary text using the Qwen3-TTS Base model and a reference WAV:
 
-## Voice Cloning with Kokoro and Chatterbox
-
-VoiceGenHub supports zero-shot voice cloning by combining Kokoro's lightweight voices with Chatterbox's advanced cloning capabilities. This allows you to create custom voices that sound like Kokoro but with Chatterbox's superior quality and emotion control.
-
-### Step-by-Step Guide
-
-1. **Generate a Kokoro voice sample** (modify as desired or keep undistorted):
-   ```bash
-   # Undistorted voice
-   poetry run voicegenhub synthesize "Sample text for cloning." --provider kokoro --voice kokoro-am_michael --output reference.wav --format wav
-
-   # Or with effects (e.g., horror/distortion)
-   poetry run voicegenhub synthesize "Sample text for cloning." --provider kokoro --voice kokoro-am_adam --output reference.wav --format wav --pitch-shift -2 --distortion 0.02 --lowpass 2000 --normalize
-   ```
-
-2. **Clone the voice with Chatterbox**:
-   ```bash
-   poetry run voicegenhub synthesize "Your longer text here." --provider chatterbox --voice chatterbox-default --output cloned_voice.wav --audio-prompt reference.wav
-   ```
-
-3. **Optional: Adjust emotion and style**:
-   ```bash
-   poetry run voicegenhub synthesize "Your text." --provider chatterbox --voice chatterbox-default --output cloned_voice.wav --audio-prompt reference.wav --exaggeration 0.8 --cfg-weight 0.7
-   ```
+```bash
+poetry run voicegenhub synthesize "this is my speech using my own voice" \
+  --provider qwen \
+  --model Qwen/Qwen3-TTS-12Hz-1.7B-Base \
+  --audio-prompt "<path to reference audio>" \
+  --ref-text "<exact transcript of the reference audio>" \
+  --gpu p100
+```
 
 **Tips:**
-- Use short, clear reference audio (5-10 seconds) for best cloning results
-- Combine multiple Kokoro samples with FFmpeg for richer voice profiles
-- Experiment with Kokoro effects to create unique voice characteristics before cloning
-- Chatterbox supports multilingual cloning from any language reference audio
+- Use a reference WAV of at least 20 seconds, with clear speech and a matching transcript for best results.
+- The `--ref-text` should be the exact transcript of the reference audio (no ellipsis or truncation).
+- For batch synthesis, pass multiple texts in quotes.
 
-## Concurrency and Memory Management
-
-**Async Concurrency (Recommended):**
-- Use the `synthesize` command with multiple texts for safe concurrent processing within a single process
-- Models are loaded once and shared across concurrent jobs
-- Prevents out-of-memory (OOM) errors from duplicate model loading
-- Automatic provider-specific limits ensure stability
-
-**Multiprocessing Risks:**
-- Running multiple CLI processes simultaneously (e.g., via scripts or parallel jobs) loads separate model instances
-- Heavy models like Chatterbox (3.7GB) and Bark (4GB) can cause OOM when duplicated across processes
-- **Recommendation:** Use async batch processing instead of multiprocessing for heavy providers
-- For light providers (Edge, Kokoro), multiprocessing is safer due to minimal memory footprint
-
-## Performance Comparison: All TTS Providers
-
-Here's how all providers compare in terms of speed and quality:
-
-| Provider | Quality (MOS) | Startup Time | Sequential (per req) | Async (3x parallel) | Model Size | Commercial Licensed |
-|----------|---------------|--------------|---------------------|-------------------|------------|----------------|
-| **Edge TTS** | 3.8/5 | 4.9s | 3.2s | 2.5s | 0MB (cloud) | ✅ Free |
-| **Kokoro** | 3.5/5 | 94s | 14.2s | 2.5s | 625MB | ✅ Apache 2.0 |
-| **Bark** | 4.2/5 | 180s | 25-40s | 8-12s | 4GB | ✅ MIT |
-| **Chatterbox** | 4.3/5 | 120s | 15-30s | 5-15s | 3.7GB | ✅ MIT |
-| **ElevenLabs** | 4.5/5* | 2s | 3-5s | 2-3s | 0MB (cloud) | ⚠️ Paid API |
-
-*ElevenLabs quality estimate based on provider reputation; not yet tested with API key.
-
-**Key Findings:**
-- **Chatterbox**: Excellent quality with emotion control and multilingual support; MIT licensed, works on CPU
-- **Bark**: Highest naturalness for premium narration; MIT licensed (full commercial freedom)
-- **Kokoro**: Best balance of quality vs speed for offline use; Apache 2.0 licensed
-- **Edge TTS**: Best for real-time, low-latency applications; cloud-based (Microsoft)
-- **ElevenLabs**: Highest quality but requires paid API and credit card
-- **For commercial purposes:** Use Bark (MIT), Chatterbox (MIT), or Kokoro (Apache 2.0)
-
-## Chatterbox Concurrency Analysis
-
-**Memory Safety**: Chatterbox uses a **shared model instance** (3.6GB) across all threads - **no duplication**. Safe to use 2-8 concurrent threads without OOM risk.
-
-**Performance**: ~2.8x speedup at 4 threads on CPU. Optimal thread count: **2-4 threads**.
-
-**[View Interactive Performance Analysis](assets/concurrency_plot.html)** - Shows speedup curves, memory usage, and timing breakdowns.
-
-## Commercial Licensing
-
-### ✅ Commercially Safe Models:
-- **Bark** (MIT License) - Unrestricted commercial use, no attribution required ⭐
-- **Chatterbox** (MIT License) - Unrestricted commercial use, no attribution required
-- **Qwen 3 TTS** (Apache 2.0) - Commercial use allowed, attribution required
-- **Kokoro** (Apache 2.0) - Commercial use allowed, attribution required
-- **Edge TTS** (Microsoft) - Commercial use allowed
-- **ElevenLabs** (Paid API) - Commercial use with valid subscription
-
-## Provider Licenses
-
-For transparency and compliance, here are direct links to the official license terms for each supported TTS provider:
-
-- **Edge TTS (Microsoft)**: [Microsoft Terms of Use](https://www.microsoft.com/en-us/legal/terms-of-use)
-- **Kokoro TTS**: [Apache License 2.0](https://github.com/hexgrad/kokoro/blob/main/LICENSE)
-- **ElevenLabs TTS**: [ElevenLabs Terms of Service](https://elevenlabs.io/terms)
-- **Bark TTS**: [MIT License](https://github.com/suno-ai/bark/blob/main/LICENSE)
-- **Chatterbox TTS**: [MIT License](https://github.com/rsxdalv/chatterbox/blob/main/LICENSE)
-- **Qwen 3 TTS**: [Apache License 2.0](https://github.com/QwenLM/Qwen3-TTS/blob/main/LICENSE)
-
-## Optional Dependencies
-
-Install optional TTS providers:
-
-```bash
-# Install Kokoro TTS (self-hosted lightweight TTS)
-pip install voicegenhub[kokoro]
-
-# Install Bark (self-hosted high-naturalness TTS)
-pip install voicegenhub[bark]
-
-# Install Chatterbox TTS (MIT licensed, multilingual with emotion control)
-pip install chatterbox-tts
-
-# Install Qwen 3 TTS (Apache 2.0 licensed, state-of-the-art multilingual TTS)
-pip install voicegenhub[qwen]
+See [docs/cloning_and_design.md](docs/cloning_and_design.md) for advanced usage and troubleshooting.
 ```
 
-### Kokoro TTS Installation
-Kokoro TTS requires Python 3.11 or higher.
+Batch output lands in a timestamped folder (e.g. `20260227_123130_p100/`) with:
+- `audio_001.wav`, `audio_002.wav`, â€¦ (one per input sentence)
+- `manifest.json` â€” maps each filename to its source text and duration
 
-#### Windows & Python 3.13+ Build Limitation
+---
 
-**Important:** On Windows with Python 3.13+, Kokoro TTS (via curated-tokenizers) may require compiling native code if pre-built wheels are not available. This requires Microsoft Visual C++ Build Tools.
+## Batch Processing (local providers)
 
-If you see errors about missing C++ compilers or build failures when installing Kokoro, follow these steps:
-
-1. Download and install [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
-2. During installation, select "Desktop development with C++" workload.
-3. After installation, restart your terminal and retry installation:
-  ```bash
-  poetry install --with kokoro
-  # or
-  pip install voicegenhub[kokoro]
-  ```
-
-If you still see build errors, check for available wheels for `curated-tokenizers` on [PyPI](https://pypi.org/project/curated-tokenizers/#files). If no wheel is available for your Python version, you must build from source (requires Visual C++).
-
-**Recommendation:** For easiest installation, use Python 3.11 or 3.12 on Windows until wheels for Python 3.13+ are published.
-
-#### Installation
+Pass multiple texts to any provider â€” processed concurrently with shared model instances:
 
 ```bash
-# Using Poetry (recommended):
-poetry add voicegenhub[kokoro]
-# or:
-poetry install --with kokoro
+poetry run voicegenhub synthesize "First." "Second." "Third." --provider edge --output batch_output
 ```
+
+---
+
+## Voices
+
+```bash
+poetry run voicegenhub voices --language en --provider edge
+poetry run voicegenhub voices --language en --provider kokoro
+poetry run voicegenhub voices --language en --provider bark
+poetry run voicegenhub voices --language en --provider chatterbox
+poetry run voicegenhub voices --language en --provider elevenlabs
+poetry run voicegenhub voices --provider qwen
+```
+
+### Qwen speakers
+
+| Speaker | Gender | Native language | Notes |
+|---|---|---|---|
+| `Ryan` | Male | English | Dynamic, rhythmic — works for all languages |
+| `Aiden` | Male | English | Sunny American voice |
+| `Vivian` | Female | Chinese | Bright, slightly edgy |
+| `Serena` | Female | Chinese | Warm, gentle |
+| `Uncle_Fu` | Male | Chinese | Low, mellow timbre |
+| `Dylan` | Male | Chinese (Beijing) | Natural, youthful |
+| `Eric` | Male | Chinese (Sichuan) | Slightly husky |
+| `Ono_Anna` | Female | Japanese | Playful, nimble |
+| `Sohee` | Female | Korean | Warm, emotional |
+
+---
+
+## Key `synthesize` options
+
+| Flag | Description |
+|---|---|
+| `TEXT ...` | One or more texts to synthesize |
+| `--provider` | TTS provider (`edge`, `kokoro`, `bark`, `chatterbox`, `qwen`, `elevenlabs`) |
+| `--voice`, `-v` | Voice / speaker name |
+| `--language`, `-l` | Language code (`en`, `zh`, `fr`, ...) |
+| `--output`, `-o` | Output file or directory |
+| `--gpu [p100|t4]` | Run on free Kaggle GPU (Qwen) |
+| `--model`, `-m` | HuggingFace model ID override |
+| `--output-dir` | Local directory for Kaggle batch output |
+| `--timeout` | Kaggle polling timeout in minutes (default 60) |
+| `--poll-interval` | Kaggle polling interval in seconds (default 60) |
+| `--seed` | Random seed for reproducible generation (default 42) |
+| `--temperature` | Sampling temperature (lower = more neutral, higher = more expressive; default 0.7) |
+| `--exaggeration` | Chatterbox emotion intensity 0–1 |
+| `--audio-prompt` | Reference audio for voice cloning (Chatterbox) |
+
+---
+
+## Docs
+
+- [Installation & optional dependencies](docs/installation.md)
+- [Provider details & voice lists](docs/providers.md)
+- [Kaggle GPU setup](docs/kaggle_gpu.md)
+- [Voice cloning & design](docs/cloning_and_design.md)
+- [Benchmarks & performance](docs/benchmarks_and_performance.md)
+- [Licensing](docs/licensing.md)

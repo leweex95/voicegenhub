@@ -8,6 +8,7 @@ import json
 import sys
 import tempfile
 import threading
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional
@@ -45,12 +46,29 @@ def _process_single(
     instruct: Optional[str] = None,
     ref_audio: Optional[str] = None,
     ref_text: Optional[str] = None,
+    seed: Optional[int] = None,
 ):
     """Process a single text with effects support."""
     try:
         # Initialize TTS
         tts = VoiceGenHub(provider=provider)
         asyncio.run(tts.initialize())
+
+        # Build extra kwargs
+        extra_kwargs = dict(
+            exaggeration=exaggeration,
+            cfg_weight=cfg_weight,
+        )
+        if audio_prompt_path:
+            extra_kwargs["audio_prompt_path"] = audio_prompt_path
+        if instruct:
+            extra_kwargs["instruct"] = instruct
+        if ref_audio:
+            extra_kwargs["ref_audio"] = ref_audio
+        if ref_text:
+            extra_kwargs["ref_text"] = ref_text
+        if seed is not None:
+            extra_kwargs["seed"] = seed
 
         # Generate audio
         response = asyncio.run(tts.generate(
@@ -60,12 +78,7 @@ def _process_single(
             audio_format=AudioFormat(audio_format),
             speed=speed,
             pitch=pitch,
-            exaggeration=exaggeration,
-            cfg_weight=cfg_weight,
-            audio_prompt_path=audio_prompt_path,
-            instruct=instruct,
-            ref_audio=ref_audio,
-            ref_text=ref_text,
+            **extra_kwargs,
         ))
 
         output_path = Path(output).resolve() if output else Path(".") / f"voicegenhub_output.{audio_format}"
@@ -159,6 +172,7 @@ def _process_batch(
     instruct: Optional[str] = None,
     ref_audio: Optional[str] = None,
     ref_text: Optional[str] = None,
+    seed: Optional[int] = None,
 ):
     """Process multiple texts concurrently with provider-specific limits.
 
@@ -215,6 +229,20 @@ def _process_batch(
         try:
             # Run async generation in thread
             async def generate():
+                gen_kwargs = dict(
+                    exaggeration=exaggeration,
+                    cfg_weight=cfg_weight,
+                )
+                if audio_prompt_path:
+                    gen_kwargs["audio_prompt_path"] = audio_prompt_path
+                if instruct:
+                    gen_kwargs["instruct"] = instruct
+                if ref_audio:
+                    gen_kwargs["ref_audio"] = ref_audio
+                if ref_text:
+                    gen_kwargs["ref_text"] = ref_text
+                if seed is not None:
+                    gen_kwargs["seed"] = seed
                 return await shared_tts.generate(
                     text=text,
                     voice=voice,
@@ -222,12 +250,7 @@ def _process_batch(
                     audio_format=AudioFormat(audio_format),
                     speed=speed,
                     pitch=pitch,
-                    exaggeration=exaggeration,
-                    cfg_weight=cfg_weight,
-                    audio_prompt_path=audio_prompt_path,
-                    instruct=instruct,
-                    ref_audio=ref_audio,
-                    ref_text=ref_text,
+                    **gen_kwargs,
                 )
 
             response = asyncio.run(generate())
@@ -255,6 +278,7 @@ def _process_batch(
                     instruct=instruct,
                     ref_audio=ref_audio,
                     ref_text=ref_text,
+                    seed=seed,
                 )
             else:
                 # Save output directly
@@ -287,7 +311,6 @@ def _process_batch(
 @click.group()
 def cli():
     """VoiceGenHub - Simple Text-to-Speech CLI."""
-    pass
 
 
 @cli.command()
@@ -313,6 +336,16 @@ def cli():
     "--pitch", type=float, default=1.0, help="Speech pitch (0.5-2.0, default 1.0)"
 )
 @click.option("--provider", "-p", help="TTS provider")
+@click.option(
+    "--gpu",
+    type=click.Choice(["p100", "t4"]),
+    help="Use remote Kaggle GPU for generation (currently Qwen3-TTS only)",
+)
+@click.option(
+    "--cpu",
+    is_flag=True,
+    help="Use local CPU for generation (default)",
+)
 @click.option(
     "--lowpass",
     type=int,
@@ -385,13 +418,117 @@ def cli():
     type=str,
     help="Qwen 3 TTS: Reference text for voice cloning",
 )
+@click.option(
+    "--model",
+    "-m",
+    type=str,
+    default=None,
+    help="Qwen 3 TTS: HuggingFace model ID (e.g. Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice)",
+)
+@click.option(
+    "--output-dir",
+    type=str,
+    default=None,
+    help="Kaggle GPU: Local directory for the downloaded audio (default: YYYYMMDD_HHMMSS_<gpu>)",
+)
+@click.option(
+    "--output-filename",
+    type=str,
+    default="qwen3_tts.wav",
+    show_default=True,
+    help="Kaggle GPU: Filename for the generated audio file",
+)
+@click.option(
+    "--timeout",
+    type=int,
+    default=60,
+    show_default=True,
+    help="Kaggle GPU: Timeout in minutes to wait for the kernel",
+)
+@click.option(
+    "--poll-interval",
+    type=int,
+    default=60,
+    show_default=True,
+    help="Kaggle GPU: Status polling interval in seconds",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=42,
+    show_default=True,
+    help="Random seed for reproducible generation (local CPU and Kaggle GPU)",
+)
+@click.option(
+    "--temperature",
+    type=float,
+    default=0.7,
+    show_default=True,
+    help="Kaggle GPU: Sampling temperature (lower = more stable/neutral tone, higher = more expressive)",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
-    lowpass, normalize, distortion, noise, reverb, pitch_shift,
+    gpu, cpu, lowpass, normalize, distortion, noise, reverb, pitch_shift,
     exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
-    instruct, ref_audio, ref_text
+    instruct, ref_audio, ref_text,
+    model, output_dir, output_filename, timeout, poll_interval, seed, temperature,
 ):
-    """Generate speech from text(s)."""
+    """Generate speech from text(s). Use --gpu [p100|t4] for remote Kaggle GPU acceleration."""
+    # Redirect to Kaggle pipeline if --gpu is specified
+    if gpu:
+        from .kaggle.pipeline import KaggleQwenPipeline
+        pipeline = KaggleQwenPipeline(
+            model_id=model or "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+            timeout_minutes=timeout,
+            poll_interval_seconds=poll_interval,
+        )
+
+        # Determine output directory
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        suffix = f"_{gpu}"
+        if output_dir:
+            resolved_output_dir = output_dir
+        elif output:
+            output_path_obj = Path(output)
+            resolved_output_dir = str(output_path_obj if not output_path_obj.suffix else output_path_obj.parent / f"{timestamp}{suffix}")
+        else:
+            resolved_output_dir = f"{timestamp}{suffix}"
+
+        try:
+            result_paths = pipeline.run(
+                texts=list(texts),
+                voice=voice or "Ryan",
+                language=language or "en",
+                output_dir=resolved_output_dir,
+                gpu_type=gpu,
+                seed=seed,
+                temperature=temperature,
+                instruct=instruct or "",
+                ref_audio_path=audio_prompt or "",
+                ref_text=ref_text or "",
+            )
+            click.echo(f"SUCCESS: {len(result_paths)} audio file(s) in: {Path(resolved_output_dir).absolute()}")
+            for p in result_paths:
+                click.echo(f"  {p.name}")
+            manifest = Path(resolved_output_dir) / "manifest.json"
+            if manifest.exists():
+                click.echo("  manifest.json  (prompt→file mapping)")
+            return
+        except Exception as e:
+            click.echo(f"Error during remote generation: {e}", err=True)
+            sys.exit(1)
+
+    # For local CPU runs, ensure directory structure matches requested format
+    if not output:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = f"{timestamp}_cpu"
+        os.makedirs(output_dir, exist_ok=True)
+        # For single text, we still want to respect the output_dir
+        if len(texts) == 1:
+            output = os.path.join(output_dir, "output.wav")
+        else:
+            output = os.path.join(output_dir, "batch")
+
     # Validate provider immediately
     supported_providers = [
         "edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"
@@ -452,6 +589,7 @@ def synthesize(
             instruct=instruct,
             ref_audio=ref_audio,
             ref_text=ref_text,
+            seed=seed,
         )
     else:
         # Single text processing (original behavior)
@@ -476,6 +614,7 @@ def synthesize(
             instruct=instruct,
             ref_audio=ref_audio,
             ref_text=ref_text,
+            seed=seed,
         )
 
 
@@ -492,7 +631,7 @@ def synthesize(
 def voices(language: Optional[str], format: str, provider: str):
     """List available voices."""
     # Validate provider immediately
-    supported_providers = ["edge", "kokoro", "elevenlabs", "bark", "chatterbox"]
+    supported_providers = ["edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"]
     if provider and provider not in supported_providers:
         click.echo(
             f"Error: Unsupported provider '{provider}'. Supported providers: {', '.join(supported_providers)}",
