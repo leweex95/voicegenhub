@@ -102,6 +102,27 @@ poetry run voicegenhub synthesize "Hello!" \
   --poll-interval 30
 ```
 
+### Voice Cloning (Qwen3-TTS, Kaggle GPU)
+
+Clone your own voice onto arbitrary text using the Qwen3-TTS Base model and a reference WAV:
+
+```bash
+poetry run voicegenhub synthesize "this is my speech using my own voice" \
+  --provider qwen \
+  --model Qwen/Qwen3-TTS-12Hz-1.7B-Base \
+  --audio-prompt "<path to reference audio>" \
+  --ref-text "<exact transcript of the reference audio>" \
+  --gpu p100
+```
+
+**Tips:**
+- Use a reference WAV of at least 20 seconds, with clear speech and a matching transcript for best results.
+- The `--ref-text` should be the exact transcript of the reference audio (no ellipsis or truncation).
+- For batch synthesis, pass multiple texts in quotes.
+
+See [docs/cloning_and_design.md](docs/cloning_and_design.md) for advanced usage and troubleshooting.
+```
+
 Batch output lands in a timestamped folder (e.g. `20260227_123130_p100/`) with:
 - `audio_001.wav`, `audio_002.wav`, â€¦ (one per input sentence)
 - `manifest.json` â€” maps each filename to its source text and duration

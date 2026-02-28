@@ -504,6 +504,8 @@ def synthesize(
                 seed=seed,
                 temperature=temperature,
                 instruct=instruct or "",
+                ref_audio_path=audio_prompt or "",
+                ref_text=ref_text or "",
             )
             click.echo(f"SUCCESS: {len(result_paths)} audio file(s) in: {Path(resolved_output_dir).absolute()}")
             for p in result_paths:

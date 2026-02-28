@@ -69,15 +69,20 @@ def _build_notebook_source(
     seed: int = 42,
     temperature: float = 0.7,
     instruct: str = "",
+    ref_audio_kernel_path: str = "",
+    ref_text: str = "",
 ) -> dict:
     """Build the Jupyter notebook content for Kaggle GPU batch execution.
 
     Generates one audio file per text entry (audio_001.wav, audio_002.wav, …)
     and writes a manifest.json that maps each filename to its source text.
 
-    When *instruct* is non-empty, each text is generated via
-    ``generate_custom_voice(… instruct=instruct)`` so Qwen3's voice-design /
-    emotion capabilities are used even on remote Kaggle GPUs.
+    When *ref_audio_kernel_path* is non-empty (e.g.
+    ``/kaggle/input/voicegenhub-ref-audio/levi_voice.wav``) the notebook calls
+    ``generate_voice_clone()`` using that file as the reference speaker.  When
+    *instruct* is also provided it is forwarded to the clone call for
+    style/emotion control.  When only *instruct* is set, the named VOICE
+    speaker is used via ``generate_custom_voice(instruct=…)``.
     """
 
     # Language mapping (CLI code → Qwen language string)
@@ -117,14 +122,16 @@ def _build_notebook_source(
         import soundfile as sf
         from qwen_tts import Qwen3TTSModel
 
-        MODEL_ID    = {json.dumps(model_id)}
-        VOICE       = {json.dumps(voice)}
-        LANGUAGE    = {json.dumps(qwen_language)}
-        TEXTS       = {json.dumps(texts)}
-        OUTPUT_DIR  = "/kaggle/working"
-        SEED        = {seed}
-        TEMPERATURE = {temperature}
-        INSTRUCT    = {json.dumps(instruct)}
+        MODEL_ID         = {json.dumps(model_id)}
+        VOICE            = {json.dumps(voice)}
+        LANGUAGE         = {json.dumps(qwen_language)}
+        TEXTS            = {json.dumps(texts)}
+        OUTPUT_DIR       = "/kaggle/working"
+        SEED             = {seed}
+        TEMPERATURE      = {temperature}
+        INSTRUCT         = {json.dumps(instruct)}
+        REF_AUDIO_PATH   = {json.dumps(ref_audio_kernel_path)}
+        REF_TEXT         = {json.dumps(ref_text)}
 
         # Pin global seed for reproducibility across runs
         torch.manual_seed(SEED)
@@ -139,6 +146,11 @@ def _build_notebook_source(
         print(f"Seed: {{SEED}}  Temperature: {{TEMPERATURE}}")
         if INSTRUCT:
             print(f"Instruct: {{INSTRUCT}}")
+        if REF_AUDIO_PATH:
+            print(f"Voice clone mode: reference audio at {{REF_AUDIO_PATH}}")
+
+        # Reference audio path set directly from Kaggle dataset input
+        _ref_audio_path = REF_AUDIO_PATH if REF_AUDIO_PATH else None
 
         print(f"Loading model: {{MODEL_ID}}")
         model = Qwen3TTSModel.from_pretrained(
@@ -146,6 +158,16 @@ def _build_notebook_source(
             device_map="cuda:0" if torch.cuda.is_available() else "cpu",
             dtype=torch.float16,
         )
+
+        # Guard: verify the loaded model supports voice cloning before entering the loop
+        if _ref_audio_path:
+            _mt = getattr(model.model, 'tts_model_type', 'unknown')
+            if _mt != 'base':
+                raise ValueError(
+                    "Voice cloning requires tts_model_type='base' but got: " + str(_mt) +
+                    ". MODEL_ID=" + MODEL_ID + " does not support generate_voice_clone(). "
+                    "Switch to a Qwen3-TTS base model (e.g. Qwen/Qwen3-TTS-12Hz-1.7B-Base)."
+                )
 
         manifest = []
         for i, text in enumerate(TEXTS, start=1):
@@ -156,17 +178,47 @@ def _build_notebook_source(
             torch.manual_seed(SEED + i)
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(SEED + i)
-            gen_kwargs = dict(
-                text=text,
-                language=LANGUAGE,
-                speaker=VOICE,
-                temperature=TEMPERATURE,
-                top_p=0.9,
-                repetition_penalty=1.1,
-            )
-            if INSTRUCT:
-                gen_kwargs["instruct"] = INSTRUCT
-            wavs, sr = model.generate_custom_voice(**gen_kwargs)
+            if _ref_audio_path:
+                # non_streaming_mode=True is required — the default (False) simulates
+                # streaming and does not terminate properly for single non-streaming calls,
+                # causing runaway generation (e.g. 10+ minutes of garbage audio).
+                clone_kwargs = dict(
+                    text=text,
+                    language=LANGUAGE,
+                    ref_audio=_ref_audio_path,
+                    temperature=TEMPERATURE,
+                    top_p=0.9,
+                    repetition_penalty=1.1,
+                    non_streaming_mode=True,
+                )
+                if REF_TEXT:
+                    # Strip trailing ellipsis — ICL mode requires ref_text to match
+                    # the actual audio content; truncated text causes runaway generation.
+                    _clean_ref_text = REF_TEXT.rstrip(". ").rstrip("…").rstrip(".")
+                    clone_kwargs["ref_text"] = _clean_ref_text
+                if INSTRUCT:
+                    clone_kwargs["instruct"] = INSTRUCT
+                try:
+                    wavs, sr = model.generate_voice_clone(**clone_kwargs)
+                except TypeError as _e:
+                    if INSTRUCT and "instruct" in str(_e):
+                        print("Note: instruct not supported in clone mode, retrying without: " + str(_e))
+                        del clone_kwargs["instruct"]
+                        wavs, sr = model.generate_voice_clone(**clone_kwargs)
+                    else:
+                        raise
+            else:
+                gen_kwargs = dict(
+                    text=text,
+                    language=LANGUAGE,
+                    speaker=VOICE,
+                    temperature=TEMPERATURE,
+                    top_p=0.9,
+                    repetition_penalty=1.1,
+                )
+                if INSTRUCT:
+                    gen_kwargs["instruct"] = INSTRUCT
+                wavs, sr = model.generate_custom_voice(**gen_kwargs)
             sf.write(out_path, wavs[0], sr)
             duration = len(wavs[0]) / sr
             print(f"  -> {{filename}}  ({{duration:.2f}}s @ {{sr}} Hz)")
@@ -225,8 +277,52 @@ def _build_notebook_source(
     return notebook
 
 
+def _upload_ref_audio_dataset(audio_file: Path, username: str) -> str:
+    """Upload *audio_file* to a private Kaggle dataset and return the slug.
+
+    Uses the stable slug ``voicegenhub-ref-audio``.  If the dataset does not
+    yet exist the first call creates it; subsequent calls push a new version,
+    making this fully idempotent from the caller's perspective.
+    """
+    dataset_slug = "voicegenhub-ref-audio"
+    with tempfile.TemporaryDirectory() as ds_dir:
+        ds_path = Path(ds_dir)
+        shutil.copy2(audio_file, ds_path / audio_file.name)
+        ds_meta = {
+            "title": "VoiceGenHub Reference Audio",
+            "id": f"{username}/{dataset_slug}",
+            "licenses": [{"name": "other"}],
+        }
+        (ds_path / "dataset-metadata.json").write_text(json.dumps(ds_meta))
+        # Try updating an existing version first; fall back to creating from scratch.
+        try:
+            result = _run_cmd(
+                ["kaggle", "datasets", "version", "-p", ds_dir,
+                 "-m", "voicegenhub ref audio update", "-q"],
+                capture=True, check=True,
+            )
+            logger.info(f"Reference audio dataset version pushed: {result.stdout.strip()}")
+        except subprocess.CalledProcessError:
+            try:
+                result = _run_cmd(
+                    ["kaggle", "datasets", "create", "-p", ds_dir, "-q"],
+                    capture=True, check=True,
+                )
+                logger.info(f"Reference audio dataset created: {result.stdout.strip()}")
+            except subprocess.CalledProcessError as exc:
+                raise RuntimeError(
+                    f"Failed to upload reference audio as Kaggle dataset.\n"
+                    f"stdout: {exc.stdout.strip()}\nstderr: {exc.stderr.strip()}"
+                ) from exc
+    return dataset_slug
+
+
 def _build_kernel_metadata(
-    username: str, kernel_slug: str, notebook_filename: str, gpu_type: str = "p100"
+    username: str,
+    kernel_slug: str,
+    notebook_filename: str,
+    gpu_type: str = "p100",
+    dataset_sources: Optional[list] = None,
 ) -> dict:
     """Build Kaggle kernel-metadata.json.
 
@@ -247,7 +343,7 @@ def _build_kernel_metadata(
         "enable_gpu": True,
         "enable_tpu": False,
         "enable_internet": True,
-        "dataset_sources": [],
+        "dataset_sources": dataset_sources or [],
         "competition_sources": [],
         "kernel_sources": [],
         "model_sources": [],
@@ -355,6 +451,8 @@ class KaggleQwenPipeline:
         seed: int = 42,
         temperature: float = 0.7,
         instruct: str = "",
+        ref_audio_path: str = "",
+        ref_text: str = "",
     ) -> list:
         """
         Run the full Kaggle Qwen3-TTS batch pipeline.
@@ -362,14 +460,24 @@ class KaggleQwenPipeline:
         Args:
             texts: A single text string or a list of text strings to synthesize.
                    Each text produces one audio file (audio_001.wav, …).
-            voice: Speaker name (e.g. "Ryan", "Serena").
+            voice: Speaker name (e.g. "Ryan", "Serena").  Ignored when
+                   *ref_audio_path* is provided (voice cloning mode).
             language: ISO language code (e.g. "en", "zh").
             output_dir: Local directory for all downloaded files.
                         Defaults to a timestamped folder in the cwd.
             gpu_type: Kaggle accelerator type ("p100", "t4").
             seed: Random seed for reproducible generation.
             temperature: Sampling temperature.
-            instruct: Qwen3 instruct string for voice design / emotion control.
+            instruct: Qwen3 instruct string for style/emotion control.  Works
+                      in both custom-voice and voice-clone modes.
+            ref_audio_path: Local path to a reference WAV file for voice
+                            cloning.  The file is uploaded once as a private
+                            Kaggle dataset (``voicegenhub-ref-audio``) and
+                            attached as a data source so the kernel can read
+                            it from ``/kaggle/input/`` without any notebook
+                            size inflation.
+            ref_text: Optional transcript of the reference audio.  Improves
+                      clone quality when provided.
 
         Returns:
             List of Paths to the downloaded audio files.
@@ -379,6 +487,16 @@ class KaggleQwenPipeline:
         # Normalise: accept both str and list[str]
         if isinstance(texts, str):
             texts = [texts]
+
+        # Guard: CustomVoice model variants do not support generate_voice_clone.
+        # Fail early with a clear message rather than a cryptic Kaggle kernel error.
+        if ref_audio_path and "CustomVoice" in self.model_id:
+            raise ValueError(
+                f"Voice cloning (--audio-prompt) is not supported by '{self.model_id}'.\n"
+                "CustomVoice variants only provide predefined speaker voices.\n"
+                "To clone a reference voice you must use a Qwen3-TTS *base* model.\n"
+                "Pass: --model Qwen/Qwen3-TTS-12Hz-1.7B-Base"
+            )
 
         username = _detect_kaggle_username()
         kernel_id = f"{username}/{self.kernel_slug}"
@@ -406,6 +524,35 @@ class KaggleQwenPipeline:
             notebook_path = Path(tmpdir) / notebook_filename
             metadata_path = Path(tmpdir) / "kernel-metadata.json"
 
+            # ----------------------------------------------------------------
+            # Upload reference audio as a private Kaggle dataset so the
+            # notebook can read it from /kaggle/input/ without any
+            # notebook-cell-size issues.
+            # ----------------------------------------------------------------
+            ref_dataset_slug = None   # set when a reference audio is provided
+            if ref_audio_path:
+                ref_audio_file = Path(ref_audio_path)
+                if not ref_audio_file.exists():
+                    raise FileNotFoundError(
+                        f"Reference audio file not found: {ref_audio_path}"
+                    )
+                ref_dataset_slug = _upload_ref_audio_dataset(
+                    ref_audio_file, username
+                )
+                logger.info(
+                    f"Reference audio dataset ready: {username}/{ref_dataset_slug}"
+                )
+
+            # Determine ref audio kernel path and dataset sources for metadata
+            ref_audio_kernel_path = ""
+            kernel_dataset_sources = []
+            if ref_dataset_slug:
+                ref_audio_file = Path(ref_audio_path)
+                ref_audio_kernel_path = (
+                    f"/kaggle/input/{ref_dataset_slug}/{ref_audio_file.name}"
+                )
+                kernel_dataset_sources = [f"{username}/{ref_dataset_slug}"]
+
             notebook = _build_notebook_source(
                 texts=texts,
                 voice=voice,
@@ -415,6 +562,8 @@ class KaggleQwenPipeline:
                 seed=seed,
                 temperature=temperature,
                 instruct=instruct,
+                ref_audio_kernel_path=ref_audio_kernel_path,
+                ref_text=ref_text or "",
             )
             notebook_path.write_text(json.dumps(notebook, indent=2))
 
@@ -424,7 +573,9 @@ class KaggleQwenPipeline:
             logger.info(f"Submitted notebook saved: {submitted_nb_dest}")
 
             metadata = _build_kernel_metadata(
-                username, self.kernel_slug, notebook_filename, gpu_type=gpu_type
+                username, self.kernel_slug, notebook_filename,
+                gpu_type=gpu_type,
+                dataset_sources=kernel_dataset_sources,
             )
             metadata_path.write_text(json.dumps(metadata, indent=2))
 
@@ -520,24 +671,50 @@ class KaggleQwenPipeline:
         """Download all kernel outputs (audio_*.wav + manifest.json) to output_path.
 
         Returns a list of Path objects for each downloaded audio file.
+        Retries up to 3 times with a 30-second delay to handle the case where
+        Kaggle marks a kernel COMPLETE before output files are fully staged.
         """
+        max_retries = 3
+        retry_delay_seconds = 30
+
         with tempfile.TemporaryDirectory() as dl_dir:
-            logger.info(f"Downloading kernel outputs from {kernel_id}…")
-            _run_cmd(
-                ["kaggle", "kernels", "output", kernel_id, "-p", dl_dir],
-                capture=True,
-                check=True,
-            )
-
             dl_path = Path(dl_dir)
+            wav_files = []
 
-            # Extract any zip archives first
-            for zf in list(dl_path.rglob("*.zip")):
-                logger.info(f"Extracting {zf.name}…")
-                with zipfile.ZipFile(zf, "r") as z:
-                    z.extractall(dl_path)
+            for attempt in range(1, max_retries + 1):
+                logger.info(f"Downloading kernel outputs from {kernel_id}… (attempt {attempt}/{max_retries})")
+                try:
+                    _run_cmd(
+                        ["kaggle", "kernels", "output", kernel_id, "-p", dl_dir],
+                        capture=True,
+                        check=True,
+                    )
+                except subprocess.CalledProcessError as exc:
+                    logger.warning(f"Download attempt {attempt} failed (exit {exc.returncode}): {exc.stderr}")
+                    if attempt < max_retries:
+                        logger.info(f"Retrying in {retry_delay_seconds}s…")
+                        time.sleep(retry_delay_seconds)
+                        continue
+                    raise
 
-            wav_files = sorted(dl_path.rglob("*.wav"))
+                # Extract any zip archives first
+                for zf in list(dl_path.rglob("*.zip")):
+                    logger.info(f"Extracting {zf.name}…")
+                    with zipfile.ZipFile(zf, "r") as z:
+                        z.extractall(dl_path)
+
+                wav_files = sorted(dl_path.rglob("*.wav"))
+                if wav_files:
+                    break
+
+                # Kaggle sometimes returns COMPLETE before output files are staged
+                if attempt < max_retries:
+                    logger.warning(
+                        f"No .wav files found on attempt {attempt} — "
+                        f"Kaggle output may not be staged yet. Retrying in {retry_delay_seconds}s…"
+                    )
+                    time.sleep(retry_delay_seconds)
+
             manifest_files = list(dl_path.rglob("manifest.json"))
 
             # Always copy logs and executed notebook — survive even if no wavs

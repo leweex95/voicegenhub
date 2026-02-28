@@ -352,8 +352,9 @@ class QwenTTSProvider(TTSProvider):
                 ref_audio = generate_kwargs.pop("ref_audio", self.default_ref_audio)
                 ref_text = generate_kwargs.pop("ref_text", self.default_ref_text)
                 x_vector_only = generate_kwargs.pop("x_vector_only_mode", self.x_vector_only_mode)
+                instruct = generate_kwargs.pop("instruct", self.default_instruct)
 
-                wavs, sample_rate = self._model.generate_voice_clone(
+                clone_call_kwargs = dict(
                     text=request.text,
                     language=language,
                     ref_audio=ref_audio,
@@ -362,6 +363,11 @@ class QwenTTSProvider(TTSProvider):
                     non_streaming_mode=self.non_streaming_mode,
                     **generate_kwargs
                 )
+                if instruct:
+                    clone_call_kwargs["instruct"] = instruct
+                    logger.info(f"Voice clone + instruct: '{instruct}'")
+
+                wavs, sample_rate = self._model.generate_voice_clone(**clone_call_kwargs)
 
             else:
                 raise TTSError(
