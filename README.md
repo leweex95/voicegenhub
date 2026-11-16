@@ -14,12 +14,19 @@ pip install voicegenhub
 poetry add voicegenhub
 ```
 
+The base install contains the API and CLI only. Install the provider(s) you
+intend to use as extras; for example, Edge TTS only:
+
+```bash
+pip install 'voicegenhub[edge]'
+```
+
 ### Optional Dependencies
 
-- **Microsoft Edge TTS** (free, cloud-based)
-- **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
+- **Microsoft Edge TTS** (free, cloud-based): `voicegenhub[edge]`
+- **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS): `voicegenhub[kokoro]`
 - **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
-- **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
+- **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU: `voicegenhub[chatterbox]`; Kaggle GPU execution: `voicegenhub[kaggle]`
 - **ElevenLabs TTS** (commercial, high-quality voices)
 
 ### Voice Cloning Support
@@ -90,9 +97,10 @@ and terms; it is not guaranteed to be free or available at all times. Install
 the optional integration and configure Kaggle credentials first:
 
 ```bash
-poetry install -E kaggle
+pip install 'voicegenhub[kaggle]'
+# In a source checkout, use: poetry install -E kaggle
 # Configure ~/.kaggle/kaggle.json (or Kaggle's supported environment variables)
-poetry run voicegenhub synthesize "Hello from a Kaggle GPU" \
+voicegenhub synthesize "Hello from a Kaggle GPU" \
   --provider chatterbox-kaggle --voice chatterbox-en --output hello.wav
 ```
 
