@@ -26,6 +26,57 @@ def _embed_request_payload(runner_code: str, payload: Dict[str, Any]) -> str:
     return runner_code.replace(marker, "REQUEST_JSON = " + repr(json.dumps(payload)), 1)
 
 
+def _select_available_kernel(kernel_ids, get_status) -> str:
+    """Select the first notebook with a known terminal status; fail closed otherwise."""
+    terminal_markers = ("complete", "error", "cancel_acknowledged", "cancelled")
+    busy = []
+    for kernel_id in kernel_ids:
+        status = get_status(kernel_id).lower()
+        if status and any(marker in status for marker in terminal_markers):
+            return kernel_id
+        busy.append(f"{kernel_id}: {status or 'unknown'}")
+    raise TTSError(
+        "All configured Kaggle Chatterbox notebooks are busy; no new run was "
+        "submitted (" + ", ".join(busy) + "). Configure a second notebook with "
+        "VOICEGENHUB_KAGGLE_KERNEL_IDS to use Kaggle's other batch slot."
+    )
+
+
+def _kaggle_cli_env() -> Dict[str, str]:
+    """Use UTF-8 for Kaggle CLI subprocesses (including remote log output)."""
+    env = os.environ.copy()
+    env["PYTHONUTF8"] = "1"
+    env["PYTHONIOENCODING"] = "utf-8"
+    return env
+
+
+def _download_kernel_logs(kernel_id: str, kaggle_command) -> str:
+    """Fetch Kaggle's execution log without Windows console-encoding failures."""
+    with tempfile.TemporaryDirectory(prefix="voicegenhub-kaggle-logs-") as tmp:
+        result = subprocess.run(
+            [*kaggle_command, "kernels", "output", kernel_id, "-p", tmp],
+            capture_output=True, text=True, encoding="utf-8", check=False,
+            env=_kaggle_cli_env(),
+        )
+        log_files = sorted(Path(tmp).rglob("*.log"))
+        if log_files:
+            logs = []
+            for path in log_files:
+                content = path.read_text(encoding="utf-8", errors="replace")
+                try:
+                    events = json.loads(content)
+                except json.JSONDecodeError:
+                    events = None
+                if isinstance(events, list):
+                    content = "".join(
+                        f"[{event.get('stream_name', 'log')}] {event.get('data', '')}"
+                        for event in events
+                    )
+                logs.append(f"--- {path.name} ---\n{content}")
+            return "\n".join(logs)
+        return result.stderr.strip()
+
+
 class KaggleChatterboxProvider(ChatterboxProvider):
     """Chatterbox provider that submits one synthesis job to Kaggle per request."""
 
@@ -96,9 +147,18 @@ class KaggleChatterboxProvider(ChatterboxProvider):
         from kaggle_connector.utils.cli import get_kaggle_command
 
         username = api.config_values["username"]
-        kernel_id = self.config.get("kernel_id") or os.getenv(
+        default_kernel_id = self.config.get("kernel_id") or os.getenv(
             "VOICEGENHUB_KAGGLE_KERNEL_ID", f"{username}/voicegenhub-chatterbox"
         )
+        configured_kernel_ids = self.config.get("kernel_ids") or os.getenv(
+            "VOICEGENHUB_KAGGLE_KERNEL_IDS", ""
+        )
+        if isinstance(configured_kernel_ids, str):
+            configured_kernel_ids = configured_kernel_ids.split(",")
+        kernel_ids = list(dict.fromkeys(
+            [default_kernel_id]
+            + [kernel_id.strip() for kernel_id in configured_kernel_ids if kernel_id.strip()]
+        ))
         accelerator = self.config.get("accelerator") or os.getenv(
             "VOICEGENHUB_KAGGLE_ACCELERATOR", "nvidia-t4-x2"
         )
@@ -115,16 +175,12 @@ class KaggleChatterboxProvider(ChatterboxProvider):
             runner_code = _embed_request_payload(runner.read_text(encoding="utf-8"), payload)
             (root / "runner.py").write_text(runner_code, encoding="utf-8")
             # The connector's resource check counts only running kernels, not
-            # queued ones. Check this fixed kernel directly so retries cannot
-            # enqueue another run while its previous run is still active.
-            existing_status = JobManager(kernel_id).get_status().lower()
-            active_markers = ("queued", "running", "starting", "cancel_requested")
-            if any(marker in existing_status for marker in active_markers):
-                raise TTSError(
-                    f"Kaggle kernel {kernel_id} already has an active run "
-                    f"(status: {existing_status}). Wait for it to finish or stop it "
-                    "in Kaggle before retrying; no new run was submitted."
-                )
+            # queued ones. Select a free notebook explicitly; the optional pool
+            # lets callers use both Kaggle batch slots without overwriting the
+            # status/output of a queued run on the first notebook.
+            kernel_id = _select_available_kernel(
+                kernel_ids, lambda candidate: JobManager(candidate).get_status()
+            )
 
             manager = JobManager()
             manager.create_metadata(
@@ -154,13 +210,14 @@ class KaggleChatterboxProvider(ChatterboxProvider):
                     )
                 time.sleep(min(poll_interval, remaining))
             if "error" in status:
-                diagnostics = job.get_logs()
+                diagnostics = _download_kernel_logs(kernel_id, get_kaggle_command())
                 detail = f"; logs: {diagnostics[-4000:]}" if diagnostics else ""
                 raise TTSError(f"Kaggle Chatterbox kernel failed: {status}{detail}")
             output_dir = root / "outputs"
             result = subprocess.run(
                 [*get_kaggle_command(), "kernels", "output", kernel_id, "-p", str(output_dir)],
-                capture_output=True, text=True, check=False,
+                capture_output=True, text=True, encoding="utf-8", check=False,
+                env=_kaggle_cli_env(),
             )
             if result.returncode:
                 raise TTSError(f"Could not download Kaggle audio: {result.stderr.strip()}")

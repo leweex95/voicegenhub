@@ -2,6 +2,8 @@ import asyncio
 import ast
 import io
 import json
+from pathlib import Path
+from types import SimpleNamespace
 import wave
 
 import pytest
@@ -10,6 +12,8 @@ from voicegenhub.providers.base import TTSRequest, TTSError
 from voicegenhub.providers.chatterbox_kaggle import (
     KaggleChatterboxProvider,
     _embed_request_payload,
+    _kaggle_cli_env,
+    _select_available_kernel,
 )
 
 
@@ -75,3 +79,58 @@ def test_kaggle_runner_embeds_request_payload_for_upload():
         "text": "hello",
         "cfg_weight": 0.5,
     }
+
+
+def test_kaggle_kernel_pool_skips_queued_notebook():
+    statuses = {
+        "user/first": "kernelworkerstatus.queued",
+        "user/second": "kernelworkerstatus.complete",
+    }
+
+    selected = _select_available_kernel(
+        ["user/first", "user/second"], statuses.__getitem__
+    )
+
+    assert selected == "user/second"
+
+
+def test_kaggle_kernel_pool_rejects_when_both_notebooks_are_active():
+    statuses = {
+        "user/first": "kernelworkerstatus.queued",
+        "user/second": "kernelworkerstatus.running",
+    }
+
+    with pytest.raises(TTSError, match="All configured Kaggle.*no new run was submitted"):
+        _select_available_kernel(["user/first", "user/second"], statuses.__getitem__)
+
+
+def test_kaggle_kernel_pool_fails_closed_when_status_is_unknown():
+    with pytest.raises(TTSError, match="user/first: unknown"):
+        _select_available_kernel(["user/first"], lambda _kernel_id: "unknown")
+
+
+def test_kaggle_runner_switches_sdpa_to_eager_before_inference():
+    runner_path = Path(__file__).parents[1] / "src/voicegenhub/providers/kaggle_runner.py"
+    tree = ast.parse(runner_path.read_text(encoding="utf-8"))
+    transformer_config = SimpleNamespace(_attn_implementation="sdpa")
+
+    switch = next(
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.Compare)
+        and any(
+            isinstance(value, ast.Constant) and value.value == "sdpa"
+            for value in node.test.comparators
+        )
+    )
+    namespace = {"transformer_config": transformer_config, "getattr": getattr}
+    exec(compile(ast.Module(body=[switch], type_ignores=[]), str(runner_path), "exec"), namespace)
+
+    assert transformer_config._attn_implementation == "eager"
+
+
+def test_kaggle_cli_subprocesses_force_utf8():
+    env = _kaggle_cli_env()
+
+    assert env["PYTHONUTF8"] == "1"
+    assert env["PYTHONIOENCODING"] == "utf-8"

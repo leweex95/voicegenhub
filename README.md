@@ -109,7 +109,11 @@ downloads the resulting WAV. Kaggle credentials remain local. Each synthesis
 request creates a remote kernel run, so avoid using it for many tiny segments;
 batching support and voice cloning on Kaggle are not implemented yet. Set
 `VOICEGENHUB_KAGGLE_ACCELERATOR` (default `nvidia-t4-x2`) to select another
-accelerator supported by your Kaggle account.
+accelerator supported by your Kaggle account. To use up to two separate Kaggle
+batch slots, configure distinct notebook IDs as a comma-separated list, for
+example `VOICEGENHUB_KAGGLE_KERNEL_IDS=yourname/voicegenhub-chatterbox-2`; the
+provider skips IDs whose latest run is queued or running. The default notebook
+remains `yourname/voicegenhub-chatterbox`.
 ### Qwen 3 TTS
 
 ```bash

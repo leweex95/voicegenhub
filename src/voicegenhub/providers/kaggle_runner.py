@@ -30,6 +30,13 @@ if not torch.cuda.is_available():
 
 print("[voicegenhub] Loading Chatterbox model on CUDA", flush=True)
 model = ChatterboxMultilingualTTS.from_pretrained(device="cuda")
+transformer_config = model.t3.tfmr.config
+if getattr(transformer_config, "_attn_implementation", None) == "sdpa":
+    # Chatterbox's AlignmentStreamAnalyzer requests attention weights, which
+    # Transformers' SDPA implementation does not support. Match the upstream
+    # Chatterbox compatibility fix before the analyzer sets output_attentions.
+    transformer_config._attn_implementation = "eager"
+    print("[voicegenhub] Switched Chatterbox attention from SDPA to eager", flush=True)
 print("[voicegenhub] Model loaded; generating audio", flush=True)
 audio = model.generate(
     request["text"],
