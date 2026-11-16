@@ -82,6 +82,27 @@ poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español."
 - **PyTorch Compatibility**: TorchCodec 0.9.1 requires PyTorch ≤ 2.4.x. If you have a newer PyTorch version, voice cloning will be automatically disabled with a fallback to standard TTS.
 - Without TorchCodec/FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will gracefully fall back to standard TTS without cloning.
 
+### Chatterbox on a Kaggle GPU
+
+VoiceGenHub can submit Chatterbox synthesis to a Kaggle GPU kernel. This runs on
+your Kaggle account and is subject to Kaggle's current GPU quota, availability,
+and terms; it is not guaranteed to be free or available at all times. Install
+the optional integration and configure Kaggle credentials first:
+
+```bash
+poetry install -E kaggle
+# Configure ~/.kaggle/kaggle.json (or Kaggle's supported environment variables)
+poetry run voicegenhub synthesize "Hello from a Kaggle GPU" \
+  --provider chatterbox-kaggle --voice chatterbox-en --output hello.wav
+```
+
+The provider uploads a temporary request, runs Chatterbox on Kaggle, and
+downloads the resulting WAV. Kaggle credentials remain local. Each synthesis
+request creates a remote kernel run, so avoid using it for many tiny segments;
+batching support and voice cloning on Kaggle are not implemented yet. Set
+`VOICEGENHUB_KAGGLE_ACCELERATOR` (default `nvidia-t4-x2`) to select another
+accelerator supported by your Kaggle account.
+
 ### Bark
 
 ```bash
