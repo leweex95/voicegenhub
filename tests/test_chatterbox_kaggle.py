@@ -1,11 +1,16 @@
 import asyncio
+import ast
 import io
+import json
 import wave
 
 import pytest
 
 from voicegenhub.providers.base import TTSRequest, TTSError
-from voicegenhub.providers.chatterbox_kaggle import KaggleChatterboxProvider
+from voicegenhub.providers.chatterbox_kaggle import (
+    KaggleChatterboxProvider,
+    _embed_request_payload,
+)
 
 
 def test_kaggle_provider_returns_remote_audio_without_local_model(monkeypatch):
@@ -54,3 +59,19 @@ def test_kaggle_provider_rejects_unimplemented_voice_cloning(monkeypatch):
                 extra_params={"audio_prompt_path": "voice.wav"},
             )
         ))
+
+
+def test_kaggle_runner_embeds_request_payload_for_upload():
+    runner_code = 'import json\nREQUEST_JSON = None\nrequest = json.loads(REQUEST_JSON)\n'
+    embedded = _embed_request_payload(runner_code, {"text": "hello", "cfg_weight": 0.5})
+    tree = ast.parse(embedded)
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "REQUEST_JSON" for target in node.targets)
+    )
+
+    assert json.loads(ast.literal_eval(assignment.value)) == {
+        "text": "hello",
+        "cfg_weight": 0.5,
+    }

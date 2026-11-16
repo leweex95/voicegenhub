@@ -3,7 +3,6 @@
 import json
 import subprocess
 import sys
-from pathlib import Path
 
 # Kaggle's base image has CUDA-enabled PyTorch; install the same Chatterbox fork
 # used by VoiceGenHub without replacing the platform's CUDA PyTorch build.
@@ -16,7 +15,8 @@ import torch
 import soundfile as sf
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS
 
-request = json.loads(Path("request.json").read_text(encoding="utf-8"))
+REQUEST_JSON = None  # Replaced with the per-request payload before Kaggle upload.
+request = json.loads(REQUEST_JSON)
 model = ChatterboxMultilingualTTS.from_pretrained(device="cuda")
 audio = model.generate(
     request["text"],

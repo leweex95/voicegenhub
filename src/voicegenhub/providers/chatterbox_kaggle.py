@@ -18,6 +18,14 @@ from .base import AudioFormat, ProviderCapabilities, TTSError, TTSRequest, TTSRe
 from .chatterbox import ChatterboxProvider
 
 
+def _embed_request_payload(runner_code: str, payload: Dict[str, Any]) -> str:
+    """Embed the request in the uploaded script (Kaggle doesn't upload sidecars)."""
+    marker = "REQUEST_JSON = None"
+    if marker not in runner_code:
+        raise TTSError("Kaggle runner is missing its request payload marker")
+    return runner_code.replace(marker, "REQUEST_JSON = " + repr(json.dumps(payload)), 1)
+
+
 class KaggleChatterboxProvider(ChatterboxProvider):
     """Chatterbox provider that submits one synthesis job to Kaggle per request."""
 
@@ -103,9 +111,9 @@ class KaggleChatterboxProvider(ChatterboxProvider):
                 "exaggeration": request.extra_params.get("exaggeration", 0.5),
                 "cfg_weight": request.extra_params.get("cfg_weight", 0.5),
             }
-            (root / "request.json").write_text(json.dumps(payload), encoding="utf-8")
             runner = Path(__file__).with_name("kaggle_runner.py")
-            shutil.copy2(runner, root / "runner.py")
+            runner_code = _embed_request_payload(runner.read_text(encoding="utf-8"), payload)
+            (root / "runner.py").write_text(runner_code, encoding="utf-8")
             # The connector's resource check counts only running kernels, not
             # queued ones. Check this fixed kernel directly so retries cannot
             # enqueue another run while its previous run is still active.
@@ -146,7 +154,9 @@ class KaggleChatterboxProvider(ChatterboxProvider):
                     )
                 time.sleep(min(poll_interval, remaining))
             if "error" in status:
-                raise TTSError(f"Kaggle Chatterbox kernel failed: {status}")
+                diagnostics = job.get_logs()
+                detail = f"; logs: {diagnostics[-4000:]}" if diagnostics else ""
+                raise TTSError(f"Kaggle Chatterbox kernel failed: {status}{detail}")
             output_dir = root / "outputs"
             result = subprocess.run(
                 [*get_kaggle_command(), "kernels", "output", kernel_id, "-p", str(output_dir)],
