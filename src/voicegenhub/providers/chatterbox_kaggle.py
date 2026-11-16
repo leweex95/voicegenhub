@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 import wave
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -105,17 +106,46 @@ class KaggleChatterboxProvider(ChatterboxProvider):
             (root / "request.json").write_text(json.dumps(payload), encoding="utf-8")
             runner = Path(__file__).with_name("kaggle_runner.py")
             shutil.copy2(runner, root / "runner.py")
+            # The connector's resource check counts only running kernels, not
+            # queued ones. Check this fixed kernel directly so retries cannot
+            # enqueue another run while its previous run is still active.
+            existing_status = JobManager(kernel_id).get_status().lower()
+            active_markers = ("queued", "running", "starting", "cancel_requested")
+            if any(marker in existing_status for marker in active_markers):
+                raise TTSError(
+                    f"Kaggle kernel {kernel_id} already has an active run "
+                    f"(status: {existing_status}). Wait for it to finish or stop it "
+                    "in Kaggle before retrying; no new run was submitted."
+                )
+
             manager = JobManager()
             manager.create_metadata(
                 str(root), kernel_id=kernel_id, code_file="runner.py",
                 kernel_type="script", enable_gpu=True, enable_internet=True,
                 accelerator=accelerator,
             )
-            manager.deploy(str(root), wait=True)
-            status = JobManager(kernel_id).poll_until_complete(
-                poll_interval=int(self.config.get("poll_interval_seconds", 30))
-            )
-            if "error" in status.lower():
+            # Do not rely on the connector's wait_for_resource(): it ignores
+            # queued jobs and can therefore admit duplicate submissions.
+            manager.deploy(str(root), wait=False)
+            job = JobManager(kernel_id)
+            poll_interval = max(1, int(self.config.get("poll_interval_seconds", 15)))
+            timeout_seconds = max(1, int(self.config.get("timeout_seconds", 600)))
+            deadline = time.monotonic() + timeout_seconds
+            while True:
+                status = job.get_status().lower()
+                if "complete" in status or "error" in status:
+                    break
+                if "cancel_acknowledged" in status or "cancelled" in status:
+                    raise TTSError(f"Kaggle Chatterbox kernel was cancelled (status: {status})")
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TTSError(
+                        f"Timed out after {timeout_seconds}s waiting for Kaggle kernel "
+                        f"{kernel_id} (last status: {status}). The run may still be queued "
+                        "or running; check Kaggle and stop it there before retrying."
+                    )
+                time.sleep(min(poll_interval, remaining))
+            if "error" in status:
                 raise TTSError(f"Kaggle Chatterbox kernel failed: {status}")
             output_dir = root / "outputs"
             result = subprocess.run(
