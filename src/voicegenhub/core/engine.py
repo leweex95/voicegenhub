@@ -52,7 +52,7 @@ class VoiceGenHub:
 
     async def get_available_providers(self) -> List[str]:
         """Get list of available provider IDs."""
-        all_providers = ["edge", "kokoro", "elevenlabs", "bark"]
+        all_providers = ["edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"]
         providers = []
 
         for provider_id in all_providers:
@@ -60,12 +60,16 @@ class VoiceGenHub:
 
         if provider_factory._edge_provider_class:
             providers.append("edge")
-        if provider_factory._google_provider_class:
-            providers.append("google")
         if provider_factory._kokoro_provider_class:
             providers.append("kokoro")
         if provider_factory._elevenlabs_provider_class:
             providers.append("elevenlabs")
+        if provider_factory._bark_provider_class:
+            providers.append("bark")
+        if provider_factory._chatterbox_provider_class:
+            providers.append("chatterbox")
+        if provider_factory._qwen_provider_class:
+            providers.append("qwen")
 
         return providers
 
@@ -183,46 +187,51 @@ class VoiceGenHub:
             extra_params=kwargs,
         )
 
-        # Verify voice is available
+        # Verify voice is available (with case-insensitive fallback)
         if request.voice_id not in voice_ids:
-            # Try to provide helpful suggestions
-            error_msg = f"Voice '{request.voice_id}' not found"
+            # Check for case-insensitive match
+            matching_ids = [vid for vid in voice_ids if vid.lower() == request.voice_id.lower()]
+            if matching_ids:
+                request.voice_id = matching_ids[0]
+            else:
+                # Try to provide helpful suggestions
+                error_msg = f"Voice '{request.voice_id}' not found"
 
-            # Extract language from voice name (common patterns: en-US-*, zh-CN-*, etc.)
-            detected_lang = self._extract_language_from_voice_name(request.voice_id)
-            if detected_lang:
-                # Filter voices by detected language
-                lang_voices = [
-                    v
-                    for v in available_voices
-                    if v.language.lower().startswith(detected_lang.lower())
-                ]
-                if lang_voices:
-                    error_msg += f"\n\nAvailable {detected_lang} voices:"
-                    for voice in lang_voices[:10]:  # Show first 10
-                        error_msg += f"\n  {voice.id} - {voice.name}"
-                    if len(lang_voices) > 10:
-                        error_msg += f"\n  ... and {len(lang_voices) - 10} more"
+                # Extract language from voice name (common patterns: en-US-*, zh-CN-*, etc.)
+                detected_lang = self._extract_language_from_voice_name(request.voice_id)
+                if detected_lang:
+                    # Filter voices by detected language
+                    lang_voices = [
+                        v
+                        for v in available_voices
+                        if v.language.lower().startswith(detected_lang.lower())
+                    ]
+                    if lang_voices:
+                        error_msg += f"\n\nAvailable {detected_lang} voices:"
+                        for voice in lang_voices[:10]:  # Show first 10
+                            error_msg += f"\n  {voice.id} - {voice.name}"
+                        if len(lang_voices) > 10:
+                            error_msg += f"\n  ... and {len(lang_voices) - 10} more"
+                    else:
+                        # No voices for detected language, show all available
+                        error_msg += (
+                            f"\n\nNo {detected_lang} voices found. Available voices:"
+                        )
+                        for voice in available_voices[:10]:
+                            error_msg += f"\n  {voice.id} - {voice.name} ({voice.language})"
+                        if len(available_voices) > 10:
+                            error_msg += f"\n  ... and {len(available_voices) - 10} more"
                 else:
-                    # No voices for detected language, show all available
-                    error_msg += (
-                        f"\n\nNo {detected_lang} voices found. Available voices:"
-                    )
+                    # Could not detect language, show all available
+                    error_msg += "\n\nAvailable voices:"
                     for voice in available_voices[:10]:
                         error_msg += f"\n  {voice.id} - {voice.name} ({voice.language})"
                     if len(available_voices) > 10:
                         error_msg += f"\n  ... and {len(available_voices) - 10} more"
-            else:
-                # Could not detect language, show all available
-                error_msg += "\n\nAvailable voices:"
-                for voice in available_voices[:10]:
-                    error_msg += f"\n  {voice.id} - {voice.name} ({voice.language})"
-                if len(available_voices) > 10:
-                    error_msg += f"\n  ... and {len(available_voices) - 10} more"
 
-            raise VoiceNotFoundError(
-                error_msg, error_code="VOICE_NOT_FOUND", provider=self._provider_id
-            )
+                raise VoiceNotFoundError(
+                    error_msg, error_code="VOICE_NOT_FOUND", provider=self._provider_id
+                )
 
         # Generate audio
         logger.info(f"Generating audio with {self._provider.display_name}")

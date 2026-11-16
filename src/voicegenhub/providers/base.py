@@ -8,9 +8,14 @@ must implement to ensure consistent behavior across different TTS services.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict
+
+from ..utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class AudioFormat(Enum):
@@ -85,6 +90,23 @@ class TTSResponse(BaseModel):
     duration: float
     voice_used: str
     metadata: Dict[str, Any] = {}
+
+    def save(self, path: str | Path, log: bool = True) -> None:
+        """Save audio data to a file and log the path.
+
+        Args:
+            path: Destination file path
+            log: Whether to log the saved path
+        """
+        file_path = Path(path).resolve()
+        # Ensure directory exists
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(file_path, "wb") as f:
+            f.write(self.audio_data)
+
+        if log:
+            logger.info(f"Audio saved to: {file_path}", path=str(file_path))
 
 
 class ProviderCapabilities(BaseModel):

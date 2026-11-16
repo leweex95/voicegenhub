@@ -22,5 +22,5 @@ repos:
         entry: poetry run pytest --ignore=tests/test_integration.py -m "not integration" -v
         language: system
         pass_filenames: false
-        always_run: true
-        stages: [pre-commit]
+        files: '\.py$'
+        stages: [pre-push]

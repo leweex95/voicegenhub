@@ -2,6 +2,7 @@
 Simple Command Line Interface for VoiceGenHub.
 """
 
+import os
 import asyncio
 import json
 import sys
@@ -16,6 +17,9 @@ import click
 from .core.engine import VoiceGenHub
 from .providers.base import AudioFormat
 from .utils.logger import get_logger
+
+# Force eager attention implementation to prevent SDPA warnings
+os.environ['TRANSFORMERS_ATTENTION_IMPLEMENTATION'] = 'eager'
 
 logger = get_logger(__name__)
 
@@ -38,6 +42,9 @@ def _process_single(
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
     audio_prompt_path: Optional[str] = None,
+    instruct: Optional[str] = None,
+    ref_audio: Optional[str] = None,
+    ref_text: Optional[str] = None,
 ):
     """Process a single text with effects support."""
     try:
@@ -56,22 +63,23 @@ def _process_single(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt_path,
+            instruct=instruct,
+            ref_audio=ref_audio,
+            ref_text=ref_text,
         ))
 
-        output_path = Path(output).resolve() if output else Path(tempfile.gettempdir()) / f"voicegenhub_output.{audio_format}"
-        click.echo(f"Output will be saved to: {output_path}")
+        output_path = Path(output).resolve() if output else Path(".") / f"voicegenhub_output.{audio_format}"
+        logger.info(f"Target output path: {output_path}", path=str(output_path))
         effects_requested = any([lowpass, normalize, distortion, noise, reverb, pitch_shift])
 
         if effects_requested:
             # Always use a true temp file for effects
             with tempfile.NamedTemporaryFile(delete=False, suffix=f".{audio_format}") as tmp:
                 temp_path = Path(tmp.name)
-                tmp.write(response.audio_data)
+            response.save(temp_path, log=False)
         else:
             temp_path = output_path
-            with open(temp_path, "wb") as f:
-                f.write(response.audio_data)
-            click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
+            response.save(temp_path)
 
         # Apply post-processing effects if requested
         if effects_requested:
@@ -114,18 +122,18 @@ def _process_single(
                 subprocess.run(cmd, capture_output=True, check=True)
                 if temp_path != output_path and temp_path.exists():
                     temp_path.unlink()  # Remove temp file
-                click.echo(f"SUCCESS: Audio saved to: {output_path.absolute()}")
+                logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}", path=str(output_path.absolute()))
             except subprocess.CalledProcessError as e:
                 logger.warning(f"Post-processing failed: {e.stderr.decode()}")
-                logger.info(f"Original audio saved to: {temp_path.absolute()}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}", path=str(temp_path.absolute()))
             except FileNotFoundError:
                 logger.warning("FFmpeg not found. Install FFmpeg for post-processing.")
-                logger.info(f"Original audio saved to: {temp_path.absolute()}")
+                logger.info(f"Original audio saved to: {temp_path.absolute()}", path=str(temp_path.absolute()))
         else:
-            logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}")
+            logger.info(f"SUCCESS: Audio saved to: {output_path.absolute()}", path=str(output_path.absolute()))
 
     except Exception as e:
-        click.echo(f"Error: {e}", err=True)
+        logger.error(f"Error: {e}")
         sys.exit(1)
 
 
@@ -148,6 +156,9 @@ def _process_batch(
     exaggeration: float = 0.5,
     cfg_weight: float = 0.5,
     audio_prompt_path: Optional[str] = None,
+    instruct: Optional[str] = None,
+    ref_audio: Optional[str] = None,
+    ref_text: Optional[str] = None,
 ):
     """Process multiple texts concurrently with provider-specific limits.
 
@@ -163,16 +174,17 @@ def _process_batch(
         "elevenlabs": 1,  # Conservative: cloud API with rate limiting
         "bark": 2,  # Cautiously increased to 2 (tested and verified safe)
         "chatterbox": 1,  # Conservative: heavy model (3.7GB), avoid OOM in multiprocessing
+        "qwen": 1,  # New: heavy model (up to 1.7B), avoid OOM
     }
 
     # Determine max concurrent jobs (defaults to provider's conservative limit for safety)
     limit = provider_limits.get(provider, 1)
     max_concurrent = max(1, limit)
 
-    click.echo(f"Processing {len(texts)} texts with {provider} (max {max_concurrent} concurrent jobs)")
+    logger.info(f"Processing batch of {len(texts)} texts", provider=provider, max_concurrent=max_concurrent)
 
     # Create shared provider instance (loaded once, reused across jobs)
-    click.echo(f"Initializing {provider} provider (this may take a moment for heavy models)...")
+    logger.info(f"Initializing {provider} provider...", provider=provider)
 
     async def init_provider():
         shared_tts = VoiceGenHub(provider=provider)
@@ -180,24 +192,25 @@ def _process_batch(
         return shared_tts
 
     shared_tts = asyncio.run(init_provider())
-    click.echo(f"{provider} provider ready for batch processing")
+    logger.info(f"Provider {provider} ready for batch processing")
 
     # Use threading for concurrent processing
     results = []
     lock = threading.Lock()
 
     if output_base is None:
-        output_base = f"{tempfile.gettempdir()}/voicegenhub_batch"
-        click.echo(f"Batch output saved to: {tempfile.gettempdir()}")
+        output_base = "voicegenhub_batch"
+        logger.info("Batch output directory: Current directory", base_path=str(Path('.').absolute()))
     else:
-        click.echo(f"Batch output saved to: {Path('.').absolute()}")
+        output_path_obj = Path(output_base).resolve()
+        logger.info(f"Batch output directory: {output_path_obj.parent}", base_path=str(output_path_obj.parent))
 
     def process_item(index: int, text: str):
         """Process a single text item."""
         output_file = Path(f"{output_base}_{index + 1:02d}.{audio_format}").resolve()
 
         with lock:
-            click.echo(f"Processing item {index + 1}/{len(texts)}: {text[:50]}...")
+            logger.info(f"Processing item {index + 1}/{len(texts)}", item_index=index + 1, total=len(texts), text_preview=text[:50])
 
         try:
             # Run async generation in thread
@@ -212,6 +225,9 @@ def _process_batch(
                     exaggeration=exaggeration,
                     cfg_weight=cfg_weight,
                     audio_prompt_path=audio_prompt_path,
+                    instruct=instruct,
+                    ref_audio=ref_audio,
+                    ref_text=ref_text,
                 )
 
             response = asyncio.run(generate())
@@ -236,18 +252,20 @@ def _process_batch(
                     exaggeration=exaggeration,
                     cfg_weight=cfg_weight,
                     audio_prompt_path=audio_prompt_path,
+                    instruct=instruct,
+                    ref_audio=ref_audio,
+                    ref_text=ref_text,
                 )
             else:
                 # Save output directly
-                with open(output_file, "wb") as f:
-                    f.write(response.audio_data)
-            with lock:
-                click.echo(f"SUCCESS: Audio saved to: {output_file.absolute()}")
+                response.save(output_file)
+                with lock:
+                    logger.info(f"SUCCESS: Audio saved to: {output_file.absolute()}", path=str(output_file.absolute()))
             return True
 
         except Exception as e:
             with lock:
-                click.echo(f"[FAILED] Item {index + 1}: {e}", err=True)
+                logger.error(f"Item {index + 1} failed: {e}", item_index=index + 1, error=str(e))
             return False
 
     # Run jobs with controlled concurrency
@@ -260,7 +278,7 @@ def _process_batch(
     successful = sum(1 for r in results if r is True)
     failed = len(results) - successful
 
-    click.echo(f"\nBatch complete: {successful} successful, {failed} failed")
+    logger.info("Batch processing complete", successful=successful, failed=failed, total=len(texts))
 
     if failed > 0:
         sys.exit(1)
@@ -342,15 +360,41 @@ def cli():
     type=click.Path(exists=True),
     help="Chatterbox: Path to audio file for voice cloning",
 )
+@click.option(
+    "--turbo",
+    is_flag=True,
+    help="Chatterbox: Use turbo model (English only, faster)",
+)
+@click.option(
+    "--multilingual",
+    is_flag=True,
+    help="Chatterbox: Use multilingual model",
+)
+@click.option(
+    "--instruct",
+    type=str,
+    help="Qwen 3 TTS: Emotion, style, or voice design instruction",
+)
+@click.option(
+    "--ref-audio",
+    type=click.Path(exists=True),
+    help="Qwen 3 TTS: Reference audio for voice cloning",
+)
+@click.option(
+    "--ref-text",
+    type=str,
+    help="Qwen 3 TTS: Reference text for voice cloning",
+)
 def synthesize(
     texts, voice, language, output, format, rate, pitch, provider,
     lowpass, normalize, distortion, noise, reverb, pitch_shift,
-    exaggeration, cfg_weight, audio_prompt
+    exaggeration, cfg_weight, audio_prompt, turbo, multilingual,
+    instruct, ref_audio, ref_text
 ):
     """Generate speech from text(s)."""
     # Validate provider immediately
     supported_providers = [
-        "edge", "kokoro", "elevenlabs", "bark", "chatterbox"
+        "edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen"
     ]
     if provider and provider not in supported_providers:
         click.echo(
@@ -358,6 +402,21 @@ def synthesize(
             err=True,
         )
         sys.exit(1)
+
+    # Chatterbox specific model flags validation
+    if provider == "chatterbox":
+        # Check mutual exclusivity
+        if sum([bool(turbo), bool(multilingual), bool(voice)]) > 1:
+            click.echo("Error: --turbo, --multilingual, and --voice are mutually exclusive for Chatterbox", err=True)
+            sys.exit(1)
+
+        if turbo:
+            voice = "chatterbox-turbo"
+        elif multilingual:
+            lang_code = language or "en"
+            voice = f"chatterbox-{lang_code}"
+    elif turbo or multilingual:
+        click.echo(f"Warning: --turbo and --multilingual are only supported by the 'chatterbox' provider, not '{provider}'")
 
     # Collect all texts
     all_texts = list(texts)
@@ -390,6 +449,9 @@ def synthesize(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt,
+            instruct=instruct,
+            ref_audio=ref_audio,
+            ref_text=ref_text,
         )
     else:
         # Single text processing (original behavior)
@@ -411,6 +473,9 @@ def synthesize(
             exaggeration=exaggeration,
             cfg_weight=cfg_weight,
             audio_prompt_path=audio_prompt,
+            instruct=instruct,
+            ref_audio=ref_audio,
+            ref_text=ref_text,
         )
 
 

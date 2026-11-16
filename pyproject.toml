@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "1.1.0"
+version = "1.1.6"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ click = "^8.1.0"
 structlog = "^23.2.0"
 rich = "^13.7.0"
 pydantic = "^2.11.9"
+setuptools = {version = "^75.8.0", optional = true}
 edge-tts = {version = "^7.2.0", optional = true}
 kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152ca444717ca5d78747ccb4bec", optional = true}
 soundfile = {version = "*", optional = true}
@@ -27,15 +28,18 @@ kaggle-gpu-connector = {git = "https://github.com/leweex95/kaggle-gpu-connector.
 [tool.poetry.extras]
 edge = ["edge-tts"]
 kokoro = ["kokoro", "soundfile", "misaki"]
-chatterbox = ["chatterbox-tts", "transformers", "torchaudio", "librosa", "soundfile"]
+chatterbox = ["chatterbox-tts", "transformers", "torchaudio", "librosa", "soundfile", "setuptools"]
 voice-cloning = ["torchcodec"]
-kaggle = ["kaggle", "kaggle-gpu-connector"]
+kaggle = ["kaggle", "kaggle-gpu-connector", "soundfile"]
 
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"
 
 [tool.poetry.group.bark.dependencies]
 bark = "*"
+
+[tool.poetry.group.qwen.dependencies]
+qwen-tts = "^0.1.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"

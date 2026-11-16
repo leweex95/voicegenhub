@@ -18,6 +18,7 @@ class ProviderFactory:
         self._bark_provider_class = None
         self._chatterbox_provider_class = None
         self._chatterbox_kaggle_provider_class = None
+        self._qwen_provider_class = None
 
     async def discover_provider(self, provider_id: str) -> None:
         """Discover and register a specific TTS provider."""
@@ -25,38 +26,44 @@ class ProviderFactory:
             try:
                 from .edge import EdgeTTSProvider
                 self._edge_provider_class = EdgeTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Edge provider discovery failed: {e}")
         elif provider_id == "kokoro":
             try:
                 from .kokoro import KokoroTTSProvider
                 self._kokoro_provider_class = KokoroTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Kokoro provider discovery failed: {e}")
         elif provider_id == "elevenlabs":
             try:
                 from .elevenlabs import ElevenLabsTTSProvider
                 self._elevenlabs_provider_class = ElevenLabsTTSProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"ElevenLabs provider discovery failed: {e}")
         elif provider_id == "bark":
             try:
                 from .bark import BarkProvider
                 self._bark_provider_class = BarkProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Bark provider discovery failed: {e}")
         elif provider_id == "chatterbox":
             try:
                 from .chatterbox import ChatterboxProvider
                 self._chatterbox_provider_class = ChatterboxProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Chatterbox provider discovery failed: {e}")
         elif provider_id == "chatterbox-kaggle":
             try:
                 from .chatterbox_kaggle import KaggleChatterboxProvider
                 self._chatterbox_kaggle_provider_class = KaggleChatterboxProvider
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"Kaggle Chatterbox provider discovery failed: {e}")
+        elif provider_id == "qwen":
+            try:
+                from .qwen import QwenTTSProvider
+                self._qwen_provider_class = QwenTTSProvider
+            except ImportError as e:
+                logger.debug(f"Qwen provider discovery failed: {e}")
 
     async def create_provider(
         self, provider_id: str, config: Optional[Dict[str, Any]] = None
@@ -65,7 +72,7 @@ class ProviderFactory:
         Create TTS provider instance.
 
         Args:
-            provider_id: Provider ID ("edge", "kokoro", "elevenlabs", "bark")
+            provider_id: Provider ID for an installed TTS provider.
             config: Optional configuration
 
         Returns:
@@ -113,7 +120,7 @@ class ProviderFactory:
             if self._chatterbox_provider_class is None:
                 raise TTSError(
                     "Chatterbox provider not available. Install with: "
-                    "poetry run pip install git+https://github.com/rsxdalv/chatterbox.git@faster"
+                    "pip install 'voicegenhub[chatterbox]'"
                 )
 
             provider = self._chatterbox_provider_class(name=provider_id, config=config)
@@ -129,10 +136,20 @@ class ProviderFactory:
             await provider.initialize()
             return provider
 
+        elif provider_id == "qwen":
+            if self._qwen_provider_class is None:
+                raise TTSError(
+                    "Qwen TTS provider not available. Install with: pip install qwen-tts"
+                )
+
+            provider = self._qwen_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
         else:
             raise TTSError(
                 f"Unsupported provider: '{provider_id}'. "
-                "Available: edge, kokoro, elevenlabs, bark, chatterbox, chatterbox-kaggle"
+                "Available: edge, kokoro, elevenlabs, bark, chatterbox, chatterbox-kaggle, qwen"
             )
 
 

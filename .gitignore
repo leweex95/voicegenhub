@@ -99,3 +99,4 @@ copilot-instructions.md
 
 # model caches
 cache/
+dist/

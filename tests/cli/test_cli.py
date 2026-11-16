@@ -1,6 +1,7 @@
 """Unit tests for VoiceGenHub CLI."""
 from unittest.mock import AsyncMock, patch
 import subprocess
+import logging
 
 import pytest
 from click.testing import CliRunner
@@ -268,15 +269,16 @@ class TestCLI:
         assert call_args[1]["pitch"] == 0.9
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_synthesize_generate_raises_exception(self, mock_tts_class, runner):
+    def test_synthesize_generate_raises_exception(self, mock_tts_class, runner, caplog):
         """Verify CLI handles exceptions from tts.generate() and exits with code 1."""
         mock_tts = AsyncMock()
         mock_tts.generate.side_effect = Exception("Test error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS])
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS])
         assert result.exit_code == 1
-        assert "Error: Test error" in result.output
+        assert "Error: Test error" in caplog.text
 
     @patch("voicegenhub.cli.VoiceGenHub")
     def test_synthesize_output_path_default(self, mock_tts_class, runner):
@@ -489,15 +491,16 @@ class TestCLI:
             mock_unlink.assert_not_called()
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_synthesize_generic_exception(self, mock_tts_class, runner):
+    def test_synthesize_generic_exception(self, mock_tts_class, runner, caplog):
         """Verify CLI catches unexpected exceptions and exits with code 1."""
         mock_tts = AsyncMock()
         mock_tts.generate.side_effect = RuntimeError("Unexpected error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS])
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(cli, ["synthesize", "test", *DEFAULT_SYNTH_ARGS])
         assert result.exit_code == 1
-        assert "Error: Unexpected error" in result.output
+        assert "Error: Unexpected error" in caplog.text
 
     @patch("voicegenhub.cli.VoiceGenHub")
     def test_cli_accepts_supported_providers_voices(self, mock_tts_class, runner):
@@ -639,15 +642,16 @@ class TestCLI:
         mock_tts_class.assert_called_once_with(provider="edge")
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_cli_synthesize_error_handling(self, mock_tts_class, runner):
+    def test_cli_synthesize_error_handling(self, mock_tts_class, runner, caplog):
         """Test synthesize command error handling."""
         mock_tts = AsyncMock()
         mock_tts.generate.side_effect = Exception("Test error")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(cli, ["synthesize", "hello world", *DEFAULT_SYNTH_ARGS])
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(cli, ["synthesize", "hello world", *DEFAULT_SYNTH_ARGS])
         assert result.exit_code == 1
-        assert "Error: Test error" in result.output
+        assert "Error: Test error" in caplog.text
 
     @patch("voicegenhub.cli.VoiceGenHub")
     def test_cli_voices_error_handling(self, mock_tts_class, runner):
@@ -791,19 +795,22 @@ class TestCLI:
         # Should still call generate with empty text
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    @patch("builtins.open", side_effect=OSError("Permission denied"))
-    def test_synthesize_file_write_exception(self, mock_open, mock_tts_class, runner, tmp_path):
+    def test_synthesize_file_write_exception(self, mock_tts_class, runner, tmp_path, caplog):
         """Verify CLI exits if writing audio file fails due to IOError."""
+        from unittest.mock import MagicMock
         mock_tts = AsyncMock()
-        mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
+        response = MagicMock()
+        response.save.side_effect = OSError("Permission denied")
+        mock_tts.generate.return_value = response
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(
-            cli,
-            ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
-        )
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(
+                cli,
+                ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
+            )
         assert result.exit_code == 1
-        assert "Error:" in result.output
+        assert "Error: Permission denied" in caplog.text
 
     def test_logger_initialized(self):
         """Ensure logger is initialized at module level."""
@@ -814,43 +821,43 @@ class TestCLI:
         assert hasattr(logger, 'warning')
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    @patch("voicegenhub.cli.logger")
-    def test_logger_info_called_on_success(self, mock_logger, mock_tts_class, runner, tmp_path):
+    def test_logger_info_called_on_success(self, mock_tts_class, runner, tmp_path, caplog):
         """Verify logger.info is called when audio is successfully saved."""
         mock_tts = AsyncMock()
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(
-            cli,
-            ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
-        )
+        with caplog.at_level(logging.INFO):
+            result = runner.invoke(
+                cli,
+                ["synthesize", "test", *DEFAULT_SYNTH_ARGS, "--output", str(tmp_path / "test.wav")],
+            )
         assert result.exit_code == 0
-        mock_logger.info.assert_called_with(f"SUCCESS: Audio saved to: {tmp_path / 'test.wav'}")
+        assert "SUCCESS: Audio saved to:" in caplog.text
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    @patch("voicegenhub.cli.logger")
     @patch("subprocess.run", side_effect=subprocess.CalledProcessError(1, "ffmpeg", stderr=b"error"))
-    def test_logger_warning_called_on_failure(self, mock_subprocess, mock_logger, mock_tts_class, runner, tmp_path):
+    def test_logger_warning_called_on_failure(self, mock_subprocess, mock_tts_class, runner, tmp_path, caplog):
         """Verify logger.warning is called if FFmpeg or post-processing fails."""
         mock_tts = AsyncMock()
         mock_tts.generate.return_value = AsyncMock(audio_data=b"fake")
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(
-            cli,
-            [
-                "synthesize",
-                "test",
-                *DEFAULT_SYNTH_ARGS,
-                "--pitch-shift",
-                "2",
-                "--output",
-                str(tmp_path / "test.wav"),
-            ],
-        )
+        with caplog.at_level(logging.WARNING):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "test",
+                    *DEFAULT_SYNTH_ARGS,
+                    "--pitch-shift",
+                    "2",
+                    "--output",
+                    str(tmp_path / "test.wav"),
+                ],
+            )
         assert result.exit_code == 0  # CLI doesn't exit on FFmpeg failure
-        mock_logger.warning.assert_called()
+        assert "Post-processing failed" in caplog.text
 
 
 class TestCLIPostProcessingFlags:
@@ -1362,7 +1369,7 @@ class TestCLIVoiceNotFoundErrors:
         return CliRunner()
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_voice_not_found_english_suggestions(self, mock_tts_class, runner):
+    def test_voice_not_found_english_suggestions(self, mock_tts_class, runner, caplog):
         """Test voice not found shows English voice suggestions."""
         from voicegenhub.providers.base import VoiceNotFoundError
 
@@ -1400,25 +1407,26 @@ class TestCLIVoiceNotFoundErrors:
         )
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(
-            cli,
-            [
-                "synthesize",
-                "hello",
-                "--voice",
-                "en-US-NonExistentVoice",
-                "--language",
-                "en",
-            ],
-        )
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "hello",
+                    "--voice",
+                    "en-US-NonExistentVoice",
+                    "--language",
+                    "en",
+                ],
+            )
         assert result.exit_code == 1
-        assert "Voice 'en-US-NonExistentVoice' not found" in result.output
-        assert "Available en voices:" in result.output
-        assert "en-US-AriaNeural" in result.output
-        assert "en-GB-SoniaNeural" in result.output
+        assert "Voice 'en-US-NonExistentVoice' not found" in caplog.text
+        assert "Available en voices:" in caplog.text
+        assert "en-US-AriaNeural" in caplog.text
+        assert "en-GB-SoniaNeural" in caplog.text
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_voice_not_found_all_voices_fallback(self, mock_tts_class, runner):
+    def test_voice_not_found_all_voices_fallback(self, mock_tts_class, runner, caplog):
         """Test voice not found shows all voices when language not detected."""
         from voicegenhub.providers.base import VoiceNotFoundError
 
@@ -1456,25 +1464,26 @@ class TestCLIVoiceNotFoundErrors:
         )
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(
-            cli,
-            [
-                "synthesize",
-                "hello",
-                "--voice",
-                "SomeRandomVoice",
-                "--language",
-                "en",
-            ],
-        )
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "hello",
+                    "--voice",
+                    "SomeRandomVoice",
+                    "--language",
+                    "en",
+                ],
+            )
         assert result.exit_code == 1
-        assert "Voice 'SomeRandomVoice' not found" in result.output
-        assert "Available voices:" in result.output
-        assert "en-US-AriaNeural" in result.output
-        assert "fr-FR-DeniseNeural" in result.output
+        assert "Voice 'SomeRandomVoice' not found" in caplog.text
+        assert "Available voices:" in caplog.text
+        assert "en-US-AriaNeural" in caplog.text
+        assert "fr-FR-DeniseNeural" in caplog.text
 
     @patch("voicegenhub.cli.VoiceGenHub")
-    def test_voice_not_found_no_voices_available(self, mock_tts_class, runner):
+    def test_voice_not_found_no_voices_available(self, mock_tts_class, runner, caplog):
         """Test voice not found when no voices are available."""
         from voicegenhub.providers.base import VoiceNotFoundError
 
@@ -1487,19 +1496,20 @@ class TestCLIVoiceNotFoundErrors:
         )
         mock_tts_class.return_value = mock_tts
 
-        result = runner.invoke(
-            cli,
-            [
-                "synthesize",
-                "hello",
-                "--voice",
-                "en-US-AriaNeural",
-                "--language",
-                "en",
-            ],
-        )
+        with caplog.at_level(logging.ERROR):
+            result = runner.invoke(
+                cli,
+                [
+                    "synthesize",
+                    "hello",
+                    "--voice",
+                    "en-US-AriaNeural",
+                    "--language",
+                    "en",
+                ],
+            )
         assert result.exit_code == 1
-        assert "Voice 'en-US-AriaNeural' not found" in result.output
+        assert "Voice 'en-US-AriaNeural' not found" in caplog.text
         # Should not show suggestions when no voices available
 
 
