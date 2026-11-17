@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import io
 import json
+import logging
 import os
 import shutil
 import subprocess
@@ -16,6 +17,8 @@ from typing import Any, Dict, Optional
 
 from .base import AudioFormat, ProviderCapabilities, TTSError, TTSRequest, TTSResponse
 from .chatterbox import ChatterboxProvider
+
+logger = logging.getLogger(__name__)
 
 
 def _embed_request_payload(runner_code: str, payload: Dict[str, Any]) -> str:
@@ -75,6 +78,44 @@ def _download_kernel_logs(kernel_id: str, kaggle_command) -> str:
                 logs.append(f"--- {path.name} ---\n{content}")
             return "\n".join(logs)
         return result.stderr.strip()
+
+
+def _wait_for_kernel(
+    job, poll_interval_seconds: int, *, sleep=time.sleep, clock=time.monotonic
+) -> str:
+    """Poll until Kaggle reaches a terminal state; queued runs may wait indefinitely."""
+    started_at = clock()
+    last_status = None
+    last_log_at = started_at
+    active_markers = ("queued", "running", "pending", "initializing", "starting", "submitted")
+
+    while True:
+        status = job.get_status().lower()
+        now = clock()
+        if status != last_status:
+            logger.info("Kaggle Chatterbox kernel status: %s", status or "unknown")
+            last_status = status
+            last_log_at = now
+
+        if "complete" in status or "error" in status:
+            logger.info("Kaggle Chatterbox kernel finished after %.0f seconds", now - started_at)
+            return status
+        if "cancel_acknowledged" in status or "cancelled" in status:
+            raise TTSError(f"Kaggle Chatterbox kernel was cancelled (status: {status})")
+        if not status or not any(marker in status for marker in active_markers):
+            raise TTSError(
+                f"Kaggle Chatterbox kernel returned an unknown status ({status or 'empty'}); "
+                "stopping rather than treating it as safely queued or running."
+            )
+
+        if now - last_log_at >= 60:
+            logger.info(
+                "Still waiting for Kaggle Chatterbox kernel (%s; %.0f seconds elapsed)",
+                status,
+                now - started_at,
+            )
+            last_log_at = now
+        sleep(poll_interval_seconds)
 
 
 class KaggleChatterboxProvider(ChatterboxProvider):
@@ -193,22 +234,7 @@ class KaggleChatterboxProvider(ChatterboxProvider):
             manager.deploy(str(root), wait=False)
             job = JobManager(kernel_id)
             poll_interval = max(1, int(self.config.get("poll_interval_seconds", 15)))
-            timeout_seconds = max(1, int(self.config.get("timeout_seconds", 600)))
-            deadline = time.monotonic() + timeout_seconds
-            while True:
-                status = job.get_status().lower()
-                if "complete" in status or "error" in status:
-                    break
-                if "cancel_acknowledged" in status or "cancelled" in status:
-                    raise TTSError(f"Kaggle Chatterbox kernel was cancelled (status: {status})")
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    raise TTSError(
-                        f"Timed out after {timeout_seconds}s waiting for Kaggle kernel "
-                        f"{kernel_id} (last status: {status}). The run may still be queued "
-                        "or running; check Kaggle and stop it there before retrying."
-                    )
-                time.sleep(min(poll_interval, remaining))
+            status = _wait_for_kernel(job, poll_interval)
             if "error" in status:
                 diagnostics = _download_kernel_logs(kernel_id, get_kaggle_command())
                 detail = f"; logs: {diagnostics[-4000:]}" if diagnostics else ""

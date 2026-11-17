@@ -14,6 +14,7 @@ from voicegenhub.providers.chatterbox_kaggle import (
     _embed_request_payload,
     _kaggle_cli_env,
     _select_available_kernel,
+    _wait_for_kernel,
 )
 
 
@@ -107,6 +108,45 @@ def test_kaggle_kernel_pool_rejects_when_both_notebooks_are_active():
 def test_kaggle_kernel_pool_fails_closed_when_status_is_unknown():
     with pytest.raises(TTSError, match="user/first: unknown"):
         _select_available_kernel(["user/first"], lambda _kernel_id: "unknown")
+
+
+def test_kaggle_waits_through_long_queue_until_kernel_completes():
+    # The kernel stays queued for 615 seconds, beyond the previous 10-minute timeout.
+    statuses = ["kernelworkerstatus.queued"] * 41 + ["kernelworkerstatus.complete"]
+    elapsed = [0]
+
+    class Job:
+        def get_status(self):
+            return statuses.pop(0)
+
+    def sleep(seconds):
+        elapsed[0] += seconds
+
+    status = _wait_for_kernel(
+        Job(), 15, sleep=sleep, clock=lambda: elapsed[0]
+    )
+
+    assert status == "kernelworkerstatus.complete"
+    assert elapsed[0] == 41 * 15
+    assert statuses == []
+
+
+def test_kaggle_wait_stops_on_unknown_status():
+    class Job:
+        def get_status(self):
+            return "kernelworkerstatus.unexpected"
+
+    with pytest.raises(TTSError, match="unknown status"):
+        _wait_for_kernel(Job(), 15, sleep=lambda _seconds: None, clock=lambda: 0)
+
+
+def test_kaggle_wait_stops_when_kernel_is_cancelled():
+    class Job:
+        def get_status(self):
+            return "kernelworkerstatus.cancel_acknowledged"
+
+    with pytest.raises(TTSError, match="was cancelled"):
+        _wait_for_kernel(Job(), 15, sleep=lambda _seconds: None, clock=lambda: 0)
 
 
 def test_kaggle_runner_switches_sdpa_to_eager_before_inference():
