@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "voicegenhub"
-version = "1.1.5"
+version = "1.1.6"
 description = "Simple Text-to-Speech library supporting multiple providers"
 authors = ["leweex95 <csibi.levente14@gmail.com>"]
 readme = "README.md"
@@ -12,20 +12,25 @@ click = "^8.1.0"
 structlog = "^23.2.0"
 rich = "^13.7.0"
 pydantic = "^2.11.9"
-setuptools = "^75.8.0"
-typer = ">=0.9.0"
-spacy = "^3.8"
-edge-tts = "^7.2.0"
-kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152ca444717ca5d78747ccb4bec"}
-soundfile = "*"
-misaki = {git = "https://github.com/hexgrad/misaki.git", rev = "fba1236595f2d2bf21d414ba6e57d25256afada3"}
-chatterbox-tts = {git = "https://github.com/rsxdalv/chatterbox.git", rev = "004a0214c308f544f4276e74ccf516c96c271f5b"}
-transformers = ">=4.46.3"
-torchaudio = ">=2.6.0"
-librosa = ">=0.11.0"
+setuptools = {version = "^75.8.0", optional = true}
+edge-tts = {version = "^7.2.0", optional = true}
+kokoro = {git = "https://github.com/hexgrad/kokoro.git", rev = "dfb907a02bba8152ca444717ca5d78747ccb4bec", optional = true}
+soundfile = {version = "*", optional = true}
+misaki = {git = "https://github.com/hexgrad/misaki.git", rev = "fba1236595f2d2bf21d414ba6e57d25256afada3", optional = true}
+chatterbox-tts = {git = "https://github.com/rsxdalv/chatterbox.git", rev = "004a0214c308f544f4276e74ccf516c96c271f5b", optional = true}
+transformers = {version = ">=4.46.3", optional = true}
+torchaudio = {version = ">=2.6.0", optional = true}
+librosa = {version = ">=0.11.0", optional = true}
+torchcodec = {version = "^0.9.1", optional = true}
+kaggle = {version = ">=1.7.4.5,<2.0.0.0", optional = true}
+kaggle-gpu-connector = {git = "https://github.com/leweex95/kaggle-gpu-connector.git", optional = true}
 
 [tool.poetry.extras]
-voice-cloning = []
+edge = ["edge-tts"]
+kokoro = ["kokoro", "soundfile", "misaki"]
+chatterbox = ["chatterbox-tts", "transformers", "torchaudio", "librosa", "soundfile", "setuptools"]
+voice-cloning = ["torchcodec"]
+kaggle = ["kaggle", "kaggle-gpu-connector", "soundfile"]
 
 [tool.poetry.group.elevenlabs.dependencies]
 elevenlabs = "*"

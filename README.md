@@ -14,12 +14,19 @@ pip install voicegenhub
 poetry add voicegenhub
 ```
 
+The base install contains the API and CLI only. Install the provider(s) you
+intend to use as extras; for example, Edge TTS only:
+
+```bash
+pip install 'voicegenhub[edge]'
+```
+
 ### Optional Dependencies
 
-- **Microsoft Edge TTS** (free, cloud-based)
-- **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS)
+- **Microsoft Edge TTS** (free, cloud-based): `voicegenhub[edge]`
+- **Kokoro TTS** (Apache 2.0 licensed, self-hosted lightweight TTS): `voicegenhub[kokoro]`
 - **Bark TTS** (MIT licensed, self-hosted high-naturalness TTS with prosody control)
-- **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU
+- **Chatterbox TTS** (MIT licensed, multilingual with emotion control) - Works on CPU or GPU: `voicegenhub[chatterbox]`; Kaggle GPU execution: `voicegenhub[kaggle]`
 - **Qwen 3 TTS** (Apache 2.0 licensed, multilingual with voice design and cloning) - State-of-the-art quality
 - **ElevenLabs TTS** (commercial, high-quality voices)
 
@@ -82,6 +89,31 @@ poetry run voicegenhub synthesize "Hola, esto es una prueba de voz en español."
 - **PyTorch Compatibility**: TorchCodec 0.9.1 requires PyTorch ≤ 2.4.x. If you have a newer PyTorch version, voice cloning will be automatically disabled with a fallback to standard TTS.
 - Without TorchCodec/FFmpeg, basic TTS will work but voice cloning (`--audio-prompt`) will gracefully fall back to standard TTS without cloning.
 
+### Chatterbox on a Kaggle GPU
+
+VoiceGenHub can submit Chatterbox synthesis to a Kaggle GPU kernel. This runs on
+your Kaggle account and is subject to Kaggle's current GPU quota, availability,
+and terms; it is not guaranteed to be free or available at all times. Install
+the optional integration and configure Kaggle credentials first:
+
+```bash
+pip install 'voicegenhub[kaggle]'
+# In a source checkout, use: poetry install -E kaggle
+# Configure ~/.kaggle/kaggle.json (or Kaggle's supported environment variables)
+voicegenhub synthesize "Hello from a Kaggle GPU" \
+  --provider chatterbox-kaggle --voice chatterbox-en --output hello.wav
+```
+
+The provider uploads a temporary request, runs Chatterbox on Kaggle, and
+downloads the resulting WAV. Kaggle credentials remain local. Each synthesis
+request creates a remote kernel run, so avoid using it for many tiny segments;
+batching support and voice cloning on Kaggle are not implemented yet. Set
+`VOICEGENHUB_KAGGLE_ACCELERATOR` (default `nvidia-t4-x2`) to select another
+accelerator supported by your Kaggle account. To use up to two separate Kaggle
+batch slots, configure distinct notebook IDs as a comma-separated list, for
+example `VOICEGENHUB_KAGGLE_KERNEL_IDS=yourname/voicegenhub-chatterbox-2`; the
+provider skips IDs whose latest run is queued or running. The default notebook
+remains `yourname/voicegenhub-chatterbox`.
 ### Qwen 3 TTS
 
 ```bash
@@ -243,10 +275,10 @@ poetry install --with qwen
 - `device`: "cuda", "cpu", or "auto" (default: auto)
 - `dtype`: "float32", "float16", "bfloat16" (default: bfloat16)
 - `attn_implementation`: "eager", "sdpa", "flash_attention_2" (default: eager)
-- `generation_mode`: "custom_voice", "voice_design", "voice_clone"
-- `speaker`: Speaker name for CustomVoice mode
-- `instruct`: Emotion/style instruction (for CustomVoice) or voice description (for VoiceDesign)
-- `temperature`, `top_p`, `top_k`, `repetition_penalty`, `max_new_tokens`: Advanced sampling parameters
+ - `generation_mode`: "custom_voice", "voice_design", "voice_clone"
+ - `speaker`: Speaker name for CustomVoice mode
+ - `instruct`: Emotion/style instruction (for CustomVoice) or voice description (for VoiceDesign)
+ - `temperature`, `top_p`, `top_k`, `repetition_penalty`, `max_new_tokens`: Advanced sampling parameters
 
 ### Bark
 

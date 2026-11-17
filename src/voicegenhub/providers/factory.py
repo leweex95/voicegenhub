@@ -17,6 +17,7 @@ class ProviderFactory:
         self._elevenlabs_provider_class = None
         self._bark_provider_class = None
         self._chatterbox_provider_class = None
+        self._chatterbox_kaggle_provider_class = None
         self._qwen_provider_class = None
 
     async def discover_provider(self, provider_id: str) -> None:
@@ -51,6 +52,12 @@ class ProviderFactory:
                 self._chatterbox_provider_class = ChatterboxProvider
             except ImportError as e:
                 logger.debug(f"Chatterbox provider discovery failed: {e}")
+        elif provider_id == "chatterbox-kaggle":
+            try:
+                from .chatterbox_kaggle import KaggleChatterboxProvider
+                self._chatterbox_kaggle_provider_class = KaggleChatterboxProvider
+            except ImportError as e:
+                logger.debug(f"Kaggle Chatterbox provider discovery failed: {e}")
         elif provider_id == "qwen":
             try:
                 from .qwen import QwenTTSProvider
@@ -65,7 +72,7 @@ class ProviderFactory:
         Create TTS provider instance.
 
         Args:
-            provider_id: Provider ID ("edge", "kokoro", "elevenlabs", "bark", "chatterbox", "qwen")
+            provider_id: Provider ID for an installed TTS provider.
             config: Optional configuration
 
         Returns:
@@ -113,10 +120,19 @@ class ProviderFactory:
             if self._chatterbox_provider_class is None:
                 raise TTSError(
                     "Chatterbox provider not available. Install with: "
-                    "poetry run pip install git+https://github.com/rsxdalv/chatterbox.git@faster"
+                    "pip install 'voicegenhub[chatterbox]'"
                 )
 
             provider = self._chatterbox_provider_class(name=provider_id, config=config)
+            await provider.initialize()
+            return provider
+
+        elif provider_id == "chatterbox-kaggle":
+            if self._chatterbox_kaggle_provider_class is None:
+                raise TTSError(
+                    "Kaggle Chatterbox provider is unavailable. Install VoiceGenHub with its kaggle extra."
+                )
+            provider = self._chatterbox_kaggle_provider_class(name=provider_id, config=config)
             await provider.initialize()
             return provider
 
@@ -133,7 +149,7 @@ class ProviderFactory:
         else:
             raise TTSError(
                 f"Unsupported provider: '{provider_id}'. "
-                "Available: edge, kokoro, elevenlabs, bark, chatterbox, qwen"
+                "Available: edge, kokoro, elevenlabs, bark, chatterbox, chatterbox-kaggle, qwen"
             )
 
 

@@ -16,7 +16,7 @@ Example usage:
     audio = await tts.generate("Hello, world!", voice="en-US-AriaNeural")
 """
 
-__version__ = "1.1.5"
+__version__ = "1.1.6"
 __author__ = "leweex95"
 __email__ = "csibi.levente14@gmail.com"
 
